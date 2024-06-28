@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Team Optimizer</title>
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <script>
+        function addPlayer() {
+        const container = document.getElementById("players-container");
+        const playerCount = container.children.length;
+
+        const playerDiv = document.createElement("div");
+        playerDiv.className = "player-entry";
+
+        const nameLabel = document.createElement("label");
+        nameLabel.textContent = "Nombre del jugador " + (playerCount + 1) + ":";
+        const nameInput = document.createElement("input");
+        nameInput.type = "text";
+        nameInput.name = "names";
+        nameInput.required = true;
+
+        playerDiv.appendChild(nameLabel);
+        playerDiv.appendChild(nameInput);
+
+        const skillsContainer = document.createElement("div");
+        skillsContainer.className = "skills-container";
+
+        const skills = ['velocidad', 'resistencia', 'control', 'pases', 'tiro', 'defensa', 'habilidad_arquero', 'fuerza_cuerpo', 'vision'];
+
+        skills.forEach(skill => {
+            const skillEntry = document.createElement("div");
+            skillEntry.className = "skill-entry";
+
+            const label = document.createElement("label");
+            label.textContent = skill.charAt(0).toUpperCase() + skill.slice(1).replace('_', ' ') + ":";
+            
+            const input = document.createElement("input");
+            input.type = "number";
+            input.name = skill;
+            input.min = "1";
+            input.max = "5";
+            input.required = true;
+
+            skillEntry.appendChild(label);
+            skillEntry.appendChild(input);
+            skillsContainer.appendChild(skillEntry);
+        });
+
+        playerDiv.appendChild(skillsContainer);
+        container.appendChild(playerDiv);
+    }
+    </script>
+</head>
+<body>
+    <h1>Team Optimizer</h1>
+    <form action="/submit" method="post">
+        <div id="players-container" class="player-container">
+            <div class="player-entry">
+                <label>Nombre del jugador 1:</label>
+                <input type="text" name="names" required>
+                <div class="skills-container">
+                    <div class="skill-entry">
+                        <label>Velocidad:</label>
+                        <input type="number" name="velocidad" min="1" max="5" required>
+                    </div>
+                    <div class="skill-entry">
+                        <label>Resistencia:</label>
+                        <input type="number" name="resistencia" min="1" max="5" required>
+                    </div>
+                    <div class="skill-entry">
+                        <label>Control:</label>
+                        <input type="number" name="control" min="1" max="5" required>
+                    </div>
+                    <div class="skill-entry">
+                        <label>Pases:</label>
+                        <input type="number" name="pases" min="1" max="5" required>
+                    </div>
+                    <div class="skill-entry">
+                        <label>Tiro:</label>
+                        <input type="number" name="tiro" min="1" max="5" required>
+                    </div>
+                    <div class="skill-entry">
+                        <label>Defensa:</label>
+                        <input type="number" name="defensa" min="1" max="5" required>
+                    </div>
+                    <div class="skill-entry">
+                        <label>Hab. arquero:</label>
+                        <input type="number" name="habilidad_arquero" min="1" max="5" required>
+                    </div>
+                    <div class="skill-entry">
+                        <label>Fuerza cuerpo:</label>
+                        <input type="number" name="fuerza_cuerpo" min="1" max="5" required>
+                    </div>
+                    <div class="skill-entry">
+                        <label>Visión:</label>
+                        <input type="number" name="vision" min="1" max="5" required>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button type="button" onclick="addPlayer()">Agregar jugador</button>
+        <button type="submit">Calcular</button>
+    </form>
+
+    {% if teams %}
+        {% for i in range(0, len_teams - 1, 2): %}
+            <h2>Equipo 1</h2>
+            <ul>
+                {% for player in teams[i] %}
+                <li>{{ player }}</li>
+                {% endfor %}
+            </ul>
+
+            <h2>Equipo 2</h2>
+            <ul>
+                {% for player in teams[i + 1] %}
+                <li>{{ player }}</li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+    {% endif %}
+
+    {% if min_difference %}
+        <h3>Diferencia mínima habilidades: {{ min_difference }}</h3>
+        <h3>Diferencia mínima total: {{ min_difference_total }}</h3>
+    {% endif %}
+    
+    <a href="/reset" class="reset-link">Restablecer</a>
+</body>
+</html>
