@@ -17,8 +17,14 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True)
-    email = Column(String, unique=True, index=True)
+    password = Column(String)
     players = relationship("Player", back_populates="user")
+
+    def set_password(self, password):
+        self.password = password
+
+    def verify_password(self, password):
+        return self.password == password
 
 
 class Player(Base):

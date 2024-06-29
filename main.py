@@ -2,73 +2,90 @@ from fastapi import FastAPI, Form, Request, Depends, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from itertools import combinations
-from typing import List
+
+from starlette.middleware.sessions import SessionMiddleware
+
 from sqlalchemy.orm import Session
-from database import get_db, Player
-from pydantic import BaseModel
+
+from auth import get_current_user
+from database import User, get_db, Player
+from schemas import PlayerCreate
+from team_optimizer import find_best_combination
 
 app = FastAPI()
 
-templates = Jinja2Templates(directory="templates")
+app.add_middleware(SessionMiddleware, secret_key="!my_super_secret_key")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-class PlayerCreate(BaseModel):
-    name: str
-    velocidad: int
-    resistencia: int
-    control: int
-    pases: int
-    tiro: int
-    defensa: int
-    habilidad_arquero: int
-    fuerza_cuerpo: int
-    vision: int
 
-def calculate_team_score(indices, scores):
-    team_score = [0] * len(scores[0])
-    for i in indices:
-        for j in range(len(scores[0])):
-            team_score[j] += scores[i][j]
-    return team_score
+templates = Jinja2Templates(directory="templates")
 
-def calculate_difference(team1_score, team2_score):
-    return sum(abs(team1_score[i] - team2_score[i]) for i in range(len(team1_score)))
 
-def find_best_combination(scores):
-    all_combinations = list(combinations(range(len(scores)), len(scores) // 2))
-    min_difference = float('inf')
-    min_difference_total = float('inf')
-    mejores_equipos = list()
+@app.get("/signup", response_class=HTMLResponse)
+async def signup_page(request: Request):
+    if request.session.get("user_id"):
+        return RedirectResponse(url="/", status_code=302)
+    return templates.TemplateResponse("signup.html", {"request": request})
 
-    for combination in all_combinations:
-        team1_indices = combination
-        team2_indices = [i for i in range(len(scores)) if i not in team1_indices]
 
-        team1_score = calculate_team_score(team1_indices, scores)
-        team2_score = calculate_team_score(team2_indices, scores)
+@app.post("/signup")
+async def signup(
+    request: Request,
+    username: str = Form(...),
+    password: str = Form(...),
+    db: Session = Depends(get_db),
+):
+    # Placeholder for user registration logic
+    user = db.query(User).filter(User.username == username).first()
+    if user:
+        raise HTTPException(status_code=400, detail="Username already exists")
 
-        difference = calculate_difference(team1_score, team2_score)
-        difference_total = abs(sum(team1_score) - sum(team2_score))
+    new_user = User(username=username)
+    new_user.set_password(password)
+    db.add(new_user)
+    db.commit()
 
-        if difference < min_difference:
-            min_difference = difference
-            if difference_total < min_difference_total:
-                min_difference_total = difference_total
-                mejores_equipos = [(team1_indices, team2_indices)]
-        elif difference == min_difference:
-            if difference_total == min_difference_total:
-                mejores_equipos.append((team1_indices, team2_indices))
+    # Set user_id in session after successful registration
+    request.session["user_id"] = new_user.id
+    return RedirectResponse(url="/", status_code=302)
 
-    return mejores_equipos[:int(len(mejores_equipos)/2)], min_difference, min_difference_total
+
+@app.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request):
+    if request.session.get("user_id"):
+        return RedirectResponse(url="/", status_code=302)
+    return templates.TemplateResponse("login.html", {"request": request})
+
+
+@app.post("/login")
+async def login(
+    request: Request,
+    username: str = Form(...),
+    password: str = Form(...),
+    db: Session = Depends(get_db),
+):
+    # Placeholder for user authentication logic
+    user = db.query(User).filter(User.username == username).first()
+    if not user or not user.verify_password(password):
+        raise HTTPException(status_code=400, detail="Incorrect username or password")
+
+    # Set user_id in session after successful authentication
+    request.session["user_id"] = user.id
+    return RedirectResponse(url="/", status_code=302)
+
 
 @app.get("/", response_class=HTMLResponse)
-async def get_form(request: Request, db: Session = Depends(get_db)):
-    players = db.query(Player).all()
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "players": players
-    })
+async def get_form(
+    request: Request,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    user_id = request.session.get("user_id")
+    players = db.query(Player).where(Player.user_id == user_id).all()
+    return templates.TemplateResponse(
+        "index.html", {"request": request, "players": players}
+    )
+
 
 @app.post("/submit", response_class=HTMLResponse)
 async def submit_form(request: Request, db: Session = Depends(get_db)):
@@ -76,42 +93,46 @@ async def submit_form(request: Request, db: Session = Depends(get_db)):
 
     # Validar los datos del formulario
     try:
-        form_data['names']
+        form_data["names"]
     except KeyError:
-        raise HTTPException(status_code=400, detail="Los datos del formulario no son válidos")
+        raise HTTPException(
+            status_code=400, detail="Los datos del formulario no son válidos"
+        )
 
     player_data = []
-    
+
     # Comprobar si hay múltiples jugadores o solo uno
-    if isinstance(form_data['names'], str):
+    if isinstance(form_data["names"], str):
         # Solo hay un jugador
         player = PlayerCreate(
-            name=form_data['names'],
-            velocidad=int(form_data['velocidad']),
-            resistencia=int(form_data['resistencia']),
-            control=int(form_data['control']),
-            pases=int(form_data['pases']),
-            tiro=int(form_data['tiro']),
-            defensa=int(form_data['defensa']),
-            habilidad_arquero=int(form_data['habilidad_arquero']),
-            fuerza_cuerpo=int(form_data['fuerza_cuerpo']),
-            vision=int(form_data['vision'])
+            name=form_data["names"],
+            velocidad=int(form_data["velocidad"]),
+            resistencia=int(form_data["resistencia"]),
+            control=int(form_data["control"]),
+            pases=int(form_data["pases"]),
+            tiro=int(form_data["tiro"]),
+            defensa=int(form_data["defensa"]),
+            habilidad_arquero=int(form_data["habilidad_arquero"]),
+            fuerza_cuerpo=int(form_data["fuerza_cuerpo"]),
+            vision=int(form_data["vision"]),
+            user_id=request.session.get("user_id"),
         )
         player_data.append(player)
     else:
         # Hay múltiples jugadores
-        for i in range(len(form_data['names'])):
+        for i in range(len(form_data["names"])):
             player = PlayerCreate(
-                name=form_data['names'][i],
-                velocidad=int(form_data['velocidad'][i]),
-                resistencia=int(form_data['resistencia'][i]),
-                control=int(form_data['control'][i]),
-                pases=int(form_data['pases'][i]),
-                tiro=int(form_data['tiro'][i]),
-                defensa=int(form_data['defensa'][i]),
-                habilidad_arquero=int(form_data['habilidad_arquero'][i]),
-                fuerza_cuerpo=int(form_data['fuerza_cuerpo'][i]),
-                vision=int(form_data['vision'][i])
+                name=form_data["names"][i],
+                velocidad=int(form_data["velocidad"][i]),
+                resistencia=int(form_data["resistencia"][i]),
+                control=int(form_data["control"][i]),
+                pases=int(form_data["pases"][i]),
+                tiro=int(form_data["tiro"][i]),
+                defensa=int(form_data["defensa"][i]),
+                habilidad_arquero=int(form_data["habilidad_arquero"][i]),
+                fuerza_cuerpo=int(form_data["fuerza_cuerpo"][i]),
+                vision=int(form_data["vision"][i]),
+                user_id=request.session.get("user_id"),
             )
             player_data.append(player)
 
@@ -129,23 +150,42 @@ async def submit_form(request: Request, db: Session = Depends(get_db)):
     # Calcular equipos
     players = db.query(Player).all()
     player_names = [p.name for p in players]
-    player_scores = [[p.velocidad, p.resistencia, p.control, p.pases, p.tiro, p.defensa, p.habilidad_arquero, p.fuerza_cuerpo, p.vision] for p in players]
+    player_scores = [
+        [
+            p.velocidad,
+            p.resistencia,
+            p.control,
+            p.pases,
+            p.tiro,
+            p.defensa,
+            p.habilidad_arquero,
+            p.fuerza_cuerpo,
+            p.vision,
+        ]
+        for p in players
+    ]
 
-    mejores_equipos, min_difference, min_difference_total = find_best_combination(player_scores)
+    mejores_equipos, min_difference, min_difference_total = find_best_combination(
+        player_scores
+    )
 
     teams = []
     for equipos in mejores_equipos:
         teams.append([player_names[i] for i in list(equipos[0])])
         teams.append([player_names[i] for i in list(equipos[1])])
 
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "players": players,
-        "teams": teams,
-        "len_teams": len(teams),
-        "min_difference": min_difference,
-        "min_difference_total": min_difference_total
-    })
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "players": players,
+            "teams": teams,
+            "len_teams": len(teams),
+            "min_difference": min_difference,
+            "min_difference_total": min_difference_total,
+        },
+    )
+
 
 @app.get("/reset")
 async def reset_session(db: Session = Depends(get_db)):
@@ -153,12 +193,14 @@ async def reset_session(db: Session = Depends(get_db)):
     db.commit()
     return RedirectResponse("/")
 
+
 @app.get("/player/{player_id}")
 def get_player(player_id: int, db: Session = Depends(get_db)):
     player = db.query(Player).filter(Player.id == player_id).first()
     if player is None:
         raise HTTPException(status_code=404, detail="Player not found")
     return player
+
 
 @app.put("/player/{player_id}")
 def update_player(player_id: int, player: PlayerCreate, db: Session = Depends(get_db)):
@@ -170,6 +212,7 @@ def update_player(player_id: int, player: PlayerCreate, db: Session = Depends(ge
     db.commit()
     db.refresh(db_player)
     return db_player
+
 
 @app.delete("/player/{player_id}")
 def delete_player(player_id: int, db: Session = Depends(get_db)):
