@@ -78,39 +78,39 @@
                 <div class="skills-container">
                     <div class="skill-entry">
                         <label>Velocidad:</label>
-                        <input type="number" name="velocidad" value="{{ player.velocidad }}" min="1" max="5" required>
+                        <input type="number" name="velocidad" value="{{ player.velocidad }}" min="1" max="5" placeholder="1-5" required>
                     </div>
                     <div class="skill-entry">
                         <label>Resistencia:</label>
-                        <input type="number" name="resistencia" value="{{ player.resistencia }}" min="1" max="5" required>
+                        <input type="number" name="resistencia" value="{{ player.resistencia }}" min="1" max="5" placeholder="1-5" required>
                     </div>
                     <div class="skill-entry">
                         <label>Control:</label>
-                        <input type="number" name="control" value="{{ player.control }}" min="1" max="5" required>
+                        <input type="number" name="control" value="{{ player.control }}" min="1" max="5" placeholder="1-5" required>
                     </div>
                     <div class="skill-entry">
                         <label>Pases:</label>
-                        <input type="number" name="pases" value="{{ player.pases }}" min="1" max="5" required>
+                        <input type="number" name="pases" value="{{ player.pases }}" min="1" max="5" placeholder="1-5" required>
                     </div>
                     <div class="skill-entry">
                         <label>Tiro:</label>
-                        <input type="number" name="tiro" value="{{ player.tiro }}" min="1" max="5" required>
+                        <input type="number" name="tiro" value="{{ player.tiro }}" min="1" max="5" placeholder="1-5" required>
                     </div>
                     <div class="skill-entry">
                         <label>Defensa:</label>
-                        <input type="number" name="defensa" value="{{ player.defensa }}" min="1" max="5" required>
+                        <input type="number" name="defensa" value="{{ player.defensa }}" min="1" max="5" placeholder="1-5" required>
                     </div>
                     <div class="skill-entry">
                         <label>Hab. arquero:</label>
-                        <input type="number" name="habilidad_arquero" value="{{ player.habilidad_arquero }}" min="1" max="5" required>
+                        <input type="number" name="habilidad_arquero" value="{{ player.habilidad_arquero }}" min="1" max="5" placeholder="1-5" required>
                     </div>
                     <div class="skill-entry">
                         <label>Fuerza cuerpo:</label>
-                        <input type="number" name="fuerza_cuerpo" value="{{ player.fuerza_cuerpo }}" min="1" max="5" required>
+                        <input type="number" name="fuerza_cuerpo" value="{{ player.fuerza_cuerpo }}" min="1" max="5" placeholder="1-5" required>
                     </div>
                     <div class="skill-entry">
                         <label>Visión:</label>
-                        <input type="number" name="vision" value="{{ player.vision }}" min="1" max="5" required>
+                        <input type="number" name="vision" value="{{ player.vision }}" min="1" max="5" placeholder="1-5" required>
                     </div>
                 </div>
                 <button type="button" onclick="editPlayer({{ player.id }})">Editar</button>
