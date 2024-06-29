@@ -1,13 +1,31 @@
-from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy import ForeignKey, create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, relationship
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./soccer_teams.db"
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    password = Column(String)
+    players = relationship("Player", back_populates="user")
+
+    def set_password(self, password):
+        self.password = password
+
+    def verify_password(self, password):
+        return self.password == password
+
 
 class Player(Base):
     __tablename__ = "players"
@@ -23,6 +41,9 @@ class Player(Base):
     habilidad_arquero = Column(Integer)
     fuerza_cuerpo = Column(Integer)
     vision = Column(Integer)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    user = relationship("User", back_populates="players")
+
 
 def get_db():
     db = SessionLocal()
@@ -30,6 +51,7 @@ def get_db():
         yield db
     finally:
         db.close()
+
 
 # Crear las tablas
 Base.metadata.create_all(bind=engine)
