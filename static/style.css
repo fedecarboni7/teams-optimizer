@@ -13,8 +13,8 @@ h1 {
 }
 
 /* Enlace "Restablecer" */
-a.reset-link {
-    color: #007BFF; /* Color del enlace */
+a.logout-link {
+    color: #ff7158; /* Color del enlace */
     text-decoration: none; /* Quitar subrayado */
     margin-top: 10px; /* Espacio arriba */
     margin-left: 10px; /* Espacio a la izquierda */
@@ -24,8 +24,8 @@ a.reset-link {
 }
 
 /* Cambio de color al pasar el ratón */
-a.reset-link:hover {
-    color: #0056b3; /* Color al pasar el ratón */
+a.logout-link:hover {
+    color: #c5413d; /* Color al pasar el ratón */
 }
 
 .player-container {

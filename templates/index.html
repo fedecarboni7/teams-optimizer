@@ -68,6 +68,18 @@
                     });
             }
         }
+
+        function reset() {
+            if (confirm("¿Estás seguro de que quieres restablecer los datos?")) {
+                fetch('/reset')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.ok) {
+                            location.reload();
+                        }
+                    });
+            }
+        }
     </script>
 </head>
 <body>
@@ -148,6 +160,8 @@
         <h3>Diferencia mínima total: {{ min_difference_total }}</h3>
     {% endif %}
     
-    <a href="/reset" class="reset-link">Restablecer</a>
+    <button type="button" onclick="reset()">Restablecer</button>
+    <br>
+    <a href="/logout" class="logout-link">Cerrar sesión</a>
 </body>
 </html>

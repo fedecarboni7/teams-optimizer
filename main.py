@@ -222,3 +222,8 @@ def delete_player(player_id: int, db: Session = Depends(get_db)):
     db.delete(player)
     db.commit()
     return {"ok": True}
+
+@app.get("/logout")
+async def logout(request: Request):
+    request.session.clear()
+    return RedirectResponse("/login")
