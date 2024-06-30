@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Armar Equipos</title>
     <link rel="stylesheet" type="text/css" href="/static/style.css">
     <script>
@@ -38,6 +40,7 @@
                 input.name = skill;
                 input.min = "1";
                 input.max = "5";
+                input.placeholder = "1-5";
                 input.required = true;
 
                 skillEntry.appendChild(label);
@@ -113,8 +116,8 @@
                         <input type="number" name="vision" value="{{ player.vision }}" min="1" max="5" placeholder="1-5" required>
                     </div>
                 </div>
-                <button type="button" onclick="editPlayer({{ player.id }})">Editar</button>
-                <button type="button" onclick="deletePlayer({{ player.id }})">Eliminar</button>
+                <button type="button" onclick="editPlayer('{{ player.id }}')">Editar</button>
+                <button type="button" onclick="deletePlayer('{{ player.id }}')">Eliminar</button>
             </div>
             {% endfor %}
         </div>
