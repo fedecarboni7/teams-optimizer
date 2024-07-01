@@ -91,51 +91,26 @@ async def get_form(
 @app.post("/submit", response_class=HTMLResponse)
 async def submit_form(request: Request, db: Session = Depends(get_db)):
     form_data = await request.form()
-
-    # Validar los datos del formulario
-    try:
-        form_data["names"]
-    except KeyError:
-        raise HTTPException(
-            status_code=400, detail="Los datos del formulario no son válidos"
-        )
+    cant_jug = int(len(form_data._list) / 10)
 
     player_data = []
-
-    # Comprobar si hay múltiples jugadores o solo uno
-    if isinstance(form_data["names"], str):
-        # Solo hay un jugador
+    
+    for i in range(cant_jug):
+        i = i * 10
         player = PlayerCreate(
-            name=form_data["names"],
-            velocidad=int(form_data["velocidad"]),
-            resistencia=int(form_data["resistencia"]),
-            control=int(form_data["control"]),
-            pases=int(form_data["pases"]),
-            tiro=int(form_data["tiro"]),
-            defensa=int(form_data["defensa"]),
-            habilidad_arquero=int(form_data["habilidad_arquero"]),
-            fuerza_cuerpo=int(form_data["fuerza_cuerpo"]),
-            vision=int(form_data["vision"]),
+            name=form_data._list[i][1],
+            velocidad=int(form_data._list[i+1][1]),
+            resistencia=int(form_data._list[i+2][1]),
+            control=int(form_data._list[i+3][1]),
+            pases=int(form_data._list[i+4][1]),
+            tiro=int(form_data._list[i+5][1]),
+            defensa=int(form_data._list[i+6][1]),
+            habilidad_arquero=int(form_data._list[i+7][1]),
+            fuerza_cuerpo=int(form_data._list[i+8][1]),
+            vision=int(form_data._list[i+9][1]),
             user_id=request.session.get("user_id"),
         )
         player_data.append(player)
-    else:
-        # Hay múltiples jugadores
-        for i in range(len(form_data["names"])):
-            player = PlayerCreate(
-                name=form_data["names"][i],
-                velocidad=int(form_data["velocidad"][i]),
-                resistencia=int(form_data["resistencia"][i]),
-                control=int(form_data["control"][i]),
-                pases=int(form_data["pases"][i]),
-                tiro=int(form_data["tiro"][i]),
-                defensa=int(form_data["defensa"][i]),
-                habilidad_arquero=int(form_data["habilidad_arquero"][i]),
-                fuerza_cuerpo=int(form_data["fuerza_cuerpo"][i]),
-                vision=int(form_data["vision"][i]),
-                user_id=request.session.get("user_id"),
-            )
-            player_data.append(player)
 
     # Guardar o actualizar jugadores en la base de datos
     for player in player_data:
@@ -182,8 +157,8 @@ async def submit_form(request: Request, db: Session = Depends(get_db)):
             "players": players,
             "teams": teams,
             "len_teams": len(teams),
-            "min_difference": min_difference,
-            "min_difference_total": min_difference_total,
+            "min_difference": str(min_difference),
+            "min_difference_total": str(min_difference_total),
         },
     )
 
@@ -192,7 +167,7 @@ async def submit_form(request: Request, db: Session = Depends(get_db)):
 async def reset_session(db: Session = Depends(get_db)):
     db.query(Player).delete()
     db.commit()
-    return RedirectResponse("/")
+    return {"ok": True}
 
 
 @app.get("/player/{player_id}")
