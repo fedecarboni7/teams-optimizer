@@ -1,3 +1,5 @@
+from passlib.context import CryptContext
+
 from sqlalchemy import ForeignKey, create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
@@ -11,6 +13,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class User(Base):
     __tablename__ = "users"
@@ -21,10 +24,10 @@ class User(Base):
     players = relationship("Player", back_populates="user")
 
     def set_password(self, password):
-        self.password = password
+        self.password = pwd_context.hash(password)
 
     def verify_password(self, password):
-        return self.password == password
+        return pwd_context.verify(password, self.password)
 
 
 class Player(Base):
