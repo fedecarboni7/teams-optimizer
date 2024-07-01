@@ -39,7 +39,7 @@ async def signup(
     # Placeholder for user registration logic
     user = db.query(User).filter(User.username == username).first()
     if user:
-        raise HTTPException(status_code=400, detail="Username already exists")
+        return templates.TemplateResponse("signup.html", {"request": request, "error": "Usuario ya registrado"})
 
     new_user = User(username=username)
     new_user.set_password(password)
@@ -68,7 +68,7 @@ async def login(
     # Placeholder for user authentication logic
     user = db.query(User).filter(User.username == username).first()
     if not user or not user.verify_password(password):
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
+        return templates.TemplateResponse("login.html", {"request": request, "error": "Usuario o contraseña incorrectas"})
 
     # Set user_id in session after successful authentication
     request.session["user_id"] = user.id
@@ -79,7 +79,7 @@ async def login(
 async def get_form(
     request: Request,
     db: Session = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(get_current_user)
 ):
     user_id = request.session.get("user_id")
     players = db.query(Player).where(Player.user_id == user_id).all()
