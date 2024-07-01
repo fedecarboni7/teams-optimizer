@@ -80,11 +80,37 @@
                     });
             }
         }
+
+        function validateForm(event) {
+            let playersContainer = document.getElementById('players-container');
+            let playerEntries = playersContainer.getElementsByClassName('player-entry');
+            
+            // Validar que hay al menos tres jugadores
+            if (playerEntries.length < 3) {
+                alert('Debes agregar al menos tres jugadores.');
+                event.preventDefault();
+                return false;
+            }
+            
+            // Validar que todos los campos estén completos
+            for (let entry of playerEntries) {
+                let inputs = entry.getElementsByTagName('input');
+                for (let input of inputs) {
+                    if (input.value.trim() === '') {
+                        alert('Por favor, completa todos los campos.');
+                        event.preventDefault();
+                        return false;
+                    }
+                }
+            }
+            
+            return true;
+        }
     </script>
 </head>
 <body>
     <h1>Armar Equipos</h1>
-    <form action="/submit" method="post">
+    <form action="/submit" method="post" onsubmit="return validateForm(event)">
         <div id="players-container" class="player-container">
             {% for player in players %}
             <div class="player-entry">
@@ -134,7 +160,7 @@
             {% endfor %}
         </div>
         <button type="button" onclick="addPlayer()">Agregar jugador</button>
-        <button type="submit">Calcular</button>
+        <button type="submit" id="submitBtn">Calcular</button>
     </form>
 
     {% if teams %}
