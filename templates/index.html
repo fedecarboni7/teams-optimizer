@@ -52,11 +52,6 @@
             container.appendChild(playerDiv);
         }
 
-        function editPlayer(playerId) {
-                // Implementa la lógica para editar un jugador
-                console.log("Editar jugador", playerId);
-        }
-
         function deletePlayer(playerId) {
             if (confirm("¿Estás seguro de que quieres eliminar este jugador?")) {
                 fetch(`/player/${playerId}`, { method: 'DELETE' })
@@ -154,7 +149,6 @@
                         <input type="number" name="vision" value="{{ player.vision }}" min="1" max="5" placeholder="1-5" required>
                     </div>
                 </div>
-                <button type="button" onclick="editPlayer('{{ player.id }}')">Editar</button>
                 <button type="button" onclick="deletePlayer('{{ player.id }}')">Eliminar</button>
             </div>
             {% endfor %}
