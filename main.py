@@ -12,7 +12,8 @@ from database import User, get_db, Player
 from schemas import PlayerCreate
 from team_optimizer import find_best_combination
 
-app = FastAPI()
+#app = FastAPI()
+app = FastAPI(docs_url=None, redoc_url=None)
 
 app.add_middleware(SessionMiddleware, secret_key="!my_super_secret_key")
 app.mount("/static", StaticFiles(directory="static"), name="static")
