@@ -14,7 +14,7 @@ def calculate_difference(team1_score, team2_score):
 
 
 def find_best_combination(scores):
-    all_combinations = list(combinations(range(len(scores)), len(scores) // 2))
+    all_combinations = list(combinations(range(len(scores)), 2 if len(scores) // 2 == 1 else len(scores) // 2))
     min_difference = float("inf")
     min_difference_total = float("inf")
     mejores_equipos = list()
@@ -38,8 +38,11 @@ def find_best_combination(scores):
             if difference_total == min_difference_total:
                 mejores_equipos.append((team1_indices, team2_indices))
 
+    if len(mejores_equipos) > 1:
+        mejores_equipos = mejores_equipos[: int(len(mejores_equipos) / 2)]
+    
     return (
-        mejores_equipos[: int(len(mejores_equipos) / 2)],
+        mejores_equipos,
         min_difference,
         min_difference_total,
     )
