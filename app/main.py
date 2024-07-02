@@ -7,10 +7,10 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from sqlalchemy.orm import Session
 
-from auth import get_current_user
-from database import User, get_db, Player
-from schemas import PlayerCreate
-from team_optimizer import find_best_combination
+from app.auth import get_current_user
+from app.database import User, get_db, Player
+from app.schemas import PlayerCreate
+from app.team_optimizer import find_best_combination
 
 #app = FastAPI()
 app = FastAPI(docs_url=None, redoc_url=None)
