@@ -1,4 +1,5 @@
 from fastapi import Depends, HTTPException, Request
+from fastapi.responses import HTMLResponse
 
 from sqlalchemy.orm import Session
 
@@ -13,6 +14,5 @@ def get_current_user(request: Request, db: Session = Depends(get_db)):
         )
 
     user = db.query(User).get(user_id)
-    if not user:
-        raise HTTPException(status_code=403, detail="User not found")
+    
     return user

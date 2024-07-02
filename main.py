@@ -81,6 +81,8 @@ async def get_form(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user)
 ):
+    if not user:
+        return RedirectResponse("/login", status_code=302)
     user_id = request.session.get("user_id")
     players = db.query(Player).where(Player.user_id == user_id).all()
     return templates.TemplateResponse(
