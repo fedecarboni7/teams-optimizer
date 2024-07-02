@@ -3,7 +3,7 @@ from fastapi.responses import HTMLResponse
 
 from sqlalchemy.orm import Session
 
-from database import User, get_db
+from app.database import User, get_db
 
 
 def get_current_user(request: Request, db: Session = Depends(get_db)):

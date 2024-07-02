@@ -4,104 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Armar Equipos</title>
-    <link rel="stylesheet" type="text/css" href="/static/style.css">
-    <script>
-        function addPlayer() {
-            const container = document.getElementById("players-container");
-            const playerCount = container.children.length;
-
-            const playerDiv = document.createElement("div");
-            playerDiv.className = "player-entry";
-
-            const nameLabel = document.createElement("label");
-            nameLabel.textContent = "Nombre del jugador " + (playerCount + 1) + ":";
-            const nameInput = document.createElement("input");
-            nameInput.type = "text";
-            nameInput.name = "names";
-            nameInput.required = true;
-
-            playerDiv.appendChild(nameLabel);
-            playerDiv.appendChild(nameInput);
-
-            const skillsContainer = document.createElement("div");
-            skillsContainer.className = "skills-container";
-
-            const skills = ['velocidad', 'resistencia', 'control', 'pases', 'tiro', 'defensa', 'habilidad_arquero', 'fuerza_cuerpo', 'vision'];
-
-            skills.forEach(skill => {
-                const skillEntry = document.createElement("div");
-                skillEntry.className = "skill-entry";
-
-                const label = document.createElement("label");
-                label.textContent = skill.charAt(0).toUpperCase() + skill.slice(1).replace('_', ' ') + ":";
-                
-                const input = document.createElement("input");
-                input.type = "number";
-                input.name = skill;
-                input.min = "1";
-                input.max = "5";
-                input.placeholder = "1-5";
-                input.required = true;
-
-                skillEntry.appendChild(label);
-                skillEntry.appendChild(input);
-                skillsContainer.appendChild(skillEntry);
-            });
-
-            playerDiv.appendChild(skillsContainer);
-            container.appendChild(playerDiv);
-        }
-
-        function deletePlayer(playerId) {
-            if (confirm("¿Estás seguro de que quieres eliminar este jugador?")) {
-                fetch(`/player/${playerId}`, { method: 'DELETE' })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.ok) {
-                            window.location.href = '/';
-                        }
-                    });
-            }
-        }
-
-        function reset() {
-            if (confirm("¿Estás seguro de que quieres restablecer los datos?")) {
-                fetch('/reset')
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.ok) {
-                            window.location.href = '/';
-                        }
-                    });
-            }
-        }
-
-        function validateForm(event) {
-            let playersContainer = document.getElementById('players-container');
-            let playerEntries = playersContainer.getElementsByClassName('player-entry');
-            
-            // Validar que hay al menos tres jugadores
-            if (playerEntries.length < 3) {
-                alert('Debes agregar al menos tres jugadores.');
-                event.preventDefault();
-                return false;
-            }
-            
-            // Validar que todos los campos estén completos
-            for (let entry of playerEntries) {
-                let inputs = entry.getElementsByTagName('input');
-                for (let input of inputs) {
-                    if (input.value.trim() === '') {
-                        alert('Por favor, completa todos los campos.');
-                        event.preventDefault();
-                        return false;
-                    }
-                }
-            }
-            
-            return true;
-        }
-    </script>
+    <link rel="stylesheet" type="text/css" href="/static/css/style.css">
+    <script src="static/js/script.js"></script>
 </head>
 <body>
     <h1>Armar Equipos</h1>
@@ -109,44 +13,48 @@
         <div id="players-container" class="player-container">
             {% for player in players %}
             <div class="player-entry">
+                <input type="checkbox" name="selectedPlayers" value="{{ player.id }}">
                 <label>Nombre del jugador:</label>
                 <input type="text" name="names" value="{{ player.name }}" required>
-                <div class="skills-container">
-                    <div class="skill-entry">
-                        <label>Velocidad:</label>
-                        <input type="number" name="velocidad" value="{{ player.velocidad }}" min="1" max="5" placeholder="1-5" required>
-                    </div>
-                    <div class="skill-entry">
-                        <label>Resistencia:</label>
-                        <input type="number" name="resistencia" value="{{ player.resistencia }}" min="1" max="5" placeholder="1-5" required>
-                    </div>
-                    <div class="skill-entry">
-                        <label>Control:</label>
-                        <input type="number" name="control" value="{{ player.control }}" min="1" max="5" placeholder="1-5" required>
-                    </div>
-                    <div class="skill-entry">
-                        <label>Pases:</label>
-                        <input type="number" name="pases" value="{{ player.pases }}" min="1" max="5" placeholder="1-5" required>
-                    </div>
-                    <div class="skill-entry">
-                        <label>Tiro:</label>
-                        <input type="number" name="tiro" value="{{ player.tiro }}" min="1" max="5" placeholder="1-5" required>
-                    </div>
-                    <div class="skill-entry">
-                        <label>Defensa:</label>
-                        <input type="number" name="defensa" value="{{ player.defensa }}" min="1" max="5" placeholder="1-5" required>
-                    </div>
-                    <div class="skill-entry">
-                        <label>Hab. arquero:</label>
-                        <input type="number" name="habilidad_arquero" value="{{ player.habilidad_arquero }}" min="1" max="5" placeholder="1-5" required>
-                    </div>
-                    <div class="skill-entry">
-                        <label>Fuerza cuerpo:</label>
-                        <input type="number" name="fuerza_cuerpo" value="{{ player.fuerza_cuerpo }}" min="1" max="5" placeholder="1-5" required>
-                    </div>
-                    <div class="skill-entry">
-                        <label>Visión:</label>
-                        <input type="number" name="vision" value="{{ player.vision }}" min="1" max="5" placeholder="1-5" required>
+                <button class="toggle-details" type="button" onclick="toggleDetails(this)">Mostrar detalles</button>
+                <div class="details-container" style="display: none;">
+                    <div class="skills-container">
+                        <div class="skill-entry">
+                            <label>Velocidad:</label>
+                            <input type="number" name="velocidad" value="{{ player.velocidad }}" min="1" max="5" placeholder="1-5" required>
+                        </div>
+                        <div class="skill-entry">
+                            <label>Resistencia:</label>
+                            <input type="number" name="resistencia" value="{{ player.resistencia }}" min="1" max="5" placeholder="1-5" required>
+                        </div>
+                        <div class="skill-entry">
+                            <label>Control:</label>
+                            <input type="number" name="control" value="{{ player.control }}" min="1" max="5" placeholder="1-5" required>
+                        </div>
+                        <div class="skill-entry">
+                            <label>Pases:</label>
+                            <input type="number" name="pases" value="{{ player.pases }}" min="1" max="5" placeholder="1-5" required>
+                        </div>
+                        <div class="skill-entry">
+                            <label>Tiro:</label>
+                            <input type="number" name="tiro" value="{{ player.tiro }}" min="1" max="5" placeholder="1-5" required>
+                        </div>
+                        <div class="skill-entry">
+                            <label>Defensa:</label>
+                            <input type="number" name="defensa" value="{{ player.defensa }}" min="1" max="5" placeholder="1-5" required>
+                        </div>
+                        <div class="skill-entry">
+                            <label>Hab. arquero:</label>
+                            <input type="number" name="habilidad_arquero" value="{{ player.habilidad_arquero }}" min="1" max="5" placeholder="1-5" required>
+                        </div>
+                        <div class="skill-entry">
+                            <label>Fuerza cuerpo:</label>
+                            <input type="number" name="fuerza_cuerpo" value="{{ player.fuerza_cuerpo }}" min="1" max="5" placeholder="1-5" required>
+                        </div>
+                        <div class="skill-entry">
+                            <label>Visión:</label>
+                            <input type="number" name="vision" value="{{ player.vision }}" min="1" max="5" placeholder="1-5" required>
+                        </div>
                     </div>
                 </div>
                 <button type="button" onclick="deletePlayer('{{ player.id }}')">Eliminar</button>
