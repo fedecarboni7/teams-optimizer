@@ -111,12 +111,20 @@ function validateForm(event) {
     for (let entry of playerEntries) {
         let inputs = entry.getElementsByTagName('input');
         for (let input of inputs) {
-            if (input.value.trim() === '') {
+            if (input.type !== 'checkbox' && input.value.trim() === '') {
                 alert('Por favor, completa todos los campos.');
                 event.preventDefault();
                 return false;
             }
         }
+    }
+    
+    // Validar que al menos un checkbox esté seleccionado
+    let selectedPlayers = document.querySelectorAll('input[name="selectedPlayers"]:checked');
+    if (selectedPlayers.length < 3) {
+        alert('Por favor, selecciona al menos tres jugadores.');
+        event.preventDefault();
+        return false;
     }
     
     return true;

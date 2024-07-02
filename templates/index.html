@@ -13,6 +13,7 @@
         <div id="players-container" class="player-container">
             {% for player in players %}
             <div class="player-entry">
+                <input type="checkbox" name="selectedPlayers" value="{{ player.id }}">
                 <label>Nombre del jugador:</label>
                 <input type="text" name="names" value="{{ player.name }}" required>
                 <button class="toggle-details" type="button" onclick="toggleDetails(this)">Mostrar detalles</button>

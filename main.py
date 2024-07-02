@@ -93,23 +93,30 @@ async def get_form(
 @app.post("/submit", response_class=HTMLResponse)
 async def submit_form(request: Request, db: Session = Depends(get_db)):
     form_data = await request.form()
-    cant_jug = int(len(form_data._list) / 10)
+    list_players = form_data._list
+
+    cant_jug = 0
+    for tupla in list_players:
+        if tupla[0] == "names":
+            cant_jug += 1
 
     player_data = []
-    
     for i in range(cant_jug):
-        i = i * 10
+        i = i * 11
+        if list_players[i][0] != "selectedPlayers":
+            list_players.insert(i, None)
+            continue
         player = PlayerCreate(
-            name=form_data._list[i][1],
-            velocidad=int(form_data._list[i+1][1]),
-            resistencia=int(form_data._list[i+2][1]),
-            control=int(form_data._list[i+3][1]),
-            pases=int(form_data._list[i+4][1]),
-            tiro=int(form_data._list[i+5][1]),
-            defensa=int(form_data._list[i+6][1]),
-            habilidad_arquero=int(form_data._list[i+7][1]),
-            fuerza_cuerpo=int(form_data._list[i+8][1]),
-            vision=int(form_data._list[i+9][1]),
+            name=list_players[i+1][1],
+            velocidad=int(list_players[i+2][1]),
+            resistencia=int(list_players[i+3][1]),
+            control=int(list_players[i+4][1]),
+            pases=int(list_players[i+5][1]),
+            tiro=int(list_players[i+6][1]),
+            defensa=int(list_players[i+7][1]),
+            habilidad_arquero=int(list_players[i+8][1]),
+            fuerza_cuerpo=int(list_players[i+9][1]),
+            vision=int(list_players[i+10][1]),
             user_id=request.session.get("user_id"),
         )
         player_data.append(player)
@@ -124,10 +131,10 @@ async def submit_form(request: Request, db: Session = Depends(get_db)):
             db_player = Player(**player.dict())
             db.add(db_player)
     db.commit()
+    players = db.query(Player).all()
 
     # Calcular equipos
-    players = db.query(Player).all()
-    player_names = [p.name for p in players]
+    player_names = [p.name for p in player_data]
     player_scores = [
         [
             p.velocidad,
@@ -140,7 +147,7 @@ async def submit_form(request: Request, db: Session = Depends(get_db)):
             p.fuerza_cuerpo,
             p.vision,
         ]
-        for p in players
+        for p in player_data
     ]
 
     mejores_equipos, min_difference, min_difference_total = find_best_combination(
