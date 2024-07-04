@@ -5,6 +5,14 @@ function addPlayer() {
 
     playerDiv.className = "player-entry";
 
+    // Checkbox para seleccionar jugador
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.name = "selectedPlayers";
+    checkbox.value = playerCount;
+    checkbox.checked = true;
+    playerDiv.appendChild(checkbox);
+
     // Nombre del jugador
     const nameLabel = document.createElement("label");
     nameLabel.textContent = "Nombre del jugador " + (playerCount + 1) + ":";
