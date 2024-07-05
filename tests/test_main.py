@@ -44,6 +44,10 @@ def test_create_user(db_session):
     assert db_user.verify_password("testpassword")
 
 def test_create_player(db_session):
+    # Delete all players from the database
+    db_session.query(Player).delete()
+    db_session.commit()
+    
     user = User(username="testuser2")
     user.set_password("testpassword")
     db_session.add(user)
