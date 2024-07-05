@@ -65,12 +65,10 @@ async def login(
     password: str = Form(...),
     db: Session = Depends(get_db),
 ):
-    # Placeholder for user authentication logic
     user = db.query(User).filter(User.username == username).first()
     if not user or not user.verify_password(password):
         return templates.TemplateResponse("login.html", {"request": request, "error": "Usuario o contraseña incorrectas"})
 
-    # Set user_id in session after successful authentication
     request.session["user_id"] = user.id
     return RedirectResponse(url="/", status_code=302)
 
@@ -211,4 +209,4 @@ def delete_player(player_id: int, db: Session = Depends(get_db)):
 @app.get("/logout")
 async def logout(request: Request):
     request.session.clear()
-    return RedirectResponse("/login")
+    return RedirectResponse("/login", status_code=307)
