@@ -43,8 +43,6 @@ def test_create_user(db_session):
     assert db_user.username == "testuser"
     assert db_user.verify_password("testpassword")
 
-
-
 def test_create_player(db_session):
     user = User(username="testuser2")
     user.set_password("testpassword")
