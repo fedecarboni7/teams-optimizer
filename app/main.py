@@ -26,7 +26,7 @@ templates = Jinja2Templates(directory="templates")
 async def signup_page(request: Request):
     if request.session.get("user_id"):
         return RedirectResponse(url="/", status_code=302)
-    return templates.TemplateResponse("signup.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="signup.html")
 
 
 @app.post("/signup")
@@ -39,7 +39,7 @@ async def signup(
     # Placeholder for user registration logic
     user = db.query(User).filter(User.username == username).first()
     if user:
-        return templates.TemplateResponse("signup.html", {"request": request, "error": "Usuario ya registrado"})
+        return templates.TemplateResponse(request=request, name="signup.html", context={"error": "Usuario ya resgistrado"})
 
     new_user = User(username=username)
     new_user.set_password(password)
@@ -55,7 +55,7 @@ async def signup(
 async def login_page(request: Request):
     if request.session.get("user_id"):
         return RedirectResponse(url="/", status_code=302)
-    return templates.TemplateResponse("login.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="login.html")
 
 
 @app.post("/login")
@@ -67,7 +67,7 @@ async def login(
 ):
     user = db.query(User).filter(User.username == username).first()
     if not user or not user.verify_password(password):
-        return templates.TemplateResponse("login.html", {"request": request, "error": "Usuario o contraseña incorrectas"})
+        return templates.TemplateResponse(request=request, name="login.html", context={"error": "Usuario o contraseña incorrectos"})
 
     request.session["user_id"] = user.id
     return RedirectResponse(url="/", status_code=302)
@@ -83,9 +83,7 @@ async def get_form(
         return RedirectResponse("/login", status_code=302)
     user_id = request.session.get("user_id")
     players = db.query(Player).where(Player.user_id == user_id).all()
-    return templates.TemplateResponse(
-        "index.html", {"request": request, "players": players}
-    )
+    return templates.TemplateResponse(request=request, name="index.html", context={"players": players})
 
 
 @app.post("/submit", response_class=HTMLResponse)
@@ -157,17 +155,17 @@ async def submit_form(request: Request, db: Session = Depends(get_db)):
         teams.append([player_names[i] for i in list(equipos[0])])
         teams.append([player_names[i] for i in list(equipos[1])])
 
-    return templates.TemplateResponse(
-        "index.html",
-        {
-            "request": request,
-            "players": players,
-            "teams": teams,
-            "len_teams": len(teams),
-            "min_difference": str(min_difference),
-            "min_difference_total": str(min_difference_total),
-        },
-    )
+    return templates.TemplateResponse(request=request,
+                                      name="index.html",
+                                      context={
+                                            "request": request,
+                                            "players": players,
+                                            "teams": teams,
+                                            "len_teams": len(teams),
+                                            "min_difference": str(min_difference),
+                                            "min_difference_total": str(min_difference_total),
+                                        },
+                                    )
 
 
 @app.get("/reset")

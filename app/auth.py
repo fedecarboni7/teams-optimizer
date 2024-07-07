@@ -12,5 +12,5 @@ def get_current_user(request: Request, db: Session = Depends(get_db)):
             status_code=302, detail="Not authenticated", headers={"Location": "/login"}
         )
 
-    user = db.query(User).get(user_id)
+    user = db.get(User, user_id)
     return user
