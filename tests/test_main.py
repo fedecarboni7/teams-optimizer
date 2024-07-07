@@ -32,6 +32,17 @@ def db_session():
     finally:
         db.close()
 
+def test_get_home():
+    client = TestClient(app, cookies=None)
+    response = client.get("/")
+    assert response.status_code == 200
+    assert response.template.name == "login.html"
+
+    # Authenticate the user
+    response = client.post("/signup", data={"username": "testuser1", "password": "testpassword1"}, follow_redirects=False)
+    assert response.status_code == 302
+    assert response.headers["location"] == "/"
+
 def test_create_user(db_session):
     user = User(username="testuser")
     user.set_password("testpassword")
@@ -90,8 +101,18 @@ def test_get_current_user(db_session):
     assert current_user is not None
     assert current_user.username == "testuser3"
 
-def test_signup(db_session):
-    response = client.post("/signup", data={"username": "newuser1", "password": "newpassword"}, allow_redirects=False)
+def test_get_signup():
+    response = client.get("/signup")
+    assert response.status_code == 200
+    assert response.template.name == "signup.html"
+
+def test_get_login():
+    response = client.get("/login")
+    assert response.status_code == 200
+    assert response.template.name == "login.html"
+
+def test_post_signup(db_session):
+    response = client.post("/signup", data={"username": "newuser1", "password": "newpassword"}, follow_redirects=False)
     assert response.status_code == 302
     assert response.headers["location"] == "/"
 
@@ -99,7 +120,13 @@ def test_signup(db_session):
     assert db_user is not None
     assert db_user.verify_password("newpassword")
 
-def test_login(db_session):
+    # Test that the user cannot be created again
+    response = client.post("/signup", data={"username": "newuser1", "password": "newpassword"}, follow_redirects=False)
+    assert response.status_code == 200
+    assert response.template.name == "signup.html"
+    assert "Usuario ya resgistrado" in response.text
+
+def test_post_login(db_session):
     # Empty the database
     db_session.query(User).delete()
     db_session.commit()
@@ -109,30 +136,52 @@ def test_login(db_session):
     db_session.add(user)
     db_session.commit()
 
-    response = client.post("/login", data={"username": "loginuser", "password": "loginpassword"}, allow_redirects=False)
+    response = client.post("/login", data={"username": "loginuser", "password": "loginpassword"}, follow_redirects=False)
     assert response.status_code == 302
     assert response.headers["location"] == "/"
 
+    # Test that the user cannot login with wrong password
+    response = client.post("/login", data={"username": "loginuser", "password": "wrongpassword"}, follow_redirects=False)
+    assert response.status_code == 200
+    assert response.template.name == "login.html"
+    assert "Usuario o contraseña incorrectos" in response.text
+
+    # Test that the user cannot login with wrong username
+    response = client.post("/login", data={"username": "wronguser", "password": "loginpassword"}, follow_redirects=False)
+    assert response.status_code == 200
+    assert response.template.name == "login.html"
+    assert "Usuario o contraseña incorrectos" in response.text
+
 def test_logout():
-    response = client.get("/logout", allow_redirects=False)
+    response = client.get("/logout", follow_redirects=False)
     assert response.status_code == 307
     assert response.headers["location"] == "/login"
 
 def test_find_best_combination():
     scores = [
-        [1, 3, 5, 4, 1, 2, 3, 4, 5],
-        [5, 2, 3, 3, 5, 5, 1, 2, 4],
-        [1, 3, 3, 4, 5, 4, 3, 2, 1],
-        [1, 1, 2, 3, 4, 5, 3, 2, 1]
+        [1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [2, 2, 2, 2, 2, 2, 2, 2, 2],
+        [3, 3, 3, 3, 3, 3, 3, 3, 3],
+        [4, 4, 4, 4, 4, 4, 4, 4, 4]
     ]
     best_teams, min_difference, min_difference_total = find_best_combination(scores)
     
-    assert len(best_teams) > 0
-    assert min_difference > 0
-    assert min_difference_total > 0
+    assert len(best_teams) == 1
+    assert min_difference == 0
+    assert min_difference_total == 0
 
     # Check if the teams are balanced
     team1, team2 = best_teams[0]
     assert len(team1) == len(team2)
 
-# Add more tests as needed for other functions and edge cases
+def test_reset():
+    response = client.get("/reset", follow_redirects=False)
+    assert response.status_code == 200
+    assert response.json() == {"ok": True}
+
+# Pending tests:
+# Test Submit Form
+#    - Authenticate a user
+#    - Make a POST request to "/submit" with player data
+#    - Assert the response status code is 200
+#    - Assert the response template shows calculated teams
