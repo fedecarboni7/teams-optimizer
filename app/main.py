@@ -83,6 +83,14 @@ async def get_form(
         return RedirectResponse("/login", status_code=302)
     user_id = request.session.get("user_id")
     players = db.query(Player).where(Player.user_id == user_id).all()
+
+    # Calcular el puntaje total de cada jugador
+    for player in players:
+        player.total_score = (
+            player.velocidad + player.resistencia + player.control + player.pases +
+            player.tiro + player.defensa + player.habilidad_arquero + player.fuerza_cuerpo + player.vision
+        )
+
     return templates.TemplateResponse(request=request, name="index.html", context={"players": players})
 
 
@@ -154,6 +162,13 @@ async def submit_form(request: Request, db: Session = Depends(get_db)):
     for equipos in mejores_equipos:
         teams.append([player_names[i] for i in list(equipos[0])])
         teams.append([player_names[i] for i in list(equipos[1])])
+
+    # Calcular el puntaje total de cada jugador
+    for player in players:
+        player.total_score = (
+            player.velocidad + player.resistencia + player.control + player.pases +
+            player.tiro + player.defensa + player.habilidad_arquero + player.fuerza_cuerpo + player.vision
+        )
 
     return templates.TemplateResponse(request=request,
                                       name="index.html",

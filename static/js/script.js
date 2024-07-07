@@ -127,14 +127,14 @@ function validateForm(event) {
         }
     }
     
-    // Validar que al menos un checkbox esté seleccionado
+    // Validar que al menos tres checkbox estén seleccionados
     let selectedPlayers = document.querySelectorAll('input[name="selectedPlayers"]:checked');
     if (selectedPlayers.length < 3) {
         alert('Por favor, selecciona al menos tres jugadores.');
         event.preventDefault();
         return false;
     }
-    
+
     return true;
 }
 
@@ -146,5 +146,21 @@ function toggleDetails(button) {
     } else {
         details.style.display = 'none';
         button.textContent = 'Mostrar detalles';
+    }
+}
+
+function toggleSelectPlayers() {
+    const checkboxes = document.querySelectorAll('input[name="selectedPlayers"]');
+    const toggleButton = document.getElementById('toggle-select-button');
+    const allSelected = Array.from(checkboxes).every(checkbox => checkbox.checked);
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = !allSelected;
+    });
+
+    if (allSelected) {
+        toggleButton.textContent = "Seleccionar todos los jugadores";
+    } else {
+        toggleButton.textContent = "Deseleccionar todos los jugadores";
     }
 }

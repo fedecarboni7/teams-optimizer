@@ -16,6 +16,7 @@
                 <input type="checkbox" name="selectedPlayers" value="{{ player.id }}">
                 <label>Nombre del jugador:</label>
                 <input type="text" name="names" value="{{ player.name }}" required>
+                <span>Puntaje total: {{ player.total_score }}</span>
                 <button class="toggle-details" type="button" onclick="toggleDetails(this)">Mostrar detalles</button>
                 <div class="details-container" style="display: none;">
                     <div class="skills-container">
@@ -62,8 +63,17 @@
             {% endfor %}
         </div>
         <button type="button" onclick="addPlayer()">Agregar jugador</button>
+        <button type="button" id="toggle-select-button" onclick="toggleSelectPlayers()">Seleccionar todos los jugadores</button>
         <button type="submit" id="submitBtn">Calcular</button>
     </form>
+    <button type="button" onclick="reset()">Restablecer jugadores</button>
+    <br>
+    <a href="/logout" class="logout-link">Cerrar sesión</a>
+
+    {% if min_difference %}
+        <h3>Diferencia mínima habilidades: {{ min_difference }}</h3>
+        <h3>Diferencia mínima total: {{ min_difference_total }}</h3>
+    {% endif %}
 
     {% if teams %}
         {% for i in range(0, len_teams - 1, 2) %}
@@ -83,13 +93,5 @@
         {% endfor %}
     {% endif %}
 
-    {% if min_difference %}
-        <h3>Diferencia mínima habilidades: {{ min_difference }}</h3>
-        <h3>Diferencia mínima total: {{ min_difference_total }}</h3>
-    {% endif %}
-    
-    <button type="button" onclick="reset()">Restablecer</button>
-    <br>
-    <a href="/logout" class="logout-link">Cerrar sesión</a>
 </body>
 </html>
