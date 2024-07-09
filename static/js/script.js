@@ -167,11 +167,11 @@ function toggleSelectPlayers() {
 
 function toggleTable(button) {
     const tableContainer = button.nextElementSibling;
-    if (tableContainer.style.display === "none" || tableContainer.style.display === "") {
-        tableContainer.style.display = "block";
+    if (tableContainer.style.maxHeight === "0px" || tableContainer.style.maxHeight === "") {
+        tableContainer.style.maxHeight = tableContainer.scrollHeight + "px";
         button.textContent = "Ocultar detalles";
     } else {
-        tableContainer.style.display = "none";
+        tableContainer.style.maxHeight = "0px";
         button.textContent = "Mostrar detalles";
     }
 }

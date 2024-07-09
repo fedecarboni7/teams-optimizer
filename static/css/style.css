@@ -82,6 +82,11 @@ a.logout-link:hover {
     }
 }
 
+.table-container {
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+}
+
 .team-container {
     display: flex;
     flex-wrap: wrap;
@@ -94,6 +99,7 @@ a.logout-link:hover {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     padding: 20px;
     border-radius: 5px;
+    box-sizing: border-box;
 }
 
 @media(min-width: 768px) {

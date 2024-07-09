@@ -86,7 +86,7 @@
                         {% endfor %}
                     </ul>
                     <button type="button" onclick="toggleTable(this)">Mostrar detalles</button>
-                    <div class="table-container" style="display: none;">
+                    <div class="table-container" style="max-height: 0;">
                         <table>
                             <thead>
                                 <tr>
@@ -121,7 +121,7 @@
                         {% endfor %}
                     </ul>
                     <button type="button" onclick="toggleTable(this)">Mostrar detalles</button>
-                    <div class="table-container" style="display: none;">
+                    <div class="table-container" style="max-height: 0;">
                         <table>
                             <thead>
                                 <tr>
@@ -148,6 +148,7 @@
                     </div>
                 </div>
             </div>
+            <hr>
         {% endfor %}
     {% endif %}
 
