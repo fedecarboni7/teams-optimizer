@@ -160,8 +160,8 @@ async def submit_form(request: Request, db: Session = Depends(get_db)):
 
     teams = []
     for equipos in mejores_equipos:
-        teams.append([player_names[i] for i in list(equipos[0])])
-        teams.append([player_names[i] for i in list(equipos[1])])
+        teams.append([[player_names[i] for i in list(equipos[0])]])
+        teams.append([[player_names[i] for i in list(equipos[1])]])
 
     # Calcular el puntaje total de cada jugador
     for player in players:
@@ -169,6 +169,30 @@ async def submit_form(request: Request, db: Session = Depends(get_db)):
             player.velocidad + player.resistencia + player.control + player.pases +
             player.tiro + player.defensa + player.habilidad_arquero + player.fuerza_cuerpo + player.vision
         )
+
+    # Calcular el total de skills de cada equipo
+    for team in teams:
+        team_skills = {
+            "velocidad": {"total": 0, "avg": 0},
+            "resistencia": {"total": 0, "avg": 0},
+            "control": {"total": 0, "avg": 0},
+            "pases": {"total": 0, "avg": 0},
+            "tiro": {"total": 0, "avg": 0},
+            "defensa": {"total": 0, "avg": 0},
+            "habilidad_arquero": {"total": 0, "avg": 0},
+            "fuerza_cuerpo": {"total": 0, "avg": 0},
+            "vision": {"total": 0, "avg": 0}
+        }
+
+        for player in team:
+            player_data = db.query(Player).filter(Player.name == player).first()
+            for key, value in team_skills.items():
+                team_skills[key]["total"] += getattr(player_data, key)
+                team_skills[key]["avg"] = round(team_skills[key]["total"] / len(team), 2)
+
+        team.append([team_skills,
+                     sum([team_skills[key]["total"] for key in team_skills]),
+                     sum([team_skills[key]["avg"] for key in team_skills])])
 
     return templates.TemplateResponse(request=request,
                                       name="index.html",
