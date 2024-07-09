@@ -140,11 +140,11 @@ function validateForm(event) {
 
 function toggleDetails(button) {
     var details = button.parentNode.querySelector('.details-container');
-    if (details.style.display === 'none' || details.style.display === '') {
-        details.style.display = 'block';
+    if (details.style.maxHeight === "0px" || details.style.maxHeight === '') {
+        details.style.maxHeight = details.scrollHeight + "px";
         button.textContent = 'Ocultar detalles';
     } else {
-        details.style.display = 'none';
+        details.style.maxHeight = "0px";
         button.textContent = 'Mostrar detalles';
     }
 }

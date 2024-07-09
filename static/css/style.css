@@ -28,6 +28,11 @@ a.logout-link:hover {
     color: #c5413d; /* Color al pasar el ratón */
 }
 
+.details-container {
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+}
+
 .player-container {
     display: flex;
     flex-direction: column;
