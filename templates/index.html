@@ -71,22 +71,28 @@
     <a href="/logout" class="logout-link">Cerrar sesión</a>
 
     {% if min_difference %}
-        <h3>Diferencia mínima habilidades: {{ min_difference }}</h3>
-        <h3>Diferencia mínima total: {{ min_difference_total }}</h3>
+        <h3>Diferencia mínima de habilidades: {{ min_difference }}</h3>
+        <h3>Diferencia mínima encontrada: {{ min_difference_total }}</h3>
     {% endif %}
 
     {% if teams %}
         {% for i in range(0, len_teams - 1, 2) %}
             <h2>Equipo 1</h2>
+            <p>Total: {{teams[i][1][1]}} Promedio: {{teams[i][1][2]}}</p>
+            <p>Total habilidades - Velocidad: {{teams[i][1][0]["velocidad"]["total"]}} Resistencia: {{teams[i][1][0]["resistencia"]["total"]}}</p>
+            <p>Promedio habilidades - Velocidad: {{teams[i][1][0]["velocidad"]["avg"]}} Resistencia: {{teams[i][1][0]["resistencia"]["avg"]}}</p>
             <ul>
-                {% for player in teams[i] %}
+                {% for player in teams[i][0] %}
                 <li>{{ player }}</li>
                 {% endfor %}
             </ul>
 
             <h2>Equipo 2</h2>
+            <p>Total: {{teams[i + 1][1][1]}} Promedio: {{teams[i + 1][1][2]}}</p>
+            <p>Total habilidades - Velocidad: {{teams[i + 1][1][0]["velocidad"]["total"]}} Resistencia: {{teams[i + 1][1][0]["resistencia"]["total"]}}</p>
+            <p>Promedio habilidades - Velocidad: {{teams[i + 1][1][0]["velocidad"]["avg"]}} Resistencia: {{teams[i + 1][1][0]["resistencia"]["avg"]}}</p>
             <ul>
-                {% for player in teams[i + 1] %}
+                {% for player in teams[i + 1][0] %}
                 <li>{{ player }}</li>
                 {% endfor %}
             </ul>

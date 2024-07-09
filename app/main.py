@@ -184,11 +184,11 @@ async def submit_form(request: Request, db: Session = Depends(get_db)):
             "vision": {"total": 0, "avg": 0}
         }
 
-        for player in team:
+        for player in team[0]:
             player_data = db.query(Player).filter(Player.name == player).first()
             for key, value in team_skills.items():
                 team_skills[key]["total"] += getattr(player_data, key)
-                team_skills[key]["avg"] = round(team_skills[key]["total"] / len(team), 2)
+                team_skills[key]["avg"] = round(team_skills[key]["total"] / len(team[0]), 2)
 
         team.append([team_skills,
                      sum([team_skills[key]["total"] for key in team_skills]),
