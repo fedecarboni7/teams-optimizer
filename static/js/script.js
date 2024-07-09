@@ -164,3 +164,14 @@ function toggleSelectPlayers() {
         toggleButton.textContent = "Deseleccionar todos los jugadores";
     }
 }
+
+function toggleTable(button) {
+    const tableContainer = button.nextElementSibling;
+    if (tableContainer.style.display === "none" || tableContainer.style.display === "") {
+        tableContainer.style.display = "block";
+        button.textContent = "Ocultar detalles";
+    } else {
+        tableContainer.style.display = "none";
+        button.textContent = "Mostrar detalles";
+    }
+}

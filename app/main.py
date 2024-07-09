@@ -203,7 +203,8 @@ async def submit_form(request: Request, db: Session = Depends(get_db)):
                                             "len_teams": len(teams),
                                             "min_difference": str(min_difference),
                                             "min_difference_total": str(min_difference_total),
-                                        },
+                                            "skills": ["velocidad", "resistencia", "control", "pases", "tiro", "defensa", "habilidad_arquero", "fuerza_cuerpo", "vision"]
+                                        }
                                     )
 
 

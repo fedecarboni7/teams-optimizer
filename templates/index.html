@@ -77,25 +77,77 @@
 
     {% if teams %}
         {% for i in range(0, len_teams - 1, 2) %}
-            <h2>Equipo 1</h2>
-            <p>Total: {{teams[i][1][1]}} Promedio: {{teams[i][1][2]}}</p>
-            <p>Total habilidades - Velocidad: {{teams[i][1][0]["velocidad"]["total"]}} Resistencia: {{teams[i][1][0]["resistencia"]["total"]}}</p>
-            <p>Promedio habilidades - Velocidad: {{teams[i][1][0]["velocidad"]["avg"]}} Resistencia: {{teams[i][1][0]["resistencia"]["avg"]}}</p>
-            <ul>
-                {% for player in teams[i][0] %}
-                <li>{{ player }}</li>
-                {% endfor %}
-            </ul>
+            <div class="team-container">
+                <div class="team">
+                    <h2>Equipo 1</h2>
+                    <ul>
+                        {% for player in teams[i][0] %}
+                        <li>{{ player }}</li>
+                        {% endfor %}
+                    </ul>
+                    <button type="button" onclick="toggleTable(this)">Mostrar detalles</button>
+                    <div class="table-container" style="display: none;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Habilidad</th>
+                                    <th>Total</th>
+                                    <th>Promedio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for skill in skills %}
+                                <tr>
+                                    <td>{{ skill }}</td>
+                                    <td>{{ teams[i][1][0][skill]["total"] }}</td>
+                                    <td>{{ teams[i][1][0][skill]["avg"] }}</td>
+                                </tr>
+                                {% endfor %}
+                                <tr>
+                                    <td>Total</td>
+                                    <td>{{ teams[i][1][1] }}</td>
+                                    <td>{{ teams[i][1][2] }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
-            <h2>Equipo 2</h2>
-            <p>Total: {{teams[i + 1][1][1]}} Promedio: {{teams[i + 1][1][2]}}</p>
-            <p>Total habilidades - Velocidad: {{teams[i + 1][1][0]["velocidad"]["total"]}} Resistencia: {{teams[i + 1][1][0]["resistencia"]["total"]}}</p>
-            <p>Promedio habilidades - Velocidad: {{teams[i + 1][1][0]["velocidad"]["avg"]}} Resistencia: {{teams[i + 1][1][0]["resistencia"]["avg"]}}</p>
-            <ul>
-                {% for player in teams[i + 1][0] %}
-                <li>{{ player }}</li>
-                {% endfor %}
-            </ul>
+                <div class="team">
+                    <h2>Equipo 2</h2>
+                    <ul>
+                        {% for player in teams[i + 1][0] %}
+                        <li>{{ player }}</li>
+                        {% endfor %}
+                    </ul>
+                    <button type="button" onclick="toggleTable(this)">Mostrar detalles</button>
+                    <div class="table-container" style="display: none;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Habilidad</th>
+                                    <th>Total</th>
+                                    <th>Promedio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for skill in skills %}
+                                <tr>
+                                    <td>{{ skill }}</td>
+                                    <td>{{ teams[i + 1][1][0][skill]["total"] }}</td>
+                                    <td>{{ teams[i + 1][1][0][skill]["avg"] }}</td>
+                                </tr>
+                                {% endfor %}
+                                <tr>
+                                    <td>Total</td>
+                                    <td>{{ teams[i + 1][1][1] }}</td>
+                                    <td>{{ teams[i + 1][1][2] }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         {% endfor %}
     {% endif %}
 
