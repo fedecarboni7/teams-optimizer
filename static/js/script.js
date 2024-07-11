@@ -127,24 +127,51 @@ function validateForm(event) {
         }
     }
     
-    // Validar que al menos un checkbox esté seleccionado
+    // Validar que al menos tres checkbox estén seleccionados
     let selectedPlayers = document.querySelectorAll('input[name="selectedPlayers"]:checked');
     if (selectedPlayers.length < 3) {
         alert('Por favor, selecciona al menos tres jugadores.');
         event.preventDefault();
         return false;
     }
-    
+
     return true;
 }
 
 function toggleDetails(button) {
     var details = button.parentNode.querySelector('.details-container');
-    if (details.style.display === 'none' || details.style.display === '') {
-        details.style.display = 'block';
+    if (details.style.maxHeight === "0px" || details.style.maxHeight === '') {
+        details.style.maxHeight = details.scrollHeight + "px";
         button.textContent = 'Ocultar detalles';
     } else {
-        details.style.display = 'none';
+        details.style.maxHeight = "0px";
         button.textContent = 'Mostrar detalles';
+    }
+}
+
+function toggleSelectPlayers() {
+    const checkboxes = document.querySelectorAll('input[name="selectedPlayers"]');
+    const toggleButton = document.getElementById('toggle-select-button');
+    const allSelected = Array.from(checkboxes).every(checkbox => checkbox.checked);
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = !allSelected;
+    });
+
+    if (allSelected) {
+        toggleButton.textContent = "Seleccionar todos los jugadores";
+    } else {
+        toggleButton.textContent = "Deseleccionar todos los jugadores";
+    }
+}
+
+function toggleTable(button) {
+    const tableContainer = button.nextElementSibling;
+    if (tableContainer.style.maxHeight === "0px" || tableContainer.style.maxHeight === "") {
+        tableContainer.style.maxHeight = tableContainer.scrollHeight + "px";
+        button.textContent = "Ocultar detalles";
+    } else {
+        tableContainer.style.maxHeight = "0px";
+        button.textContent = "Mostrar detalles";
     }
 }
