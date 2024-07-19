@@ -5,14 +5,17 @@ from passlib.hash import pbkdf2_sha256
 from sqlalchemy import ForeignKey, create_engine, Column, Integer, String
 from sqlalchemy.orm import sessionmaker, relationship, declarative_base
 
-TURSO_DATABASE_URL = os.environ.get("TURSO_DATABASE_URL")
-TURSO_AUTH_TOKEN = os.environ.get("TURSO_AUTH_TOKEN")
+LOCAL_DB = os.environ.get("LOCAL_DB", "").lower() == "true"
 
-dbUrl = f"sqlite+{TURSO_DATABASE_URL}/?authToken={TURSO_AUTH_TOKEN}&secure=true"
+if LOCAL_DB:
+    dbUrl = "sqlite:///./test.db"
+else:
+    TURSO_DATABASE_URL = os.environ.get("TURSO_DATABASE_URL")
+    TURSO_AUTH_TOKEN = os.environ.get("TURSO_AUTH_TOKEN")
+    dbUrl = f"sqlite+{TURSO_DATABASE_URL}/?authToken={TURSO_AUTH_TOKEN}&secure=true"
 
 timeout = int(os.getenv('DB_TIMEOUT', 30))
 engine = create_engine(dbUrl, connect_args={'check_same_thread': False, 'timeout': timeout})
-
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
