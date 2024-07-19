@@ -81,7 +81,11 @@
 
     {% if teams %}
         {% for i in range(0, len_teams - 1, 2) %}
-            <div class="team-container">
+            {% if len_teams > 2 %}
+                <p>Opción {{ i // 2 + 1 }}</p>
+            {% endif %}
+            <button id="shareButton{{ i // 2  + 1 }}" onclick="compartirEquipos(this)">Compartir Equipos</button>
+            <div class="team-container" id="resultados-equipos{{ i // 2  + 1 }}">
                 <div class="team">
                     <h2>Equipo 1</h2>
                     <ul>

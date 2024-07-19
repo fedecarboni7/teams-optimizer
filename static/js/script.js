@@ -262,3 +262,40 @@ document.addEventListener('DOMContentLoaded', function() {
         scrollButton.style.display = 'block';
     }
 });
+
+function compartirEquipos(button) {
+    const indice = button.id.replace('shareButton', ''); // Obtiene el índice del botón
+    const contenedor = document.getElementById('resultados-equipos' + indice);
+    // Construye el texto a compartir
+    let textoCompartir = '';
+    const titulos = contenedor.querySelectorAll('h2');
+    const listasJugadores = contenedor.querySelectorAll('ul');
+    for (let i = 0; i < titulos.length; i++) {
+        textoCompartir += titulos[i].innerText + '\n'; // Agrega el título
+        
+        // Itera sobre los jugadores en la lista
+        const jugadores = listasJugadores[i].querySelectorAll('li');
+        for (let j = 0; j < jugadores.length; j++) {
+            textoCompartir += '- ' + jugadores[j].innerText + '\n'; // Agrega el jugador
+        }
+        textoCompartir += '\n'; // Agrega una línea en blanco entre equipos
+    }
+    if (navigator.share) {
+        navigator.share({
+            title: 'Resultados de los Equipos - Opción ' + (parseInt(indice)),
+            text: textoCompartir
+        })
+        .then(() => console.log('Resultados compartidos exitosamente.'))
+        .catch((error) => console.error('Error al compartir:', error));
+    } else {
+        // Opción alternativa para navegadores que no soportan Web Share API
+        alert('Tu navegador no soporta la función de compartir. Por favor, copia el texto manualmente.');
+        navigator.clipboard.writeText(textoCompartir)
+          .then(() => {
+            alert('Texto copiado al portapapeles');
+          })
+          .catch(err => {
+            console.error('Error al copiar al portapapeles: ', err);
+          });
+    }
+}
