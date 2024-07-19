@@ -232,3 +232,33 @@ document.addEventListener('DOMContentLoaded', function() {
         checkbox.addEventListener('change', updateSelectedCount);
     });
 });
+
+function scrollToBottom() {
+    const scrollButton = document.getElementById('scroll-button');
+    if (window.scrollY + window.innerHeight >= document.body.scrollHeight) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+}
+
+// Evento para mostrar u ocultar el botón dependiendo de la posición de la página
+window.addEventListener('scroll', function() {
+    const scrollButton = document.getElementById('scroll-button');
+    // Añadimos una pequeña tolerancia para asegurar la detección del fondo de la página
+    if (window.scrollY + window.innerHeight >= document.body.scrollHeight - 2) {
+        scrollButton.style.display = 'none';
+    } else {
+        scrollButton.style.display = 'block';
+    }
+});
+
+// Inicializar el estado del botón al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    const scrollButton = document.getElementById('scroll-button');
+    if (window.scrollY + window.innerHeight >= document.body.scrollHeight) {
+        scrollButton.style.display = 'none';
+    } else {
+        scrollButton.style.display = 'block';
+    }
+});

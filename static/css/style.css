@@ -227,3 +227,18 @@ th {
     text-align: left;
     padding-right: 10px;
 }
+
+#scroll-button {
+    position: fixed;
+    bottom: 20px;
+    right: 200px;
+    background-color: transparent;
+    padding: 0;
+    font-size: 24px;
+    cursor: pointer;
+    display: block;
+}
+
+#scroll-button:hover {
+    background-color: #555;
+}
