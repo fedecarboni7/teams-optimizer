@@ -78,6 +78,8 @@ function addPlayer() {
     playerDiv.appendChild(deleteButton);
 
     container.appendChild(playerDiv);
+
+    updateSelectedCount();
 }
 
 function deletePlayer(playerId) {
@@ -90,6 +92,8 @@ function deletePlayer(playerId) {
                 }
             });
     }
+
+    updateSelectedCount();
 }
 
 function reset() {
@@ -163,6 +167,8 @@ function toggleSelectPlayers() {
     } else {
         toggleButton.textContent = "Deseleccionar todos los jugadores";
     }
+
+    updateSelectedCount();
 }
 
 function toggleTable(button) {
@@ -175,3 +181,54 @@ function toggleTable(button) {
         button.textContent = "Mostrar detalles";
     }
 }
+
+function updateSelectedCount() {
+    let selectedCount = document.querySelectorAll('input[name="selectedPlayers"]:checked').length;
+    document.getElementById('selected-count').textContent = selectedCount;
+
+    updateSelectedPlayersList();
+}
+
+function updateSelectedPlayersList() {
+    let selectedPlayers = document.querySelectorAll('input[name="selectedPlayers"]:checked');
+    let selectedPlayersUL = document.getElementById('selected-players-ul');
+
+    selectedPlayersUL.innerHTML = ''; // Clear the list
+
+    selectedPlayers.forEach(playerCheckbox => {
+        let playerId = playerCheckbox.value;
+        let playerName = playerCheckbox.nextElementSibling.nextElementSibling.value;
+
+        let listItem = document.createElement('li');
+        let playerText = document.createElement('span');
+        playerText.textContent = playerName;
+
+        listItem.appendChild(createDeselectButton(playerId));
+        listItem.appendChild(playerText);
+        selectedPlayersUL.appendChild(listItem);
+    });
+}
+
+function createDeselectButton(playerId) {
+    let button = document.createElement('button');
+    button.textContent = '✖';
+    button.onclick = function() {
+        deselectPlayer(playerId);
+    };
+    return button;
+}
+
+function deselectPlayer(playerId) {
+    let checkbox = document.querySelector(`input[name="selectedPlayers"][value="${playerId}"]`);
+    if (checkbox) {
+        checkbox.checked = false;
+        updateSelectedCount();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    let checkboxes = document.querySelectorAll('input[name="selectedPlayers"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelectedCount);
+    });
+});
