@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Armar Equipos</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="../static/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../static/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../static/favicon/favicon-16x16.png">
+    <link rel="manifest" href="../static/favicon/site.webmanifest">
     <link rel="stylesheet" type="text/css" href="/static/css/style.css">
     <script src="static/js/script.js"></script>
 </head>
@@ -77,7 +81,11 @@
 
     {% if teams %}
         {% for i in range(0, len_teams - 1, 2) %}
-            <div class="team-container">
+            {% if len_teams > 2 %}
+                <p>Opción {{ i // 2 + 1 }}</p>
+            {% endif %}
+            <button id="shareButton{{ i // 2  + 1 }}" onclick="compartirEquipos(this)">Compartir Equipos</button>
+            <div class="team-container" id="resultados-equipos{{ i // 2  + 1 }}">
                 <div class="team">
                     <h2>Equipo 1</h2>
                     <ul>
@@ -152,5 +160,14 @@
         {% endfor %}
     {% endif %}
 
+    <div id="floating-button">
+        Cant. Jugadores: <span id="selected-count">0</span>
+        <div id="selected-players-list" class="hidden">
+            <ul id="selected-players-ul"></ul>
+        </div>
+    </div>
+
+    <button id="scroll-button" onclick="scrollToBottom()">⬇️</button>
+    
 </body>
 </html>

@@ -78,6 +78,8 @@ function addPlayer() {
     playerDiv.appendChild(deleteButton);
 
     container.appendChild(playerDiv);
+
+    updateSelectedCount();
 }
 
 function deletePlayer(playerId) {
@@ -90,6 +92,8 @@ function deletePlayer(playerId) {
                 }
             });
     }
+
+    updateSelectedCount();
 }
 
 function reset() {
@@ -163,6 +167,8 @@ function toggleSelectPlayers() {
     } else {
         toggleButton.textContent = "Deseleccionar todos los jugadores";
     }
+
+    updateSelectedCount();
 }
 
 function toggleTable(button) {
@@ -173,5 +179,123 @@ function toggleTable(button) {
     } else {
         tableContainer.style.maxHeight = "0px";
         button.textContent = "Mostrar detalles";
+    }
+}
+
+function updateSelectedCount() {
+    let selectedCount = document.querySelectorAll('input[name="selectedPlayers"]:checked').length;
+    document.getElementById('selected-count').textContent = selectedCount;
+
+    updateSelectedPlayersList();
+}
+
+function updateSelectedPlayersList() {
+    let selectedPlayers = document.querySelectorAll('input[name="selectedPlayers"]:checked');
+    let selectedPlayersUL = document.getElementById('selected-players-ul');
+
+    selectedPlayersUL.innerHTML = ''; // Clear the list
+
+    selectedPlayers.forEach(playerCheckbox => {
+        let playerId = playerCheckbox.value;
+        let playerName = playerCheckbox.nextElementSibling.nextElementSibling.value;
+
+        let listItem = document.createElement('li');
+        let playerText = document.createElement('span');
+        playerText.textContent = playerName;
+
+        listItem.appendChild(createDeselectButton(playerId));
+        listItem.appendChild(playerText);
+        selectedPlayersUL.appendChild(listItem);
+    });
+}
+
+function createDeselectButton(playerId) {
+    let button = document.createElement('button');
+    button.textContent = '✖';
+    button.onclick = function() {
+        deselectPlayer(playerId);
+    };
+    return button;
+}
+
+function deselectPlayer(playerId) {
+    let checkbox = document.querySelector(`input[name="selectedPlayers"][value="${playerId}"]`);
+    if (checkbox) {
+        checkbox.checked = false;
+        updateSelectedCount();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    let checkboxes = document.querySelectorAll('input[name="selectedPlayers"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelectedCount);
+    });
+});
+
+function scrollToBottom() {
+    const scrollButton = document.getElementById('scroll-button');
+    if (window.scrollY + window.innerHeight >= document.body.scrollHeight) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+}
+
+// Evento para mostrar u ocultar el botón dependiendo de la posición de la página
+window.addEventListener('scroll', function() {
+    const scrollButton = document.getElementById('scroll-button');
+    // Añadimos una pequeña tolerancia para asegurar la detección del fondo de la página
+    if (window.scrollY + window.innerHeight >= document.body.scrollHeight - 2) {
+        scrollButton.style.display = 'none';
+    } else {
+        scrollButton.style.display = 'block';
+    }
+});
+
+// Inicializar el estado del botón al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    const scrollButton = document.getElementById('scroll-button');
+    if (window.scrollY + window.innerHeight >= document.body.scrollHeight) {
+        scrollButton.style.display = 'none';
+    } else {
+        scrollButton.style.display = 'block';
+    }
+});
+
+function compartirEquipos(button) {
+    const indice = button.id.replace('shareButton', ''); // Obtiene el índice del botón
+    const contenedor = document.getElementById('resultados-equipos' + indice);
+    // Construye el texto a compartir
+    let textoCompartir = '';
+    const titulos = contenedor.querySelectorAll('h2');
+    const listasJugadores = contenedor.querySelectorAll('ul');
+    for (let i = 0; i < titulos.length; i++) {
+        textoCompartir += titulos[i].innerText + '\n'; // Agrega el título
+        
+        // Itera sobre los jugadores en la lista
+        const jugadores = listasJugadores[i].querySelectorAll('li');
+        for (let j = 0; j < jugadores.length; j++) {
+            textoCompartir += '- ' + jugadores[j].innerText + '\n'; // Agrega el jugador
+        }
+        textoCompartir += '\n'; // Agrega una línea en blanco entre equipos
+    }
+    if (navigator.share) {
+        navigator.share({
+            title: 'Resultados de los Equipos - Opción ' + (parseInt(indice)),
+            text: textoCompartir
+        })
+        .then(() => console.log('Resultados compartidos exitosamente.'))
+        .catch((error) => console.error('Error al compartir:', error));
+    } else {
+        // Opción alternativa para navegadores que no soportan Web Share API
+        alert('Tu navegador no soporta la función de compartir. Por favor, copia el texto manualmente.');
+        navigator.clipboard.writeText(textoCompartir)
+          .then(() => {
+            alert('Texto copiado al portapapeles');
+          })
+          .catch(err => {
+            console.error('Error al copiar al portapapeles: ', err);
+          });
     }
 }
