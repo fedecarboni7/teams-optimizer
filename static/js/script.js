@@ -5,25 +5,33 @@ function addPlayer() {
 
     playerDiv.className = "player-entry";
 
+    // Player Header
+    const playerHeader = document.createElement("div");
+    playerHeader.className = "player-header";
+
     // Checkbox para seleccionar jugador
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.name = "selectedPlayers";
     checkbox.value = playerCount;
     checkbox.checked = true;
-    playerDiv.appendChild(checkbox);
+    playerHeader.appendChild(checkbox);
 
     // Nombre del jugador
     const nameLabel = document.createElement("label");
     nameLabel.textContent = "Nombre del jugador " + (playerCount + 1) + ":";
+    playerHeader.appendChild(nameLabel);
+
     const nameInput = document.createElement("input");
     nameInput.type = "text";
     nameInput.name = "names";
     nameInput.required = true;
-    playerDiv.appendChild(nameLabel);
-    playerDiv.appendChild(nameInput);
-    
-    // Botón para mostrar detalles
+    nameInput.style.flex = "1"; // Asegurar que el input de nombre se expanda
+    playerHeader.appendChild(nameInput);
+
+    playerDiv.appendChild(playerHeader);
+
+    // Botón para mostrar/ocultar detalles
     const toggleButton = document.createElement("button");
     toggleButton.className = "toggle-details";
     toggleButton.type = "button";
@@ -51,7 +59,8 @@ function addPlayer() {
 
         const label = document.createElement("label");
         label.textContent = skill.charAt(0).toUpperCase() + skill.slice(1).replace('_', ' ') + ":";
-        
+        label.textContent = label.textContent.replace('Habilidad arquero', 'Hab. Arquero');
+
         const input = document.createElement("input");
         input.type = "number";
         input.name = skill;
@@ -70,6 +79,7 @@ function addPlayer() {
 
     // Botón para eliminar
     const deleteButton = document.createElement("button");
+    deleteButton.className = "delete-button";
     deleteButton.type = "button";
     deleteButton.textContent = "Eliminar";
     deleteButton.addEventListener("click", function() {
@@ -81,6 +91,7 @@ function addPlayer() {
 
     updateSelectedCount();
 }
+
 
 function deletePlayer(playerId) {
     if (confirm("¿Estás seguro de que quieres eliminar este jugador?")) {

@@ -17,10 +17,14 @@
         <div id="players-container" class="player-container">
             {% for player in players %}
             <div class="player-entry">
-                <input type="checkbox" name="selectedPlayers" value="{{ player.id }}">
-                <label>Nombre del jugador:</label>
-                <input type="text" name="names" value="{{ player.name }}" required>
-                <span>Puntaje total: {{ player.total_score }}</span>
+                <div class="player-header">
+                    <input type="checkbox" name="selectedPlayers" value="{{ player.id }}">
+                    <label>Nombre:</label>
+                    <input type="text" name="names" value="{{ player.name }}" required>
+                </div>
+                <div class="player-score">
+                    <span>Puntaje total: {{ player.total_score }}</span>
+                </div>
                 <button class="toggle-details" type="button" onclick="toggleDetails(this)">Mostrar detalles</button>
                 <div class="details-container" style="max-height: 0;">
                     <div class="skills-container">
@@ -62,15 +66,15 @@
                         </div>
                     </div>
                 </div>
-                <button type="button" onclick="deletePlayer('{{ player.id }}')">Eliminar</button>
-            </div>
+                <button class="delete-button" type="button" onclick="deletePlayer('{{ player.id }}')">Eliminar</button>
+            </div>            
             {% endfor %}
         </div>
         <button type="button" onclick="addPlayer()">Agregar jugador</button>
         <button type="button" id="toggle-select-button" onclick="toggleSelectPlayers()">Seleccionar todos los jugadores</button>
         <button type="submit" id="submitBtn">Calcular</button>
     </form>
-    <button type="button" onclick="reset()">Restablecer jugadores</button>
+    <button class="reset-button" type="button" onclick="reset()">Restablecer jugadores</button>
     <br>
     <a href="/logout" class="logout-link">Cerrar sesión</a>
 
@@ -84,7 +88,7 @@
             {% if len_teams > 2 %}
                 <p>Opción {{ i // 2 + 1 }}</p>
             {% endif %}
-            <button id="shareButton{{ i // 2  + 1 }}" onclick="compartirEquipos(this)">Compartir Equipos</button>
+            <button class="share-button" id="shareButton{{ i // 2  + 1 }}" onclick="compartirEquipos(this)">Compartir Equipos</button>
             <div class="team-container" id="resultados-equipos{{ i // 2  + 1 }}">
                 <div class="team">
                     <h2>Equipo 1</h2>

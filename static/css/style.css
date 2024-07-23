@@ -9,10 +9,9 @@ body {
 h1 {
     color: #ffffff;
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 40px;
 }
 
-/* Enlace "Restablecer" */
 a.logout-link {
     color: #ff7158; /* Color del enlace */
     text-decoration: none; /* Quitar subrayado */
@@ -23,14 +22,8 @@ a.logout-link {
     transition: color 0.3s ease; /* Transición suave del color */
 }
 
-/* Cambio de color al pasar el ratón */
 a.logout-link:hover {
-    color: #c5413d; /* Color al pasar el ratón */
-}
-
-.details-container {
-    overflow: hidden;
-    transition: max-height 0.2s ease-out;
+    color: #c5413d;
 }
 
 .player-container {
@@ -43,38 +36,95 @@ a.logout-link:hover {
 .player-entry {
     display: flex;
     flex-direction: column;
-    gap: 5px;
-    padding: 10px;
-    border: 1px solid #333;
-    border-radius: 5px;
+    gap: 10px;
+    padding: 15px;
+    border: 1px solid #444;
+    border-radius: 8px;
     background-color: #2b2b2b;
 }
 
+.player-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.player-header label {
+    font-weight: normal;
+}
+
+.player-header input[type="text"] {
+    flex: 1;
+    padding: 8px;
+    background-color: #333;
+    border: 1px solid #444;
+    border-radius: 5px;
+    color: #fff;
+    font-size: initial;
+    margin-right: 5px;
+}
+
+.player-header input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+}
+
+.player-score {
+    font-size: 16px;
+    margin-top: 5px;
+}
+
+.toggle-details {
+    background-color: #444;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: -10px;
+}
+
+.toggle-details:hover {
+    background-color: #555;
+}
+
+.details-container {
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+}
+
+/* Contenedor de habilidades */
 .skills-container {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     margin-top: 10px;
+    margin-left: 5px;
 }
 
+/* Estilo para cada entrada de habilidad */
 .skill-entry {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     width: calc(33.33% - 10px); /* Para 3 columnas en pantallas grandes */
 }
 
 .skill-entry label {
     font-size: 14px;
-    margin-bottom: 2px;
+    margin-right: 10px;
+    white-space: nowrap;
+    width: 100px;
 }
 
 .skill-entry input {
-    width: 95%;
+    flex: 1;
     padding: 5px;
+    background-color: #333;
+    border: 1px solid #444;
+    border-radius: 5px;
+    color: #fff;
 }
 
-/* Media queries para responsividad */
 @media (max-width: 768px) {
     .skill-entry {
         width: calc(50% - 10px); /* 2 columnas en tablets */
@@ -83,8 +133,26 @@ a.logout-link:hover {
 
 @media (max-width: 480px) {
     .skill-entry {
-        width: 100%; /* 1 columna en móviles */
+        width: 100%;
+        margin-right: 10px; /* 1 columna en móviles */
     }
+}
+
+.delete-button {
+    background-color: #a21508;
+    padding: 10px;
+}
+
+.delete-button:hover {
+    background-color: #901308;
+}
+
+.reset-button {
+    background-color: #a21508;
+}
+
+.reset-button:hover {
+    background-color: #901308;
 }
 
 .table-container {
@@ -103,6 +171,7 @@ a.logout-link:hover {
     flex: 1 1 100%;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     padding: 20px;
+    padding-top: 0;
     border-radius: 5px;
     box-sizing: border-box;
 }
@@ -119,7 +188,6 @@ label {
 
 input {
     padding: 10px;
-    margin-bottom: 10px;
     border: 1px solid #555;
     border-radius: 5px;
     background-color: #333;
@@ -172,7 +240,7 @@ th {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    background-color: #333;
+    background-color: #333333d0;
     color: white;
     padding: 10px 20px;
     border-radius: 5px;
@@ -186,7 +254,7 @@ th {
     position: absolute;
     bottom: 50px;
     right: 0;
-    background-color: #1c1c1c;
+    background-color: transparent;
     color: #fff;
     padding: 10px;
     border-radius: 5px;
@@ -212,6 +280,7 @@ th {
     align-items: center;
     justify-content: space-between;
     padding: 5px 0;
+    background-color: #2b2b2bcc;
 }
 
 #selected-players-ul button {
@@ -237,8 +306,13 @@ th {
     font-size: 24px;
     cursor: pointer;
     display: block;
+    color: #000000d9;
 }
 
 #scroll-button:hover {
     background-color: #555;
+}
+
+.share-button {
+    margin-left: 20px;
 }
