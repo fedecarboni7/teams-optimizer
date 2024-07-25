@@ -19,7 +19,7 @@ function addPlayer() {
 
     // Nombre del jugador
     const nameLabel = document.createElement("label");
-    nameLabel.textContent = "Nombre del jugador " + (playerCount + 1) + ":";
+    nameLabel.textContent = "Jugador " + (playerCount + 1) + ":";
     playerHeader.appendChild(nameLabel);
 
     const nameInput = document.createElement("input");
@@ -81,9 +81,15 @@ function addPlayer() {
     const deleteButton = document.createElement("button");
     deleteButton.className = "delete-button";
     deleteButton.type = "button";
-    deleteButton.textContent = "Eliminar";
+
+    const trashIcon = document.createElement("i");
+    trashIcon.className = "fas fa-trash-alt";
+    
+    deleteButton.appendChild(trashIcon);
+
     deleteButton.addEventListener("click", function() {
         container.removeChild(playerDiv);
+        renumerarJugadores();
     });
     playerDiv.appendChild(deleteButton);
 
@@ -92,9 +98,23 @@ function addPlayer() {
     updateSelectedCount();
 }
 
+function renumerarJugadores() {
+    const container = document.getElementById("players-container");
+    const jugadores = container.children;
+    for (let i = 0; i < jugadores.length; i++) {
+      const jugador = jugadores[i];
+      const label = jugador.querySelector(".player-header label");
+      label.textContent = "Jugador " + (i + 1) + ":";
+      // Actualizar el valor del checkbox (opcional, si lo usas para algo)
+      const checkbox = jugador.querySelector(".player-header input[type='checkbox']");
+      if (checkbox) {
+        checkbox.value = i;
+      }
+    }
+}
 
 function deletePlayer(playerId) {
-    if (confirm("¿Estás seguro de que quieres eliminar este jugador?")) {
+    if (confirm("¿Estás seguro de que querés eliminar este jugador?")) {
         fetch(`/player/${playerId}`, { method: 'DELETE' })
             .then(response => response.json())
             .then(data => {
@@ -108,7 +128,7 @@ function deletePlayer(playerId) {
 }
 
 function reset() {
-    if (confirm("¿Estás seguro de que quieres restablecer los datos?")) {
+    if (confirm("¿Estás seguro de que querés restablecer los datos?")) {
         fetch('/reset')
             .then(response => response.json())
             .then(data => {

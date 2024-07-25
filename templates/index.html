@@ -9,6 +9,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="../static/favicon/favicon-16x16.png">
     <link rel="manifest" href="../static/favicon/site.webmanifest">
     <link rel="stylesheet" type="text/css" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="static/js/script.js"></script>
 </head>
 <body>
@@ -19,8 +20,11 @@
             <div class="player-entry">
                 <div class="player-header">
                     <input type="checkbox" name="selectedPlayers" value="{{ player.id }}">
-                    <label>Nombre:</label>
+                    <label>Jugador {{ loop.index }}:</label>
                     <input type="text" name="names" value="{{ player.name }}" required>
+                    <button class="delete-button" type="button" onclick="deletePlayer('{{ player.id }}')">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
                 </div>
                 <div class="player-score">
                     <span>Puntaje total: {{ player.total_score }}</span>
@@ -66,24 +70,22 @@
                         </div>
                     </div>
                 </div>
-                <button class="delete-button" type="button" onclick="deletePlayer('{{ player.id }}')">Eliminar</button>
-            </div>            
+            </div>
             {% endfor %}
         </div>
         <button type="button" onclick="addPlayer()">Agregar jugador</button>
         <button type="button" id="toggle-select-button" onclick="toggleSelectPlayers()">Seleccionar todos los jugadores</button>
         <button type="submit" id="submitBtn">Calcular</button>
     </form>
-    <button class="reset-button" type="button" onclick="reset()">Restablecer jugadores</button>
+    <button class="reset-button" type="button" onclick="reset()">Borrar a todos</button>
     <br>
     <a href="/logout" class="logout-link">Cerrar sesión</a>
 
-    {% if min_difference %}
+    {% if teams %}
         <h3>Diferencia mínima de habilidades: {{ min_difference }}</h3>
         <h3>Diferencia mínima encontrada: {{ min_difference_total }}</h3>
-    {% endif %}
+        <h3>Combinaciones encontradas: {{ len_teams // 2 }}</h3>
 
-    {% if teams %}
         {% for i in range(0, len_teams - 1, 2) %}
             {% if len_teams > 2 %}
                 <p>Opción {{ i // 2 + 1 }}</p>

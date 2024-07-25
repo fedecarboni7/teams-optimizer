@@ -41,6 +41,7 @@ a.logout-link:hover {
     border: 1px solid #444;
     border-radius: 8px;
     background-color: #2b2b2b;
+    position: relative;
 }
 
 .player-header {
@@ -62,6 +63,7 @@ a.logout-link:hover {
     color: #fff;
     font-size: initial;
     margin-right: 5px;
+    max-width: calc(100% - 180px);
 }
 
 .player-header input[type="checkbox"] {
@@ -139,16 +141,22 @@ a.logout-link:hover {
 }
 
 .delete-button {
-    background-color: #a21508;
-    padding: 10px;
+    background-color: transparent;
+    border: none;
+    color: #cbcbcb;
+    cursor: pointer;
+    font-size: 16px;
+    position: absolute;
+    top: 9px;
+    right: 0px;
 }
 
 .delete-button:hover {
-    background-color: #901308;
+    color: #e44e41;
 }
 
 .reset-button {
-    background-color: #a21508;
+    background-color: #9f1f14;
 }
 
 .reset-button:hover {

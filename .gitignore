@@ -11,3 +11,6 @@ venv/
 
 # VSCode
 .vscode
+
+# IDX
+.idx
