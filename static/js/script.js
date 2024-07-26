@@ -180,9 +180,11 @@ function toggleDetails(button) {
 
     if (details.style.maxHeight === "0px") {
         details.style.maxHeight = details.scrollHeight + "px";
+        details.style.paddingBottom = "5px";
         button.innerHTML = '<i class="fas fa-caret-up"></i>';
     } else {
         details.style.maxHeight = "0px";
+        details.style.paddingBottom = "0px";
         button.innerHTML = '<i class="fas fa-caret-down"></i>';
     }
 }
