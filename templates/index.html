@@ -26,12 +26,10 @@
                         <i class="fas fa-trash-alt"></i>
                     </button>
                 </div>
-                <div class="player-score">
-                    <span>Puntaje total: {{ player.total_score }}</span>
-                </div>
                 <button class="toggle-details" type="button" onclick="toggleDetails(this)">Mostrar detalles</button>
                 <div class="details-container" style="max-height: 0;">
                     <div class="skills-container">
+                        <label>Puntaje Total: {{player.total_score}}</label>
                         <div class="skill-entry">
                             <label>Velocidad:</label>
                             <input type="number" name="velocidad" value="{{ player.velocidad }}" min="1" max="5" placeholder="1-5" required>

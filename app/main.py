@@ -192,7 +192,7 @@ async def submit_form(request: Request, db: Session = Depends(get_db)):
 
         team.append([team_skills,
                      sum([team_skills[key]["total"] for key in team_skills]),
-                     str(sum([team_skills[key]["total"] / len(team[0]) for key in team_skills])).replace(".", ",")])
+                     str(round(sum([team_skills[key]["total"] / len(team[0]) for key in team_skills]), 2)).replace(".", ",")])
 
     return templates.TemplateResponse(request=request,
                                       name="index.html",

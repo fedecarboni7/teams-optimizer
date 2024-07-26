@@ -146,9 +146,7 @@ a.logout-link:hover {
     color: #cbcbcb;
     cursor: pointer;
     font-size: 16px;
-    position: absolute;
-    top: 9px;
-    right: 0px;
+    margin: -12px
 }
 
 .delete-button:hover {

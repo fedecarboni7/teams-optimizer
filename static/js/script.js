@@ -91,7 +91,7 @@ function addPlayer() {
         container.removeChild(playerDiv);
         renumerarJugadores();
     });
-    playerDiv.appendChild(deleteButton);
+    playerHeader.appendChild(deleteButton);
 
     container.appendChild(playerDiv);
 
