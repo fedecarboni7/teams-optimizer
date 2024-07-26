@@ -46,6 +46,7 @@ function addPlayer() {
     detailsContainer.className = "details-container";
     detailsContainer.style.display = "block";
     detailsContainer.style.maxHeight = "338px";
+    detailsContainer.style.paddingBottom = "5px";
 
     // Skills Container
     const skillsContainer = document.createElement("div");
