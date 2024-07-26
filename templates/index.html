@@ -22,12 +22,14 @@
                     <input type="checkbox" name="selectedPlayers" value="{{ player.id }}">
                     <label>Jugador {{ loop.index }}:</label>
                     <input type="text" name="names" value="{{ player.name }}" required>
+                    <button class="toggle-details" type="button" onclick="toggleDetails(this)">
+                        <i class="fas fa-caret-down"></i>
+                    </button>
                     <button class="delete-button" type="button" onclick="deletePlayer('{{ player.id }}')">
                         <i class="fas fa-trash-alt"></i>
                     </button>
                 </div>
-                <button class="toggle-details" type="button" onclick="toggleDetails(this)">Mostrar detalles</button>
-                <div class="details-container" style="max-height: 0;">
+                <div class="details-container" style="max-height: 0px;">
                     <div class="skills-container">
                         <div class="skill-entry">
                             <label>Velocidad:</label>

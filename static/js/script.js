@@ -35,16 +35,17 @@ function addPlayer() {
     const toggleButton = document.createElement("button");
     toggleButton.className = "toggle-details";
     toggleButton.type = "button";
-    toggleButton.textContent = "Ocultar detalles";
+    toggleButton.innerHTML = '<i class="fas fa-caret-up"></i>';
     toggleButton.addEventListener("click", function() {
         toggleDetails(this);
     });
-    playerDiv.appendChild(toggleButton);
+    playerHeader.appendChild(toggleButton);
 
     // Contenedor para habilidades
     const detailsContainer = document.createElement("div");
     detailsContainer.className = "details-container";
     detailsContainer.style.display = "block";
+    detailsContainer.style.maxHeight = "338px";
 
     // Skills Container
     const skillsContainer = document.createElement("div");
@@ -90,6 +91,7 @@ function addPlayer() {
     deleteButton.addEventListener("click", function() {
         container.removeChild(playerDiv);
         renumerarJugadores();
+        updateSelectedCount();
     });
     playerHeader.appendChild(deleteButton);
 
@@ -174,13 +176,14 @@ function validateForm(event) {
 }
 
 function toggleDetails(button) {
-    var details = button.parentNode.querySelector('.details-container');
-    if (details.style.maxHeight === "0px" || details.style.maxHeight === '') {
+    const details = button.parentNode.nextElementSibling;
+
+    if (details.style.maxHeight === "0px") {
         details.style.maxHeight = details.scrollHeight + "px";
-        button.textContent = 'Ocultar detalles';
+        button.innerHTML = '<i class="fas fa-caret-up"></i>';
     } else {
         details.style.maxHeight = "0px";
-        button.textContent = 'Mostrar detalles';
+        button.innerHTML = '<i class="fas fa-caret-down"></i>';
     }
 }
 
