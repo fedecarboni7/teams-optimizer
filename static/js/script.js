@@ -5,38 +5,48 @@ function addPlayer() {
 
     playerDiv.className = "player-entry";
 
+    // Player Header
+    const playerHeader = document.createElement("div");
+    playerHeader.className = "player-header";
+
     // Checkbox para seleccionar jugador
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.name = "selectedPlayers";
     checkbox.value = playerCount;
     checkbox.checked = true;
-    playerDiv.appendChild(checkbox);
+    playerHeader.appendChild(checkbox);
 
     // Nombre del jugador
     const nameLabel = document.createElement("label");
-    nameLabel.textContent = "Nombre del jugador " + (playerCount + 1) + ":";
+    nameLabel.textContent = "Jugador " + (playerCount + 1) + ":";
+    playerHeader.appendChild(nameLabel);
+
     const nameInput = document.createElement("input");
     nameInput.type = "text";
     nameInput.name = "names";
     nameInput.required = true;
-    playerDiv.appendChild(nameLabel);
-    playerDiv.appendChild(nameInput);
-    
-    // Botón para mostrar detalles
+    nameInput.style.flex = "1"; // Asegurar que el input de nombre se expanda
+    playerHeader.appendChild(nameInput);
+
+    playerDiv.appendChild(playerHeader);
+
+    // Botón para mostrar/ocultar detalles
     const toggleButton = document.createElement("button");
     toggleButton.className = "toggle-details";
     toggleButton.type = "button";
-    toggleButton.textContent = "Ocultar detalles";
+    toggleButton.innerHTML = '<i class="fas fa-caret-up"></i>';
     toggleButton.addEventListener("click", function() {
         toggleDetails(this);
     });
-    playerDiv.appendChild(toggleButton);
+    playerHeader.appendChild(toggleButton);
 
     // Contenedor para habilidades
     const detailsContainer = document.createElement("div");
     detailsContainer.className = "details-container";
     detailsContainer.style.display = "block";
+    detailsContainer.style.maxHeight = "338px";
+    detailsContainer.style.paddingBottom = "5px";
 
     // Skills Container
     const skillsContainer = document.createElement("div");
@@ -51,7 +61,8 @@ function addPlayer() {
 
         const label = document.createElement("label");
         label.textContent = skill.charAt(0).toUpperCase() + skill.slice(1).replace('_', ' ') + ":";
-        
+        label.textContent = label.textContent.replace('Habilidad arquero', 'Hab. Arquero');
+
         const input = document.createElement("input");
         input.type = "number";
         input.name = skill;
@@ -70,20 +81,43 @@ function addPlayer() {
 
     // Botón para eliminar
     const deleteButton = document.createElement("button");
+    deleteButton.className = "delete-button";
     deleteButton.type = "button";
-    deleteButton.textContent = "Eliminar";
+
+    const trashIcon = document.createElement("i");
+    trashIcon.className = "fas fa-trash-alt";
+    
+    deleteButton.appendChild(trashIcon);
+
     deleteButton.addEventListener("click", function() {
         container.removeChild(playerDiv);
+        renumerarJugadores();
+        updateSelectedCount();
     });
-    playerDiv.appendChild(deleteButton);
+    playerHeader.appendChild(deleteButton);
 
     container.appendChild(playerDiv);
 
     updateSelectedCount();
 }
 
+function renumerarJugadores() {
+    const container = document.getElementById("players-container");
+    const jugadores = container.children;
+    for (let i = 0; i < jugadores.length; i++) {
+      const jugador = jugadores[i];
+      const label = jugador.querySelector(".player-header label");
+      label.textContent = "Jugador " + (i + 1) + ":";
+      // Actualizar el valor del checkbox (opcional, si lo usas para algo)
+      const checkbox = jugador.querySelector(".player-header input[type='checkbox']");
+      if (checkbox) {
+        checkbox.value = i;
+      }
+    }
+}
+
 function deletePlayer(playerId) {
-    if (confirm("¿Estás seguro de que quieres eliminar este jugador?")) {
+    if (confirm("¿Estás seguro de que querés eliminar este jugador?")) {
         fetch(`/player/${playerId}`, { method: 'DELETE' })
             .then(response => response.json())
             .then(data => {
@@ -97,7 +131,7 @@ function deletePlayer(playerId) {
 }
 
 function reset() {
-    if (confirm("¿Estás seguro de que quieres restablecer los datos?")) {
+    if (confirm("¿Estás seguro de que querés restablecer los datos?")) {
         fetch('/reset')
             .then(response => response.json())
             .then(data => {
@@ -143,13 +177,16 @@ function validateForm(event) {
 }
 
 function toggleDetails(button) {
-    var details = button.parentNode.querySelector('.details-container');
-    if (details.style.maxHeight === "0px" || details.style.maxHeight === '') {
+    const details = button.parentNode.nextElementSibling;
+
+    if (details.style.maxHeight === "0px") {
         details.style.maxHeight = details.scrollHeight + "px";
-        button.textContent = 'Ocultar detalles';
+        details.style.paddingBottom = "5px";
+        button.innerHTML = '<i class="fas fa-caret-up"></i>';
     } else {
         details.style.maxHeight = "0px";
-        button.textContent = 'Mostrar detalles';
+        details.style.paddingBottom = "0px";
+        button.innerHTML = '<i class="fas fa-caret-down"></i>';
     }
 }
 
