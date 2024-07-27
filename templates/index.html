@@ -14,6 +14,12 @@
 </head>
 <body>
     <h1>Armar Equipos</h1>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Buscar jugador..." onkeyup="filterPlayers()">
+        <i class="fas fa-search search-icon"></i>
+    </div>
+
     <form action="/submit" method="post" onsubmit="return validateForm(event)">
         <div id="players-container" class="player-container">
             {% for player in players %}
@@ -73,8 +79,8 @@
             {% endfor %}
         </div>
         <button type="button" onclick="addPlayer()">Agregar jugador</button>
-        <button type="button" id="toggle-select-button" onclick="toggleSelectPlayers()">Seleccionar todos los jugadores</button>
         <button type="submit" id="submitBtn">Calcular</button>
+        <button type="button" id="toggle-select-button" onclick="toggleSelectPlayers()">Seleccionar todos los jugadores</button>
     </form>
     <button class="reset-button" type="button" onclick="reset()">Borrar a todos</button>
     <br>

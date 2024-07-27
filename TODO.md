@@ -1,6 +1,5 @@
 ## Prioridades Inmediatas
 
-- **Agregar un buscador de jugadores**
 - **Permitir agrupar jugadores por grupos de amigos y filtrar por grupo en el buscador**
 - **Implementar validación de entrada de datos para prevenir inyección SQL**
 

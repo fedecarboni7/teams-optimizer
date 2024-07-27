@@ -322,3 +322,29 @@ th {
 .share-button {
     margin-left: 20px;
 }
+
+.search-container {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto 20px; /* Centra el buscador y añade un margen inferior */
+}
+
+#searchInput {
+    width: 100%; /* Ocupa todo el ancho del contenedor */
+    padding: 10px 40px 10px 20px; /* Añade espacio para el icono a la derecha */
+    border-radius: 20px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    outline: none;
+    box-sizing: border-box; /* Asegura que el padding esté incluido en el ancho */
+}
+
+.search-icon {
+    position: absolute;
+    top: 50%;
+    right: 15px; /* Ajusta el espacio del icono desde el borde derecho */
+    transform: translateY(-50%);
+    color: #999;
+    pointer-events: none; /* Evita que el icono interfiera con el clic en el campo de entrada */
+}
