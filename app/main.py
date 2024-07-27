@@ -27,7 +27,10 @@ templates = Jinja2Templates(directory="templates")
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
     if exc.status_code in [404, 405]:  # Not Found y Method Not Allowed
         return RedirectResponse(url="/")
+    if exc.status_code == 302:
+        return RedirectResponse(url=exc.headers["Location"], status_code=302)
     raise exc
+
 
 @app.get("/signup", response_class=HTMLResponse)
 async def signup_page(request: Request):
