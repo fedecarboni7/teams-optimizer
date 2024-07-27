@@ -1,9 +1,11 @@
+from typing import Dict
 from fastapi import FastAPI, Form, Request, Depends, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
 from starlette.middleware.sessions import SessionMiddleware
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from sqlalchemy.orm import Session
 
@@ -21,6 +23,11 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 templates = Jinja2Templates(directory="templates")
 
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    if exc.status_code in [404, 405]:  # Not Found y Method Not Allowed
+        return RedirectResponse(url="/")
+    raise exc
 
 @app.get("/signup", response_class=HTMLResponse)
 async def signup_page(request: Request):
@@ -81,6 +88,7 @@ async def get_form(
 ):
     if not user:
         return RedirectResponse("/login", status_code=302)
+    
     user_id = request.session.get("user_id")
     players = db.query(Player).where(Player.user_id == user_id).all()
 
@@ -91,8 +99,21 @@ async def get_form(
             player.tiro + player.defensa + player.habilidad_arquero + player.fuerza_cuerpo + player.vision
         )
 
-    return templates.TemplateResponse(request=request, name="index.html", context={"players": players})
+    # Verificar si hay resultados calculados para este usuario
+    context = {
+        "request": request,
+        "players": players,
+        "skills": ["velocidad", "resistencia", "control", "pases", "tiro", "defensa", "habilidad_arquero", "fuerza_cuerpo", "vision"]
+    }
 
+    if user_id in calculated_results:
+        context.update(calculated_results[user_id])
+        # Opcionalmente, limpiar los resultados después de mostrarlos
+        del calculated_results[user_id]
+
+    return templates.TemplateResponse(request=request, name="index.html", context=context)
+
+calculated_results: Dict[str, dict] = {}
 
 @app.post("/submit", response_class=HTMLResponse)
 async def submit_form(request: Request, db: Session = Depends(get_db)):
@@ -194,18 +215,17 @@ async def submit_form(request: Request, db: Session = Depends(get_db)):
                      sum([team_skills[key]["total"] for key in team_skills]),
                      str(round(sum([team_skills[key]["total"] / len(team[0]) for key in team_skills]), 2)).replace(".", ",")])
 
-    return templates.TemplateResponse(request=request,
-                                      name="index.html",
-                                      context={
-                                            "request": request,
-                                            "players": players,
-                                            "teams": teams,
-                                            "len_teams": len(teams),
-                                            "min_difference": str(min_difference),
-                                            "min_difference_total": str(min_difference_total),
-                                            "skills": ["velocidad", "resistencia", "control", "pases", "tiro", "defensa", "habilidad_arquero", "fuerza_cuerpo", "vision"]
-                                        }
-                                    )
+    user_id = request.session.get("user_id")
+    calculated_results[user_id] = {
+        "players": players,
+        "teams": teams,
+        "len_teams": len(teams),
+        "min_difference": str(min_difference),
+        "min_difference_total": str(min_difference_total)
+    }
+
+    # Redirigir a la página principal
+    return RedirectResponse(url="/", status_code=303)
 
 
 @app.get("/reset")
