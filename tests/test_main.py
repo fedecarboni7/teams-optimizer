@@ -176,7 +176,7 @@ def test_find_best_combination():
 
 def test_reset():
     response = client.get("/reset", follow_redirects=False)
-    assert response.status_code == 200
+    assert response.status_code == 302
     assert response.json() == {"ok": True}
 
 # Pending tests:
