@@ -1,3 +1,4 @@
+import os
 from typing import Dict
 from fastapi import FastAPI, Form, Request, Depends, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -17,7 +18,9 @@ from app.team_optimizer import find_best_combination
 #app = FastAPI()
 app = FastAPI(docs_url=None, redoc_url=None)
 
-app.add_middleware(SessionMiddleware, secret_key="!my_super_secret_key")
+secret_key = os.getenv("SECRET_KEY")
+
+app.add_middleware(SessionMiddleware, secret_key=secret_key)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
@@ -159,7 +162,8 @@ async def submit_form(request: Request, db: Session = Depends(get_db)):
             db_player = Player(**player.dict())
             db.add(db_player)
     db.commit()
-    players = db.query(Player).all()
+    user_id = request.session.get("user_id")
+    players = db.query(Player).where(Player.user_id == user_id).all()
 
     # Calcular equipos
     player_names = [p.name for p in player_data]
@@ -218,7 +222,6 @@ async def submit_form(request: Request, db: Session = Depends(get_db)):
                      sum([team_skills[key]["total"] for key in team_skills]),
                      str(round(sum([team_skills[key]["total"] / len(team[0]) for key in team_skills]), 2)).replace(".", ",")])
 
-    user_id = request.session.get("user_id")
     calculated_results[user_id] = {
         "players": players,
         "teams": teams,
