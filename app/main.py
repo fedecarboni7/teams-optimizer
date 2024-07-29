@@ -90,13 +90,13 @@ async def login(
 async def get_form(
     request: Request,
     db: Session = Depends(get_db),
-    user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
-    if not user:
+    if not current_user:
         return RedirectResponse("/login", status_code=302)
     
-    user_id = request.session.get("user_id")
-    players = db.query(Player).where(Player.user_id == user_id).all()
+    user_id = current_user.id
+    players = db.query(Player).filter(Player.user_id == user_id).all()
 
     # Calcular el puntaje total de cada jugador
     for player in players:
@@ -122,7 +122,8 @@ async def get_form(
 calculated_results: Dict[str, dict] = {}
 
 @app.post("/submit", response_class=HTMLResponse)
-async def submit_form(request: Request, db: Session = Depends(get_db)):
+async def submit_form(request: Request, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    user_id = current_user.id
     form_data = await request.form()
     list_players = form_data._list
 
@@ -148,13 +149,13 @@ async def submit_form(request: Request, db: Session = Depends(get_db)):
             habilidad_arquero=int(list_players[i+8][1]),
             fuerza_cuerpo=int(list_players[i+9][1]),
             vision=int(list_players[i+10][1]),
-            user_id=request.session.get("user_id"),
+            user_id=user_id
         )
         player_data.append(player)
 
     # Guardar o actualizar jugadores en la base de datos
     for player in player_data:
-        db_player = db.query(Player).filter(Player.name == player.name).first()
+        db_player = db.query(Player).filter(Player.name == player.name, Player.user_id == user_id).first()
         if db_player:
             for key, value in player.dict().items():
                 setattr(db_player, key, value)
@@ -162,8 +163,8 @@ async def submit_form(request: Request, db: Session = Depends(get_db)):
             db_player = Player(**player.dict())
             db.add(db_player)
     db.commit()
-    user_id = request.session.get("user_id")
-    players = db.query(Player).where(Player.user_id == user_id).all()
+
+    players = db.query(Player).filter(Player.user_id == user_id).all()
 
     # Calcular equipos
     player_names = [p.name for p in player_data]
@@ -235,8 +236,9 @@ async def submit_form(request: Request, db: Session = Depends(get_db)):
 
 
 @app.get("/reset")
-async def reset_session(db: Session = Depends(get_db)):
-    db.query(Player).delete()
+async def reset_session(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    user_id = current_user.id
+    db.query(Player).filter(Player.user_id == user_id).delete()
     db.commit()
     return {"ok": True}
 
