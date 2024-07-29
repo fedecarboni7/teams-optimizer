@@ -175,8 +175,9 @@ def test_find_best_combination():
     assert len(team1) == len(team2)
 
 def test_reset():
+    response = client.post("/login", data={"username": "loginuser", "password": "loginpassword"}, follow_redirects=False)
     response = client.get("/reset", follow_redirects=False)
-    assert response.status_code == 302
+    assert response.status_code == 200
     assert response.json() == {"ok": True}
 
 # Pending tests:
