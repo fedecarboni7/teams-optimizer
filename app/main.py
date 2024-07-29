@@ -90,12 +90,12 @@ async def login(
 async def get_form(
     request: Request,
     db: Session = Depends(get_db),
-    user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
-    if not user:
+    if not current_user:
         return RedirectResponse("/login", status_code=302)
     
-    user_id = request.session.get("user_id")
+    user_id = current_user.id
     players = db.query(Player).where(Player.user_id == user_id).all()
 
     # Calcular el puntaje total de cada jugador
@@ -122,7 +122,7 @@ async def get_form(
 calculated_results: Dict[str, dict] = {}
 
 @app.post("/submit", response_class=HTMLResponse)
-async def submit_form(request: Request, db: Session = Depends(get_db)):
+async def submit_form(request: Request, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     form_data = await request.form()
     list_players = form_data._list
 
@@ -162,7 +162,8 @@ async def submit_form(request: Request, db: Session = Depends(get_db)):
             db_player = Player(**player.dict())
             db.add(db_player)
     db.commit()
-    user_id = request.session.get("user_id")
+
+    user_id = current_user.id
     players = db.query(Player).where(Player.user_id == user_id).all()
 
     # Calcular equipos
@@ -235,8 +236,9 @@ async def submit_form(request: Request, db: Session = Depends(get_db)):
 
 
 @app.get("/reset")
-async def reset_session(db: Session = Depends(get_db)):
-    db.query(Player).delete()
+async def reset_session(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    user_id = current_user.id
+    db.query(Player).filter(Player.user_id == user_id).delete()
     db.commit()
     return {"ok": True}
 
