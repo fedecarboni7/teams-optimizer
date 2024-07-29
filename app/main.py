@@ -96,7 +96,7 @@ async def get_form(
         return RedirectResponse("/login", status_code=302)
     
     user_id = current_user.id
-    players = db.query(Player).where(Player.user_id == user_id).all()
+    players = db.query(Player).filter(Player.user_id == user_id).all()
 
     # Calcular el puntaje total de cada jugador
     for player in players:
@@ -164,7 +164,7 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
             db.add(db_player)
     db.commit()
 
-    players = db.query(Player).where(Player.user_id == user_id).all()
+    players = db.query(Player).filter(Player.user_id == user_id).all()
 
     # Calcular equipos
     player_names = [p.name for p in player_data]
