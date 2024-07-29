@@ -336,3 +336,17 @@ function compartirEquipos(button) {
           });
     }
 }
+
+function filterPlayers() {
+    const searchInput = document.getElementById('searchInput').value.toLowerCase();
+    const players = document.querySelectorAll('.player-entry');
+
+    players.forEach(player => {
+        const playerName = player.querySelector('input[name="names"]').value.toLowerCase();
+        if (playerName.includes(searchInput)) {
+            player.style.display = '';
+        } else {
+            player.style.display = 'none';
+        }
+    });
+}
