@@ -53,6 +53,9 @@ class Player(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     user = relationship("User", back_populates="players")
 
+# Create all tables in the database
+if LOCAL_DB:
+    Base.metadata.create_all(engine)
 
 def get_db():
     db = SessionLocal()

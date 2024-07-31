@@ -35,7 +35,7 @@ function addPlayer() {
     const toggleButton = document.createElement("button");
     toggleButton.className = "toggle-details";
     toggleButton.type = "button";
-    toggleButton.innerHTML = '<i class="fas fa-caret-up"></i>';
+    toggleButton.innerHTML = '<i class="fa-solid fa-angle-up toggle-icon"></i>';
     toggleButton.addEventListener("click", function() {
         toggleDetails(this);
     });
@@ -178,15 +178,16 @@ function validateForm(event) {
 
 function toggleDetails(button) {
     const details = button.parentNode.nextElementSibling;
+    const icon = button.querySelector('.toggle-icon');
 
     if (details.style.maxHeight === "0px") {
         details.style.maxHeight = details.scrollHeight + "px";
         details.style.paddingBottom = "5px";
-        button.innerHTML = '<i class="fas fa-caret-up"></i>';
+        icon.classList.add('rotate');
     } else {
         details.style.maxHeight = "0px";
         details.style.paddingBottom = "0px";
-        button.innerHTML = '<i class="fas fa-caret-down"></i>';
+        icon.classList.remove('rotate');
     }
 }
 
@@ -200,9 +201,9 @@ function toggleSelectPlayers() {
     });
 
     if (allSelected) {
-        toggleButton.textContent = "Seleccionar todos los jugadores";
+        toggleButton.textContent = "Seleccionar a todos";
     } else {
-        toggleButton.textContent = "Deseleccionar todos los jugadores";
+        toggleButton.textContent = "Deseleccionar a todos";
     }
 
     updateSelectedCount();
@@ -270,20 +271,21 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-function scrollToBottom() {
-    const scrollButton = document.getElementById('scroll-button');
-    if (window.scrollY + window.innerHeight >= document.body.scrollHeight) {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+function scrollToSubmit() {
+    const submitBtn = document.getElementById('submitBtn');
+    if (submitBtn) {
+        submitBtn.scrollIntoView({ behavior: 'smooth' });
     }
 }
 
 // Evento para mostrar u ocultar el botón dependiendo de la posición de la página
 window.addEventListener('scroll', function() {
     const scrollButton = document.getElementById('scroll-button');
-    // Añadimos una pequeña tolerancia para asegurar la detección del fondo de la página
-    if (window.scrollY + window.innerHeight >= document.body.scrollHeight - 2) {
+    const submitBtn = document.getElementById('submitBtn');
+    const submitBtnPosition = submitBtn.getBoundingClientRect().top + window.scrollY;
+    const windowBottom = window.scrollY + window.innerHeight;
+
+    if (windowBottom >= submitBtnPosition) {
         scrollButton.style.display = 'none';
     } else {
         scrollButton.style.display = 'block';
