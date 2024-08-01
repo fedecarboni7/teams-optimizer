@@ -30,6 +30,7 @@ a.logout-link {
     display: flex;
     align-items: center;
     font-weight: 500;
+    width: 102px;
 }
 
 a.logout-link:hover {
@@ -38,6 +39,7 @@ a.logout-link:hover {
 
 .logout-link i {
     margin-right: 5px;
+    margin-top: 2px;
 }
 
 .player-container {
