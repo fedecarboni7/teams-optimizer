@@ -89,9 +89,9 @@
     </a>
 
     {% if teams %}
-        <h3>Diferencia mínima de habilidades: {{ min_difference }}</h3>
-        <h3>Diferencia mínima encontrada: {{ min_difference_total }}</h3>
-        <h3>Combinaciones encontradas: {{ len_teams // 2 }}</h3>
+        <p>Diferencia mínima de habilidades: {{ min_difference }}</p>
+        <p>Diferencia mínima encontrada: {{ min_difference_total }}</p>
+        <p>Combinaciones encontradas: {{ len_teams // 2 }}</p>
 
         {% for i in range(0, len_teams - 1, 2) %}
             {% if len_teams > 2 %}

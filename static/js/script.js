@@ -45,7 +45,7 @@ function addPlayer() {
     const detailsContainer = document.createElement("div");
     detailsContainer.className = "details-container";
     detailsContainer.style.display = "block";
-    detailsContainer.style.maxHeight = "338px";
+    detailsContainer.style.maxHeight = "353px";
     detailsContainer.style.paddingBottom = "5px";
 
     // Skills Container
@@ -85,7 +85,7 @@ function addPlayer() {
     deleteButton.type = "button";
 
     const trashIcon = document.createElement("i");
-    trashIcon.className = "fas fa-trash-alt";
+    trashIcon.className = "fa-solid fa-trash";
     
     deleteButton.appendChild(trashIcon);
 
