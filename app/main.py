@@ -41,8 +41,6 @@ async def measure_execution_time(request: Request, call_next):
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
     if exc.status_code in [404, 405]:  # Not Found y Method Not Allowed
         return RedirectResponse(url="/")
-    if exc.status_code == 302:
-        return RedirectResponse(url=exc.headers["Location"], status_code=302)
     raise exc
 
 
@@ -97,6 +95,8 @@ async def login(
     return RedirectResponse(url="/", status_code=302)
 
 
+calculated_results: Dict[str, dict] = {}
+
 @app.get("/", response_class=HTMLResponse)
 async def get_form(
     request: Request,
@@ -104,17 +104,11 @@ async def get_form(
     current_user: User = Depends(get_current_user)
 ):
     if not current_user:
+        request.session.clear()
         return RedirectResponse("/login", status_code=302)
     
     current_user_id = current_user.id
     players = db.query(Player).filter(Player.user_id == current_user_id).all()
-
-    # Calcular el puntaje total de cada jugador
-    for player in players:
-        player.total_score = (
-            player.velocidad + player.resistencia + player.control + player.pases +
-            player.tiro + player.defensa + player.habilidad_arquero + player.fuerza_cuerpo + player.vision
-        )
 
     # Verificar si hay resultados calculados para este usuario
     context = {
@@ -130,7 +124,6 @@ async def get_form(
 
     return templates.TemplateResponse(request=request, name="index.html", context=context)
 
-calculated_results: Dict[str, dict] = {}
 
 @app.post("/submit", response_class=HTMLResponse)
 async def submit_form(request: Request, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
