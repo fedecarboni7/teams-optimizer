@@ -252,7 +252,6 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
         team.append([team_skills, total_skills, avg_skills])
 
     calculated_results[current_user_id] = {
-        "players": players,
         "teams": teams,
         "len_teams": len(teams),
         "min_difference": str(min_difference),
