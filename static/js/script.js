@@ -26,6 +26,7 @@ function addPlayer() {
     nameInput.type = "text";
     nameInput.name = "names";
     nameInput.required = true;
+    nameInput.placeholder = "Nombre";
     nameInput.style.flex = "1"; // Asegurar que el input de nombre se expanda
     playerHeader.appendChild(nameInput);
 
@@ -171,6 +172,21 @@ function validateForm(event) {
         alert('Por favor, selecciona al menos tres jugadores.');
         event.preventDefault();
         return false;
+    }
+
+    // Validar que todos los nombres sean distintos
+    let names = new Set();
+    for (let entry of playerEntries) {
+        let nameInput = entry.querySelector('input[name="names"]');
+        if (nameInput) {
+            let playerName = nameInput.value.trim();
+            if (names.has(playerName)) {
+                alert('Los nombres de los jugadores deben ser distintos.');
+                event.preventDefault();
+                return false;
+            }
+            names.add(playerName);
+        }
     }
 
     const submitBtn = document.getElementById('submitBtn');

@@ -80,6 +80,11 @@ a.logout-link:hover {
     width: calc(100% - 227px);
 }
 
+.player-header input[type="text"][readonly] {
+    background-color: #444; 
+    cursor: not-allowed;
+}
+
 .player-header input[type="checkbox"] {
     width: 15px;
     height: 15px;

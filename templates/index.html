@@ -16,7 +16,7 @@
     <h1>Armar Equipos</h1>
 
     <div class="search-container">
-        <input type="text" id="searchInput" placeholder="Buscar jugador..." onkeyup="filterPlayers()">
+        <input type="search" id="searchInput" placeholder="Buscar jugador..." oninput="filterPlayers()">
         <i class="fas fa-search search-icon"></i>
     </div>
 
@@ -27,7 +27,7 @@
                 <div class="player-header">
                     <input type="checkbox" name="selectedPlayers" value="{{ player.id }}">
                     <label>Jugador {{ loop.index }}:</label>
-                    <input type="text" name="names" value="{{ player.name }}" required>
+                    <input type="text" name="names" value="{{ player.name }}" required readonly>
                     <button class="toggle-details" type="button" onclick="toggleDetails(this)">
                         <i class="fa-solid fa-angle-down toggle-icon"></i>
                     </button>
