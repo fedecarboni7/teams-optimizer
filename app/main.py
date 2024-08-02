@@ -144,10 +144,7 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
     form_data = await request.form()
     list_players = form_data._list
 
-    cant_jug = 0
-    for tupla in list_players:
-        if tupla[0] == "names":
-            cant_jug += 1
+    cant_jug = sum(1 for tupla in list_players if tupla[0] == "names")
 
     player_data: List[PlayerCreate] = []
     for i in range(cant_jug):
@@ -174,14 +171,17 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
     existing_players = db.query(Player).filter(Player.user_id == current_user_id).all()
     existing_players_dict = {player.name: player for player in existing_players}
 
+    players_to_add = []
     for player in player_data:
         db_player = existing_players_dict.get(player.name)
         if db_player:
             for key, value in player.model_dump().items():
                 setattr(db_player, key, value)
         else:
-            db_player = Player(**player.model_dump())
-            db.add(db_player)
+            players_to_add.append(Player(**player.model_dump()))
+
+    if players_to_add:
+        db.add_all(players_to_add)
 
     db.commit()
 
@@ -219,11 +219,10 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
     logging.info(f" {process_time_2:.4f} seconds to calculate the best teams")
     start_time_3 = time.time()
     
-    # Create a dictionary to map player names to their data
+    # Calculate the total and average skills for each team
     players = db.query(Player).filter(Player.user_id == current_user_id).all()
     player_data_dict = {player.name: player for player in players}
-    contador = 0
-    # Calculate the total and average skills for each team
+    
     for team in teams:
         team_skills = {
             "velocidad": {"total": 0, "avg": 0},
@@ -238,7 +237,6 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
         }
     
         for player in team[0]:
-            contador += 1
             player_data = player_data_dict[player]
             player_attrs = {key: getattr(player_data, key) for key in team_skills}
             for key, value in player_attrs.items():
