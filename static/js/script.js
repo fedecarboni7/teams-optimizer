@@ -173,6 +173,14 @@ function validateForm(event) {
         return false;
     }
 
+    const submitBtn = document.getElementById('submitBtn');
+    const spinner = document.createElement('span');
+    spinner.className = 'spinner';
+    submitBtn.appendChild(spinner);
+
+    // Deshabilitar el botón para prevenir múltiples envíos
+    submitBtn.disabled = true;
+
     return true;
 }
 
