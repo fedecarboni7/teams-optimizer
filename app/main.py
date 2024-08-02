@@ -1,5 +1,5 @@
 import os
-from typing import Dict
+from typing import Dict, List
 from fastapi import FastAPI, Form, Request, Depends, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -95,8 +95,8 @@ async def get_form(
     if not current_user:
         return RedirectResponse("/login", status_code=302)
     
-    user_id = current_user.id
-    players = db.query(Player).filter(Player.user_id == user_id).all()
+    current_user_id = current_user.id
+    players = db.query(Player).filter(Player.user_id == current_user_id).all()
 
     # Calcular el puntaje total de cada jugador
     for player in players:
@@ -112,10 +112,10 @@ async def get_form(
         "skills": ["velocidad", "resistencia", "control", "pases", "tiro", "defensa", "habilidad_arquero", "fuerza_cuerpo", "vision"]
     }
 
-    if user_id in calculated_results:
-        context.update(calculated_results[user_id])
+    if current_user_id in calculated_results:
+        context.update(calculated_results[current_user_id])
         # Opcionalmente, limpiar los resultados después de mostrarlos
-        del calculated_results[user_id]
+        del calculated_results[current_user_id]
 
     return templates.TemplateResponse(request=request, name="index.html", context=context)
 
@@ -123,7 +123,7 @@ calculated_results: Dict[str, dict] = {}
 
 @app.post("/submit", response_class=HTMLResponse)
 async def submit_form(request: Request, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    user_id = current_user.id
+    current_user_id = current_user.id
     form_data = await request.form()
     list_players = form_data._list
 
@@ -132,7 +132,7 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
         if tupla[0] == "names":
             cant_jug += 1
 
-    player_data = []
+    player_data: List[PlayerCreate] = []
     for i in range(cant_jug):
         i = i * 11
         if list_players[i][0] != "selectedPlayers":
@@ -149,13 +149,13 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
             habilidad_arquero=int(list_players[i+8][1]),
             fuerza_cuerpo=int(list_players[i+9][1]),
             vision=int(list_players[i+10][1]),
-            user_id=user_id
+            user_id=current_user_id
         )
         player_data.append(player)
 
     # Guardar o actualizar jugadores en la base de datos
     for player in player_data:
-        db_player = db.query(Player).filter(Player.name == player.name, Player.user_id == user_id).first()
+        db_player = db.query(Player).filter(Player.name == player.name, Player.user_id == current_user_id).first()
         if db_player:
             for key, value in player.dict().items():
                 setattr(db_player, key, value)
@@ -164,7 +164,7 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
             db.add(db_player)
     db.commit()
 
-    players = db.query(Player).filter(Player.user_id == user_id).all()
+    players = db.query(Player).filter(Player.user_id == current_user_id).all()
 
     # Calcular equipos
     player_names = [p.name for p in player_data]
@@ -223,7 +223,7 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
                      sum([team_skills[key]["total"] for key in team_skills]),
                      str(round(sum([team_skills[key]["total"] / len(team[0]) for key in team_skills]), 2)).replace(".", ",")])
 
-    calculated_results[user_id] = {
+    calculated_results[current_user_id] = {
         "players": players,
         "teams": teams,
         "len_teams": len(teams),
@@ -237,8 +237,8 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
 
 @app.get("/reset")
 async def reset_session(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    user_id = current_user.id
-    db.query(Player).filter(Player.user_id == user_id).delete()
+    current_user_id = current_user.id
+    db.query(Player).filter(Player.user_id == current_user_id).delete()
     db.commit()
     return {"ok": True}
 
