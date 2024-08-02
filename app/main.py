@@ -122,16 +122,12 @@ async def get_form(
     current_user_id = current_user.id
     players = db.query(Player).filter(Player.user_id == current_user_id).all()
 
-    # Verificar si hay resultados calculados para este usuario
-    context = {
-        "request": request,
-        "players": players,
-        "skills": ["velocidad", "resistencia", "control", "pases", "tiro", "defensa", "habilidad_arquero", "fuerza_cuerpo", "vision"]
-    }
+    context = {"players": players}
 
     if current_user_id in calculated_results:
         context.update(calculated_results[current_user_id])
-        # Opcionalmente, limpiar los resultados después de mostrarlos
+        context.update({"len_teams": len(context["teams"]),
+                        "skills": ["velocidad", "resistencia", "control", "pases", "tiro", "defensa", "habilidad_arquero", "fuerza_cuerpo", "vision"]})
         del calculated_results[current_user_id]
 
     return templates.TemplateResponse(request=request, name="index.html", context=context)
@@ -253,7 +249,6 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
 
     calculated_results[current_user_id] = {
         "teams": teams,
-        "len_teams": len(teams),
         "min_difference": str(min_difference),
         "min_difference_total": str(min_difference_total)
     }
@@ -284,7 +279,7 @@ def update_player(player_id: int, player: PlayerCreate, db: Session = Depends(ge
     db_player = db.query(Player).filter(Player.id == player_id).first()
     if db_player is None:
         raise HTTPException(status_code=404, detail="Player not found")
-    for key, value in player.dict().items():
+    for key, value in player.model_dump().items():
         setattr(db_player, key, value)
     db.commit()
     db.refresh(db_player)
