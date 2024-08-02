@@ -1,3 +1,4 @@
+import logging
 import os
 import time
 from typing import Dict, List
@@ -17,7 +18,6 @@ from app.database import User, get_db, Player
 from app.schemas import PlayerCreate
 from app.team_optimizer import find_best_combination
 
-#app = FastAPI()
 app = FastAPI(docs_url=None, redoc_url=None)
 
 secret_key = os.getenv("SECRET_KEY")
@@ -25,16 +25,28 @@ secret_key = os.getenv("SECRET_KEY")
 app.add_middleware(SessionMiddleware, secret_key=secret_key)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-
 templates = Jinja2Templates(directory="templates")
+
+# Configura el nivel de logging para el módulo específico
+logging.getLogger('libsql_client.dbapi2._async_executor').setLevel(logging.WARNING)
+logging.getLogger('libsql_client.dbapi2._sync_executor').setLevel(logging.WARNING)
+logging.getLogger('libsql_client.dbapi2.types').setLevel(logging.WARNING)
+
+# Configuración general de logging (opcional)
+logging.basicConfig(level=logging.INFO)
 
 @app.middleware("http")
 async def measure_execution_time(request: Request, call_next):
-    start_time = time.time()
-    response = await call_next(request)
-    process_time = time.time() - start_time
-    print(f"Request to {request.url.path} took {process_time:.4f} seconds")
-    return response
+    ignore_paths = ["/static", "/favicon.ico", "/sm/"]
+    
+    if not any(request.url.path.startswith(prefix) for prefix in ignore_paths):
+        start_time = time.time()
+        response = await call_next(request)
+        process_time = time.time() - start_time
+        logging.info(f" {process_time:.4f} seconds to process request: {request.method} {request.url.path}")
+        return response
+    else:
+        return await call_next(request)
 
 
 @app.exception_handler(StarletteHTTPException)
@@ -127,6 +139,7 @@ async def get_form(
 
 @app.post("/submit", response_class=HTMLResponse)
 async def submit_form(request: Request, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    start_time_1 = time.time()
     current_user_id = current_user.id
     form_data = await request.form()
     list_players = form_data._list
@@ -158,17 +171,23 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
         player_data.append(player)
 
     # Guardar o actualizar jugadores en la base de datos
+    existing_players = db.query(Player).filter(Player.user_id == current_user_id).all()
+    existing_players_dict = {player.name: player for player in existing_players}
+
     for player in player_data:
-        db_player = db.query(Player).filter(Player.name == player.name, Player.user_id == current_user_id).first()
+        db_player = existing_players_dict.get(player.name)
         if db_player:
-            for key, value in player.dict().items():
+            for key, value in player.model_dump().items():
                 setattr(db_player, key, value)
         else:
-            db_player = Player(**player.dict())
+            db_player = Player(**player.model_dump())
             db.add(db_player)
+
     db.commit()
 
-    players = db.query(Player).filter(Player.user_id == current_user_id).all()
+    process_time_1 = time.time() - start_time_1
+    logging.info(f" {process_time_1:.4f} seconds to save or update players in the database")
+    start_time_2 = time.time()
 
     # Calcular equipos
     player_names = [p.name for p in player_data]
@@ -196,14 +215,15 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
         teams.append([[player_names[i] for i in list(equipos[0])]])
         teams.append([[player_names[i] for i in list(equipos[1])]])
 
-    # Calcular el puntaje total de cada jugador
-    for player in players:
-        player.total_score = (
-            player.velocidad + player.resistencia + player.control + player.pases +
-            player.tiro + player.defensa + player.habilidad_arquero + player.fuerza_cuerpo + player.vision
-        )
-
-    # Calcular el total de skills de cada equipo
+    process_time_2 = time.time() - start_time_2
+    logging.info(f" {process_time_2:.4f} seconds to calculate the best teams")
+    start_time_3 = time.time()
+    
+    # Create a dictionary to map player names to their data
+    players = db.query(Player).filter(Player.user_id == current_user_id).all()
+    player_data_dict = {player.name: player for player in players}
+    contador = 0
+    # Calculate the total and average skills for each team
     for team in teams:
         team_skills = {
             "velocidad": {"total": 0, "avg": 0},
@@ -216,16 +236,22 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
             "fuerza_cuerpo": {"total": 0, "avg": 0},
             "vision": {"total": 0, "avg": 0}
         }
-
+    
         for player in team[0]:
-            player_data = db.query(Player).filter(Player.name == player).first()
-            for key, value in team_skills.items():
-                team_skills[key]["total"] += getattr(player_data, key)
-                team_skills[key]["avg"] = str(round(team_skills[key]["total"] / len(team[0]), 2)).replace(".", ",")
-
-        team.append([team_skills,
-                     sum([team_skills[key]["total"] for key in team_skills]),
-                     str(round(sum([team_skills[key]["total"] / len(team[0]) for key in team_skills]), 2)).replace(".", ",")])
+            contador += 1
+            player_data = player_data_dict[player]
+            player_attrs = {key: getattr(player_data, key) for key in team_skills}
+            for key, value in player_attrs.items():
+                team_skills[key]["total"] += value
+    
+        num_players = len(team[0])
+        for key in team_skills:
+            team_skills[key]["avg"] = str(round(team_skills[key]["total"] / num_players, 2)).replace(".", ",")
+    
+        total_skills = sum(skill["total"] for skill in team_skills.values())
+        avg_skills = str(round(sum(skill["total"] / num_players for skill in team_skills.values()), 2)).replace(".", ",")
+    
+        team.append([team_skills, total_skills, avg_skills])
 
     calculated_results[current_user_id] = {
         "players": players,
@@ -235,7 +261,8 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
         "min_difference_total": str(min_difference_total)
     }
 
-    # Redirigir a la página principal
+    process_time_3 = time.time() - start_time_3
+    logging.info(f" {process_time_3:.4f} seconds to calculate the total skills of each team and return the results")
     return RedirectResponse(url="/", status_code=303)
 
 
