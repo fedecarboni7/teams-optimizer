@@ -1,5 +1,8 @@
+import logging
 import os
-from typing import Dict
+import time
+from typing import Dict, List
+
 from fastapi import FastAPI, Form, Request, Depends, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -15,7 +18,6 @@ from app.database import User, get_db, Player
 from app.schemas import PlayerCreate
 from app.team_optimizer import find_best_combination
 
-#app = FastAPI()
 app = FastAPI(docs_url=None, redoc_url=None)
 
 secret_key = os.getenv("SECRET_KEY")
@@ -23,15 +25,34 @@ secret_key = os.getenv("SECRET_KEY")
 app.add_middleware(SessionMiddleware, secret_key=secret_key)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-
 templates = Jinja2Templates(directory="templates")
+
+# Configura el nivel de logging para el módulo específico
+logging.getLogger('libsql_client.dbapi2._async_executor').setLevel(logging.WARNING)
+logging.getLogger('libsql_client.dbapi2._sync_executor').setLevel(logging.WARNING)
+logging.getLogger('libsql_client.dbapi2.types').setLevel(logging.WARNING)
+
+# Configuración general de logging (opcional)
+logging.basicConfig(level=logging.INFO)
+
+@app.middleware("http")
+async def measure_execution_time(request: Request, call_next):
+    ignore_paths = ["/static", "/favicon.ico", "/sm/"]
+    
+    if not any(request.url.path.startswith(prefix) for prefix in ignore_paths):
+        start_time = time.time()
+        response = await call_next(request)
+        process_time = time.time() - start_time
+        logging.info(f" {process_time:.4f} seconds to process request: {request.method} {request.url.path}")
+        return response
+    else:
+        return await call_next(request)
+
 
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
     if exc.status_code in [404, 405]:  # Not Found y Method Not Allowed
         return RedirectResponse(url="/")
-    if exc.status_code == 302:
-        return RedirectResponse(url=exc.headers["Location"], status_code=302)
     raise exc
 
 
@@ -86,6 +107,8 @@ async def login(
     return RedirectResponse(url="/", status_code=302)
 
 
+calculated_results: Dict[str, dict] = {}
+
 @app.get("/", response_class=HTMLResponse)
 async def get_form(
     request: Request,
@@ -93,46 +116,33 @@ async def get_form(
     current_user: User = Depends(get_current_user)
 ):
     if not current_user:
+        request.session.clear()
         return RedirectResponse("/login", status_code=302)
     
-    user_id = current_user.id
-    players = db.query(Player).filter(Player.user_id == user_id).all()
+    current_user_id = current_user.id
+    players = db.query(Player).filter(Player.user_id == current_user_id).all()
 
-    # Calcular el puntaje total de cada jugador
-    for player in players:
-        player.total_score = (
-            player.velocidad + player.resistencia + player.control + player.pases +
-            player.tiro + player.defensa + player.habilidad_arquero + player.fuerza_cuerpo + player.vision
-        )
+    context = {"players": players}
 
-    # Verificar si hay resultados calculados para este usuario
-    context = {
-        "request": request,
-        "players": players,
-        "skills": ["velocidad", "resistencia", "control", "pases", "tiro", "defensa", "habilidad_arquero", "fuerza_cuerpo", "vision"]
-    }
-
-    if user_id in calculated_results:
-        context.update(calculated_results[user_id])
-        # Opcionalmente, limpiar los resultados después de mostrarlos
-        del calculated_results[user_id]
+    if current_user_id in calculated_results:
+        context.update(calculated_results[current_user_id])
+        context.update({"len_teams": len(context["teams"]),
+                        "skills": ["velocidad", "resistencia", "control", "pases", "tiro", "defensa", "habilidad_arquero", "fuerza_cuerpo", "vision"]})
+        del calculated_results[current_user_id]
 
     return templates.TemplateResponse(request=request, name="index.html", context=context)
 
-calculated_results: Dict[str, dict] = {}
 
 @app.post("/submit", response_class=HTMLResponse)
 async def submit_form(request: Request, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    user_id = current_user.id
+    start_time_1 = time.time()
+    current_user_id = current_user.id
     form_data = await request.form()
     list_players = form_data._list
 
-    cant_jug = 0
-    for tupla in list_players:
-        if tupla[0] == "names":
-            cant_jug += 1
+    cant_jug = sum(1 for tupla in list_players if tupla[0] == "names")
 
-    player_data = []
+    player_data: List[PlayerCreate] = []
     for i in range(cant_jug):
         i = i * 11
         if list_players[i][0] != "selectedPlayers":
@@ -149,22 +159,31 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
             habilidad_arquero=int(list_players[i+8][1]),
             fuerza_cuerpo=int(list_players[i+9][1]),
             vision=int(list_players[i+10][1]),
-            user_id=user_id
+            user_id=current_user_id
         )
         player_data.append(player)
 
     # Guardar o actualizar jugadores en la base de datos
+    existing_players = db.query(Player).filter(Player.user_id == current_user_id).all()
+    existing_players_dict = {player.name: player for player in existing_players}
+
+    players_to_add = []
     for player in player_data:
-        db_player = db.query(Player).filter(Player.name == player.name, Player.user_id == user_id).first()
+        db_player = existing_players_dict.get(player.name)
         if db_player:
-            for key, value in player.dict().items():
+            for key, value in player.model_dump().items():
                 setattr(db_player, key, value)
         else:
-            db_player = Player(**player.dict())
-            db.add(db_player)
+            players_to_add.append(Player(**player.model_dump()))
+
+    if players_to_add:
+        db.add_all(players_to_add)
+
     db.commit()
 
-    players = db.query(Player).filter(Player.user_id == user_id).all()
+    process_time_1 = time.time() - start_time_1
+    logging.info(f" {process_time_1:.4f} seconds to save or update players in the database")
+    start_time_2 = time.time()
 
     # Calcular equipos
     player_names = [p.name for p in player_data]
@@ -192,14 +211,14 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
         teams.append([[player_names[i] for i in list(equipos[0])]])
         teams.append([[player_names[i] for i in list(equipos[1])]])
 
-    # Calcular el puntaje total de cada jugador
-    for player in players:
-        player.total_score = (
-            player.velocidad + player.resistencia + player.control + player.pases +
-            player.tiro + player.defensa + player.habilidad_arquero + player.fuerza_cuerpo + player.vision
-        )
-
-    # Calcular el total de skills de cada equipo
+    process_time_2 = time.time() - start_time_2
+    logging.info(f" {process_time_2:.4f} seconds to calculate the best teams")
+    start_time_3 = time.time()
+    
+    # Calculate the total and average skills for each team
+    players = db.query(Player).filter(Player.user_id == current_user_id).all()
+    player_data_dict = {player.name: player for player in players}
+    
     for team in teams:
         team_skills = {
             "velocidad": {"total": 0, "avg": 0},
@@ -212,33 +231,37 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
             "fuerza_cuerpo": {"total": 0, "avg": 0},
             "vision": {"total": 0, "avg": 0}
         }
-
+    
         for player in team[0]:
-            player_data = db.query(Player).filter(Player.name == player).first()
-            for key, value in team_skills.items():
-                team_skills[key]["total"] += getattr(player_data, key)
-                team_skills[key]["avg"] = str(round(team_skills[key]["total"] / len(team[0]), 2)).replace(".", ",")
+            player_data = player_data_dict[player]
+            player_attrs = {key: getattr(player_data, key) for key in team_skills}
+            for key, value in player_attrs.items():
+                team_skills[key]["total"] += value
+    
+        num_players = len(team[0])
+        for key in team_skills:
+            team_skills[key]["avg"] = str(round(team_skills[key]["total"] / num_players, 2)).replace(".", ",")
+    
+        total_skills = sum(skill["total"] for skill in team_skills.values())
+        avg_skills = str(round(sum(skill["total"] / num_players for skill in team_skills.values()), 2)).replace(".", ",")
+    
+        team.append([team_skills, total_skills, avg_skills])
 
-        team.append([team_skills,
-                     sum([team_skills[key]["total"] for key in team_skills]),
-                     str(round(sum([team_skills[key]["total"] / len(team[0]) for key in team_skills]), 2)).replace(".", ",")])
-
-    calculated_results[user_id] = {
-        "players": players,
+    calculated_results[current_user_id] = {
         "teams": teams,
-        "len_teams": len(teams),
         "min_difference": str(min_difference),
         "min_difference_total": str(min_difference_total)
     }
 
-    # Redirigir a la página principal
+    process_time_3 = time.time() - start_time_3
+    logging.info(f" {process_time_3:.4f} seconds to calculate the total skills of each team and return the results")
     return RedirectResponse(url="/", status_code=303)
 
 
 @app.get("/reset")
 async def reset_session(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    user_id = current_user.id
-    db.query(Player).filter(Player.user_id == user_id).delete()
+    current_user_id = current_user.id
+    db.query(Player).filter(Player.user_id == current_user_id).delete()
     db.commit()
     return {"ok": True}
 
@@ -256,7 +279,7 @@ def update_player(player_id: int, player: PlayerCreate, db: Session = Depends(ge
     db_player = db.query(Player).filter(Player.id == player_id).first()
     if db_player is None:
         raise HTTPException(status_code=404, detail="Player not found")
-    for key, value in player.dict().items():
+    for key, value in player.model_dump().items():
         setattr(db_player, key, value)
     db.commit()
     db.refresh(db_player)

@@ -9,14 +9,14 @@
     <link rel="icon" type="image/png" sizes="16x16" href="../static/favicon/favicon-16x16.png">
     <link rel="manifest" href="../static/favicon/site.webmanifest">
     <link rel="stylesheet" type="text/css" href="/static/css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <script src="static/js/script.js"></script>
 </head>
 <body>
     <h1>Armar Equipos</h1>
 
     <div class="search-container">
-        <input type="text" id="searchInput" placeholder="Buscar jugador..." onkeyup="filterPlayers()">
+        <input type="search" id="searchInput" placeholder="Buscar jugador..." oninput="filterPlayers()">
         <i class="fas fa-search search-icon"></i>
     </div>
 
@@ -27,12 +27,12 @@
                 <div class="player-header">
                     <input type="checkbox" name="selectedPlayers" value="{{ player.id }}">
                     <label>Jugador {{ loop.index }}:</label>
-                    <input type="text" name="names" value="{{ player.name }}" required>
+                    <input type="text" name="names" value="{{ player.name }}" required readonly>
                     <button class="toggle-details" type="button" onclick="toggleDetails(this)">
-                        <i class="fas fa-caret-down"></i>
+                        <i class="fa-solid fa-angle-down toggle-icon"></i>
                     </button>
                     <button class="delete-button" type="button" onclick="deletePlayer('{{ player.id }}')">
-                        <i class="fas fa-trash-alt"></i>
+                        <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>
                 <div class="details-container" style="max-height: 0px;">
@@ -78,24 +78,26 @@
             </div>
             {% endfor %}
         </div>
-        <button type="button" onclick="addPlayer()">Agregar jugador</button>
         <button type="submit" id="submitBtn">Calcular</button>
-        <button type="button" id="toggle-select-button" onclick="toggleSelectPlayers()">Seleccionar todos los jugadores</button>
+        <button type="button" onclick="addPlayer()">Agregar jugador</button>
+        <button type="button" id="toggle-select-button" onclick="toggleSelectPlayers()">Seleccionar a todos</button>
     </form>
     <button class="reset-button" type="button" onclick="reset()">Borrar a todos</button>
     <br>
-    <a href="/logout" class="logout-link">Cerrar sesión</a>
+    <a href="/logout" class="logout-link">
+        <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
+    </a>
 
     {% if teams %}
-        <h3>Diferencia mínima de habilidades: {{ min_difference }}</h3>
-        <h3>Diferencia mínima encontrada: {{ min_difference_total }}</h3>
-        <h3>Combinaciones encontradas: {{ len_teams // 2 }}</h3>
+        <p>Diferencia mínima de habilidades: {{ min_difference }}</p>
+        <p>Diferencia mínima encontrada: {{ min_difference_total }}</p>
+        <p>Combinaciones encontradas: {{ len_teams // 2 }}</p>
 
         {% for i in range(0, len_teams - 1, 2) %}
             {% if len_teams > 2 %}
                 <p>Opción {{ i // 2 + 1 }}</p>
             {% endif %}
-            <button class="share-button" id="shareButton{{ i // 2  + 1 }}" onclick="compartirEquipos(this)">Compartir Equipos</button>
+            <button type="button" class="share-button" id="shareButton{{ i // 2  + 1 }}" onclick="compartirEquipos(this)">Compartir Equipos</button>
             <div class="team-container" id="resultados-equipos{{ i // 2  + 1 }}">
                 <div class="team">
                     <h2>Equipo 1</h2>
@@ -172,13 +174,15 @@
     {% endif %}
 
     <div id="floating-button">
-        Cant. Jugadores: <span id="selected-count">0</span>
+        Seleccionados: <span id="selected-count">0</span>
         <div id="selected-players-list" class="hidden">
             <ul id="selected-players-ul"></ul>
         </div>
     </div>
 
-    <button id="scroll-button" onclick="scrollToBottom()">⬇️</button>
+    <button type="button" id="scroll-button" onclick="scrollToSubmit()">
+        <i class="fa-solid fa-circle-down"></i>
+    </button>
     
 </body>
 </html>

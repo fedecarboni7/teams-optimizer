@@ -1,7 +1,7 @@
 body {
     background-color: #1c1c1c;
     color: #e0e0e0;
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 20px;
 }
@@ -12,18 +12,34 @@ h1 {
     margin-bottom: 40px;
 }
 
+label {
+    font-weight: 500;
+}
+
+p {
+    font-weight: 500;
+}
+
 a.logout-link {
-    color: #ff7158; /* Color del enlace */
-    text-decoration: none; /* Quitar subrayado */
-    margin-top: 10px; /* Espacio arriba */
-    margin-left: 10px; /* Espacio a la izquierda */
-    font-size: 14px; /* Tamaño de fuente */
-    font-weight: bold; /* Negrita */
-    transition: color 0.3s ease; /* Transición suave del color */
+    color: #ff7158;
+    text-decoration: none;
+    margin-top: 10px;
+    margin-left: 10px;
+    font-size: 14px;
+    transition: color 0.3s ease;
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    width: 110px;
 }
 
 a.logout-link:hover {
     color: #c5413d;
+}
+
+.logout-link i {
+    margin-right: 5px;
+    margin-top: 2px;
 }
 
 .player-container {
@@ -51,10 +67,6 @@ a.logout-link:hover {
     gap: 10px;
 }
 
-.player-header label {
-    font-weight: normal;
-}
-
 .player-header input[type="text"] {
     flex: 1;
     padding: 8px;
@@ -68,6 +80,11 @@ a.logout-link:hover {
     width: calc(100% - 227px);
 }
 
+.player-header input[type="text"][readonly] {
+    background-color: #444; 
+    cursor: not-allowed;
+}
+
 .player-header input[type="checkbox"] {
     width: 15px;
     height: 15px;
@@ -76,6 +93,14 @@ a.logout-link:hover {
 .player-score {
     font-size: 16px;
     margin-top: 5px;
+}
+
+.toggle-icon {
+    transition: transform 0.3s ease;
+}
+
+.rotate {
+    transform: rotate(180deg);
 }
 
 .toggle-details {
@@ -93,7 +118,6 @@ a.logout-link:hover {
     transition: max-height 0.2s ease-out;
 }
 
-/* Contenedor de habilidades */
 .skills-container {
     display: flex;
     flex-wrap: wrap;
@@ -102,11 +126,11 @@ a.logout-link:hover {
     margin-left: 5px;
 }
 
-/* Estilo para cada entrada de habilidad */
 .skill-entry {
     display: flex;
     align-items: center;
-    width: calc(33.33% - 10px); /* Para 3 columnas en pantallas grandes */
+    width: calc(33.33% - 10px);
+    /* Para 3 columnas en pantallas grandes */
 }
 
 .skill-entry label {
@@ -127,14 +151,16 @@ a.logout-link:hover {
 
 @media (max-width: 768px) {
     .skill-entry {
-        width: calc(50% - 10px); /* 2 columnas en tablets */
+        width: calc(50% - 10px);
+        /* 2 columnas en tablets */
     }
 }
 
 @media (max-width: 480px) {
     .skill-entry {
         width: 100%;
-        margin-right: 10px; /* 1 columna en móviles */
+        margin-right: 10px;
+        /* 1 columna en móviles */
     }
 }
 
@@ -188,16 +214,13 @@ a.logout-link:hover {
     }
 }
 
-label {
-    font-weight: bold;
-}
-
 input {
     padding: 10px;
     border: 1px solid #555;
     border-radius: 5px;
     background-color: #333;
     color: #e0e0e0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 button {
@@ -208,6 +231,9 @@ button {
     background-color: #444;
     color: #e0e0e0;
     cursor: pointer;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
 }
 
 button:hover {
@@ -232,7 +258,8 @@ table {
     margin-top: 10px;
 }
 
-th, td {
+th,
+td {
     border: 1px solid #ddd;
     padding: 8px;
     text-align: left;
@@ -248,7 +275,7 @@ th {
     right: 20px;
     background-color: #333333d0;
     color: white;
-    padding: 10px 20px;
+    padding: 10px 10px;
     border-radius: 5px;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
     font-size: 16px;
@@ -270,7 +297,7 @@ th {
     z-index: 1000;
 }
 
-#floating-button:hover #selected-players-list{
+#floating-button:hover #selected-players-list {
     display: block;
     padding: 5px 10px;
 }
@@ -305,14 +332,14 @@ th {
 
 #scroll-button {
     position: fixed;
-    bottom: 20px;
-    right: 200px;
+    bottom: 18px;
+    right: 164px;
     background-color: transparent;
     padding: 0;
     font-size: 24px;
     cursor: pointer;
     display: block;
-    color: #000000d9;
+    color: #cbcbcb;
 }
 
 #scroll-button:hover {
@@ -327,24 +354,45 @@ th {
     position: relative;
     width: 100%;
     max-width: 400px;
-    margin: 0 auto 20px; /* Centra el buscador y añade un margen inferior */
+    margin: 0 auto 20px;
 }
 
 #searchInput {
-    width: 100%; /* Ocupa todo el ancho del contenedor */
-    padding: 10px 40px 10px 20px; /* Añade espacio para el icono a la derecha */
+    width: 100%;
+    padding: 10px 40px 10px 20px;
     border-radius: 20px;
     border: 1px solid #ccc;
     font-size: 16px;
     outline: none;
-    box-sizing: border-box; /* Asegura que el padding esté incluido en el ancho */
+    box-sizing: border-box;
 }
 
 .search-icon {
     position: absolute;
     top: 50%;
-    right: 15px; /* Ajusta el espacio del icono desde el borde derecho */
+    right: 15px;
     transform: translateY(-50%);
     color: #999;
-    pointer-events: none; /* Evita que el icono interfiera con el clic en el campo de entrada */
+    pointer-events: none;
+}
+
+.spinner {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid transparent;
+    border-radius: 50%;
+    border-top-color: #ffffff;
+    animation: spin 0.8s linear infinite;
+    margin-left: 8px;
+    margin-right: -8px;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
