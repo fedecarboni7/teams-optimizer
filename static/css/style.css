@@ -140,6 +140,26 @@ a.logout-link:hover {
     width: 100px;
 }
 
+.star-rating {
+    display: inline-block;
+}
+
+.star {
+    color: #ccc;
+    font-size: 24px;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.star.active {
+    color: gold;
+}
+
+.star:hover,
+.star.hover {
+    color: gold;
+}
+
 .skill-entry input {
     flex: 1;
     padding: 5px;
@@ -149,14 +169,14 @@ a.logout-link:hover {
     color: #fff;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 789px) {
     .skill-entry {
         width: calc(50% - 10px);
         /* 2 columnas en tablets */
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 552px) {
     .skill-entry {
         width: 100%;
         margin-right: 10px;

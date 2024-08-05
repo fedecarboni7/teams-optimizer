@@ -46,7 +46,7 @@ function addPlayer() {
     const detailsContainer = document.createElement("div");
     detailsContainer.className = "details-container";
     detailsContainer.style.display = "block";
-    detailsContainer.style.maxHeight = "353px";
+    detailsContainer.style.maxHeight = "383px";
     detailsContainer.style.paddingBottom = "5px";
 
     // Skills Container
@@ -64,21 +64,80 @@ function addPlayer() {
         label.textContent = skill.charAt(0).toUpperCase() + skill.slice(1).replace('_', ' ') + ":";
         label.textContent = label.textContent.replace('Habilidad arquero', 'Hab. Arquero');
 
-        const input = document.createElement("input");
-        input.type = "number";
-        input.name = skill;
-        input.min = "1";
-        input.max = "5";
-        input.placeholder = "1-5";
-        input.required = true;
+        const starRating = document.createElement("div");
+        starRating.className = "star-rating";
+        starRating.setAttribute("data-skill", skill);
+
+        for (let i = 1; i <= 5; i++) {
+            const star = document.createElement("span");
+            star.className = "star";
+            star.textContent = "★";
+            star.setAttribute("data-value", i);
+            starRating.appendChild(star);
+        }
+
+        const hiddenInput = document.createElement("input");
+        hiddenInput.type = "hidden";
+        hiddenInput.name = skill;
+        hiddenInput.required = true;
+
+        starRating.appendChild(hiddenInput);
 
         skillEntry.appendChild(label);
-        skillEntry.appendChild(input);
+        skillEntry.appendChild(starRating);
         skillsContainer.appendChild(skillEntry);
     });
 
     detailsContainer.appendChild(skillsContainer);
     playerDiv.appendChild(detailsContainer);
+
+    // Agregar funcionalidad a las estrellas
+    skillsContainer.addEventListener('click', function(event) {
+        if (event.target.classList.contains('star')) {
+            const starRating = event.target.closest('.star-rating');
+            const stars = starRating.querySelectorAll('.star');
+            const hiddenInput = starRating.querySelector('input[type="hidden"]');
+            const value = event.target.getAttribute('data-value');
+
+            hiddenInput.value = value;
+
+            stars.forEach(star => {
+                if (star.getAttribute('data-value') <= value) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+    });
+
+    // Efecto hover
+    skillsContainer.addEventListener('mouseover', function(event) {
+        if (event.target.classList.contains('star')) {
+            const starRating = event.target.closest('.star-rating');
+            const stars = starRating.querySelectorAll('.star');
+            const hoverValue = event.target.getAttribute('data-value');
+
+            stars.forEach(star => {
+                if (star.getAttribute('data-value') <= hoverValue) {
+                    star.classList.add('hover');
+                } else {
+                    star.classList.remove('hover');
+                }
+            });
+        }
+    });
+
+    skillsContainer.addEventListener('mouseout', function(event) {
+        if (event.target.classList.contains('star')) {
+            const starRating = event.target.closest('.star-rating');
+            const stars = starRating.querySelectorAll('.star');
+
+            stars.forEach(star => {
+                star.classList.remove('hover');
+            });
+        }
+    });
 
     // Botón para eliminar
     const deleteButton = document.createElement("button");
@@ -376,3 +435,33 @@ function filterPlayers() {
         }
     });
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const starRatings = document.querySelectorAll('.star-rating');
+    
+    starRatings.forEach(rating => {
+        const stars = rating.querySelectorAll('.star');
+        const input = rating.querySelector('input[type="hidden"]');
+        
+        // Inicializar las estrellas basado en el valor actual
+        updateStars(stars, input.value);
+        
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                const value = this.getAttribute('data-value');
+                input.value = value;
+                updateStars(stars, value);
+            });
+        });
+    });
+    
+    function updateStars(stars, value) {
+        stars.forEach(star => {
+            if (star.getAttribute('data-value') <= value) {
+                star.classList.add('active');
+            } else {
+                star.classList.remove('active');
+            }
+        });
+    }
+});

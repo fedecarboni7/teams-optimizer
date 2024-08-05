@@ -39,39 +39,102 @@
                     <div class="skills-container">
                         <div class="skill-entry">
                             <label>Velocidad:</label>
-                            <input type="number" name="velocidad" value="{{ player.velocidad }}" min="1" max="5" placeholder="1-5" required>
+                            <div class="star-rating" data-skill="velocidad">
+                                <span class="star" data-value="1">&#9733;</span>
+                                <span class="star" data-value="2">&#9733;</span>
+                                <span class="star" data-value="3">&#9733;</span>
+                                <span class="star" data-value="4">&#9733;</span>
+                                <span class="star" data-value="5">&#9733;</span>
+                                <input type="hidden" name="velocidad" value="{{ player.velocidad }}">
+                            </div>
                         </div>
                         <div class="skill-entry">
                             <label>Resistencia:</label>
-                            <input type="number" name="resistencia" value="{{ player.resistencia }}" min="1" max="5" placeholder="1-5" required>
+                            <div class="star-rating" data-skill="resistencia">
+                                <span class="star" data-value="1">&#9733;</span>
+                                <span class="star" data-value="2">&#9733;</span>
+                                <span class="star" data-value="3">&#9733;</span>
+                                <span class="star" data-value="4">&#9733;</span>
+                                <span class="star" data-value="5">&#9733;</span>
+                                <input type="hidden" name="resistencia" value="{{ player.resistencia }}">
+                            </div>
                         </div>
                         <div class="skill-entry">
                             <label>Control:</label>
-                            <input type="number" name="control" value="{{ player.control }}" min="1" max="5" placeholder="1-5" required>
+                            <div class="star-rating" data-skill="control">
+                                <span class="star" data-value="1">&#9733;</span>
+                                <span class="star" data-value="2">&#9733;</span>
+                                <span class="star" data-value="3">&#9733;</span>
+                                <span class="star" data-value="4">&#9733;</span>
+                                <span class="star" data-value="5">&#9733;</span>
+                                <input type="hidden" name="control" value="{{ player.control }}">
+                            </div>
                         </div>
                         <div class="skill-entry">
                             <label>Pases:</label>
-                            <input type="number" name="pases" value="{{ player.pases }}" min="1" max="5" placeholder="1-5" required>
+                            <div class="star-rating" data-skill="pases">
+                                <span class="star" data-value="1">&#9733;</span>
+                                <span class="star" data-value="2">&#9733;</span>
+                                <span class="star" data-value="3">&#9733;</span>
+                                <span class="star" data-value="4">&#9733;</span>
+                                <span class="star" data-value="5">&#9733;</span>
+                                <input type="hidden" name="pases" value="{{ player.pases }}">
+                            </div>
                         </div>
                         <div class="skill-entry">
                             <label>Tiro:</label>
-                            <input type="number" name="tiro" value="{{ player.tiro }}" min="1" max="5" placeholder="1-5" required>
+                            <div class="star-rating" data-skill="tiro">
+                                <span class="star" data-value="1">&#9733;</span>
+                                <span class="star" data-value="2">&#9733;</span>
+                                <span class="star" data-value="3">&#9733;</span>
+                                <span class="star" data-value="4">&#9733;</span>
+                                <span class="star" data-value="5">&#9733;</span>
+                                <input type="hidden" name="tiro" value="{{ player.tiro }}">
+                            </div>
                         </div>
                         <div class="skill-entry">
                             <label>Defensa:</label>
-                            <input type="number" name="defensa" value="{{ player.defensa }}" min="1" max="5" placeholder="1-5" required>
+                            <div class="star-rating" data-skill="defensa">
+                                <span class="star" data-value="1">&#9733;</span>
+                                <span class="star" data-value="2">&#9733;</span>
+                                <span class="star" data-value="3">&#9733;</span>
+                                <span class="star" data-value="4">&#9733;</span>
+                                <span class="star" data-value="5">&#9733;</span>
+                                <input type="hidden" name="defensa" value="{{ player.defensa }}">
+                            </div>
                         </div>
                         <div class="skill-entry">
                             <label>Hab. arquero:</label>
-                            <input type="number" name="habilidad_arquero" value="{{ player.habilidad_arquero }}" min="1" max="5" placeholder="1-5" required>
+                            <div class="star-rating" data-skill="habilidad_arquero">
+                                <span class="star" data-value="1">&#9733;</span>
+                                <span class="star" data-value="2">&#9733;</span>
+                                <span class="star" data-value="3">&#9733;</span>
+                                <span class="star" data-value="4">&#9733;</span>
+                                <span class="star" data-value="5">&#9733;</span>
+                                <input type="hidden" name="habilidad_arquero" value="{{ player.habilidad_arquero }}">
+                            </div>
                         </div>
                         <div class="skill-entry">
                             <label>Fuerza cuerpo:</label>
-                            <input type="number" name="fuerza_cuerpo" value="{{ player.fuerza_cuerpo }}" min="1" max="5" placeholder="1-5" required>
+                            <div class="star-rating" data-skill="fuerza_cuerpo">
+                                <span class="star" data-value="1">&#9733;</span>
+                                <span class="star" data-value="2">&#9733;</span>
+                                <span class="star" data-value="3">&#9733;</span>
+                                <span class="star" data-value="4">&#9733;</span>
+                                <span class="star" data-value="5">&#9733;</span>
+                                <input type="hidden" name="fuerza_cuerpo" value="{{ player.fuerza_cuerpo }}">
+                            </div>
                         </div>
                         <div class="skill-entry">
                             <label>Visión:</label>
-                            <input type="number" name="vision" value="{{ player.vision }}" min="1" max="5" placeholder="1-5" required>
+                            <div class="star-rating" data-skill="vision">
+                                <span class="star" data-value="1">&#9733;</span>
+                                <span class="star" data-value="2">&#9733;</span>
+                                <span class="star" data-value="3">&#9733;</span>
+                                <span class="star" data-value="4">&#9733;</span>
+                                <span class="star" data-value="5">&#9733;</span>
+                                <input type="hidden" name="vision" value="{{ player.vision }}">
+                            </div>
                         </div>
                     </div>
                 </div>
