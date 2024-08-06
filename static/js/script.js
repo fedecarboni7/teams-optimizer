@@ -111,34 +111,6 @@ function addPlayer() {
         }
     });
 
-    // Efecto hover
-    skillsContainer.addEventListener('mouseover', function(event) {
-        if (event.target.classList.contains('star')) {
-            const starRating = event.target.closest('.star-rating');
-            const stars = starRating.querySelectorAll('.star');
-            const hoverValue = event.target.getAttribute('data-value');
-
-            stars.forEach(star => {
-                if (star.getAttribute('data-value') <= hoverValue) {
-                    star.classList.add('hover');
-                } else {
-                    star.classList.remove('hover');
-                }
-            });
-        }
-    });
-
-    skillsContainer.addEventListener('mouseout', function(event) {
-        if (event.target.classList.contains('star')) {
-            const starRating = event.target.closest('.star-rating');
-            const stars = starRating.querySelectorAll('.star');
-
-            stars.forEach(star => {
-                star.classList.remove('hover');
-            });
-        }
-    });
-
     // Botón para eliminar
     const deleteButton = document.createElement("button");
     deleteButton.className = "delete-button";
@@ -158,6 +130,7 @@ function addPlayer() {
 
     container.appendChild(playerDiv);
 
+    applyHoverEffect(skillsContainer);
     updateSelectedCount();
 
     // Hide the details of the other players and rotate the toggle button
@@ -479,4 +452,47 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    const existingSkillsContainers = document.querySelectorAll('.skills-container');
+    existingSkillsContainers.forEach(container => {
+        applyHoverEffect(container);
+    });
 });
+
+function applyHoverEffect(container) {
+    container.addEventListener('mouseover', function(event) {
+        if (event.target.classList.contains('star')) {
+            const starRating = event.target.closest('.star-rating');
+            const stars = starRating.querySelectorAll('.star');
+            const hoverValue = parseInt(event.target.getAttribute('data-value'));
+
+            stars.forEach(star => {
+                const starValue = parseInt(star.getAttribute('data-value'));
+                if (starValue <= hoverValue) {
+                    star.classList.add('hover');
+                    star.classList.remove('active');
+                } else {
+                    star.classList.remove('hover');
+                    star.classList.remove('active');
+                }
+            });
+        }
+    });
+
+    container.addEventListener('mouseout', function(event) {
+        if (event.target.classList.contains('star')) {
+            const starRating = event.target.closest('.star-rating');
+            const stars = starRating.querySelectorAll('.star');
+            const selectedValue = parseInt(starRating.querySelector('input[type="hidden"]').value);
+
+            stars.forEach(star => {
+                star.classList.remove('hover');
+                if (parseInt(star.getAttribute('data-value')) <= selectedValue) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+    });
+}

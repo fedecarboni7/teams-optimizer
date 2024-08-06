@@ -141,7 +141,8 @@ a.logout-link:hover {
 }
 
 .star-rating {
-    display: inline-block;
+    display: flex;
+    gap: 0px 6px;
 }
 
 .star {
