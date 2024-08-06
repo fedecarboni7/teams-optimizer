@@ -152,7 +152,7 @@
     </a>
 
     {% if teams %}
-        <p>Diferencia mínima de habilidades: {{ min_difference }}</p>
+        <!-- <p>Diferencia mínima de habilidades: {{ min_difference }}</p> -->
         <p>Diferencia mínima encontrada: {{ min_difference_total }}</p>
         <p>Combinaciones encontradas: {{ len_teams // 2 }}</p>
 
@@ -231,6 +231,32 @@
                         </table>
                     </div>
                 </div>
+                <button type="button" onclick="toggleTable(this)">Mostrar detalles</button>
+                    <div class="table-container" style="max-height: 0;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Habilidad</th>
+                                    <th>Equipo 1</th>
+                                    <th>Equipo 2</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for skill in skills %}
+                                <tr>
+                                    <td>{{ skill }}</td>
+                                    <td>{{ teams[i][1][0][skill]["total"] }}</td>
+                                    <td>{{ teams[i + 1][1][0][skill]["total"] }}</td>
+                                </tr>
+                                {% endfor %}
+                                <tr>
+                                    <td>Total</td>
+                                    <td>{{ teams[i][1][1] }}</td>
+                                    <td>{{ teams[i + 1][1][1] }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
             </div>
             <hr>
         {% endfor %}

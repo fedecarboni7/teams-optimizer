@@ -1,5 +1,5 @@
 ## Prioridades Inmediatas
-
+- **Agrupar la tabla de detalles de ambos equipos en una sola tabla**
 - **Permitir agrupar jugadores por grupos de amigos y filtrar por grupo en el buscador**
 - **Implementar validación de entrada de datos para prevenir inyección SQL**
 
