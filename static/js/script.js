@@ -36,7 +36,7 @@ function addPlayer() {
     const toggleButton = document.createElement("button");
     toggleButton.className = "toggle-details";
     toggleButton.type = "button";
-    toggleButton.innerHTML = '<i class="fa-solid fa-angle-up toggle-icon"></i>';
+    toggleButton.innerHTML = '<i class="fa-solid fa-angle-down toggle-icon"></i>';
     toggleButton.addEventListener("click", function() {
         toggleDetails(this);
     });
@@ -159,6 +159,21 @@ function addPlayer() {
     container.appendChild(playerDiv);
 
     updateSelectedCount();
+
+    // Hide the details of the other players and rotate the toggle button
+    const toggleButtons = document.querySelectorAll('.toggle-details');
+    toggleButtons.forEach(button => {
+        const details = button.parentNode.nextElementSibling;
+        const icon = button.querySelector('.toggle-icon');
+        if (details.style.maxHeight != "0px") {
+            details.style.maxHeight = "0px";
+            details.style.paddingBottom = "0px";
+            icon.classList.remove('rotate');
+        }
+        toggleDetails(toggleButton)
+        const icon_ = toggleButton.querySelector('.toggle-icon');
+        icon_.classList.remove('rotate');
+    });
 }
 
 function renumerarJugadores() {
