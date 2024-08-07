@@ -38,11 +38,7 @@ def find_best_combination(scores):
             if difference_total == min_difference_total:
                 mejores_equipos.append((team1_indices, team2_indices))
 
-    if len(mejores_equipos) > 1:
+    if len(mejores_equipos) > 1 and len(scores) > 3:
         mejores_equipos = mejores_equipos[: int(len(mejores_equipos) / 2)]
     
-    return (
-        mejores_equipos,
-        min_difference,
-        min_difference_total,
-    )
+    return (mejores_equipos, min_difference_total)

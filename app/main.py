@@ -204,9 +204,7 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
         for p in player_data
     ]
 
-    mejores_equipos, min_difference, min_difference_total = find_best_combination(
-        player_scores
-    )
+    mejores_equipos, min_difference_total = find_best_combination(player_scores)
 
     teams = []
     for equipos in mejores_equipos:
@@ -251,7 +249,6 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
 
     calculated_results[current_user_id] = {
         "teams": teams,
-        "min_difference": str(min_difference),
         "min_difference_total": str(min_difference_total)
     }
 

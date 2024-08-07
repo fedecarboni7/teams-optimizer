@@ -503,8 +503,8 @@ function createRadarChart(container) {
     const chartContainer = container.querySelector('.chart-container');
     const canvas = chartContainer.querySelector('canvas');
     const contenedor = document.getElementById('resultados-equipos' + 1);
-    const listasJugadores = contenedor.querySelectorAll('ul');
-    const cantidadJugadores = listasJugadores.length + 1;
+    const listasJugadores = contenedor.querySelectorAll('li');
+    const cantidadJugadores = Math.floor(listasJugadores.length / 2);
     
     // Asignar un ID único al canvas si no tiene uno
     if (!canvas.id) {
@@ -530,6 +530,8 @@ function createRadarChart(container) {
             datasets: [{
                 label: 'Equipo 1',
                 data: team1Data,
+                radius: 4,
+                pointStyle: 'rect',
                 backgroundColor: 'rgba(54, 162, 235, 0.2)',
                 borderColor: 'rgb(54, 162, 235)',
                 pointBackgroundColor: 'rgb(54, 162, 235)',
@@ -539,6 +541,8 @@ function createRadarChart(container) {
             }, {
                 label: 'Equipo 2',
                 data: team2Data,
+                radius: 4,
+                pointStyle: 'triangle',
                 backgroundColor: 'rgba(255, 99, 132, 0.2)',
                 borderColor: 'rgb(255, 99, 132)',
                 pointBackgroundColor: 'rgb(255, 99, 132)',
