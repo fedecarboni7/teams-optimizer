@@ -13,14 +13,12 @@ if LOCAL_DB:
 else:
     TURSO_DATABASE_URL = os.getenv("TURSO_DATABASE_URL")
     TURSO_AUTH_TOKEN = os.getenv("TURSO_AUTH_TOKEN")
-    pool_size = os.getenv("POOL_SIZE", 5)
-    max_overflow = os.getenv("MAX_OVERFLOW", 10)
-    pool_timeout = os.getenv("POOL_TIMEOUT", 10)
-    pool_recycle = os.getenv("POOL_RECYCLE", 1800)
+    timeout = int(os.getenv('DB_TIMEOUT', 30))
+    pool_size = int(os.getenv("POOL_SIZE", 5))
+    pool_recycle = int(os.getenv("POOL_RECYCLE", 1800))
 
     dbUrl = f"sqlite+{TURSO_DATABASE_URL}/?authToken={TURSO_AUTH_TOKEN}&secure=true"
-    timeout = int(os.getenv('DB_TIMEOUT', 30))
-    engine = create_engine(dbUrl, connect_args={'check_same_thread': False, 'timeout': timeout}, pool_size=pool_size, max_overflow=max_overflow, pool_timeout=pool_timeout, pool_recycle=pool_recycle)
+    engine = create_engine(dbUrl, connect_args={'check_same_thread': False, 'timeout': timeout}, pool_size=pool_size, pool_recycle=pool_recycle)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
