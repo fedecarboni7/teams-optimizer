@@ -196,11 +196,11 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for skill in skills %}
+                                    {% for key, value in skills.items() %}
                                     <tr>
-                                        <td>{{ skill }}</td>
-                                        <td>{{ teams[i][1][0][skill]["total"] }}</td>
-                                        <td>{{ teams[i + 1][1][0][skill]["total"] }}</td>
+                                        <td>{{ value }}</td>
+                                        <td>{{ teams[i][1][0][key]["total"] }}</td>
+                                        <td>{{ teams[i + 1][1][0][key]["total"] }}</td>
                                     </tr>
                                     {% endfor %}
                                     <tr>

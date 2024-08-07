@@ -126,8 +126,10 @@ async def get_form(
 
     if current_user_id in calculated_results:
         context.update(calculated_results[current_user_id])
-        context.update({"len_teams": len(context["teams"]),
-                        "skills": ["velocidad", "resistencia", "control", "pases", "tiro", "defensa", "habilidad_arquero", "fuerza_cuerpo", "vision"]})
+        context.update({
+            "len_teams": len(context["teams"]),
+            "skills": {"velocidad": "Velocidad", "resistencia": "Resistencia", "control": "Control", "pases": "Pases", "fuerza_cuerpo": "Fuerza cuerpo", "habilidad_arquero": "Hab. Arquero", "defensa": "Defensa", "tiro": "Tiro", "vision": "Visión"}
+        })
         del calculated_results[current_user_id]
 
     return templates.TemplateResponse(request=request, name="index.html", context=context)
