@@ -70,7 +70,6 @@ async def signup(
     password: str = Form(...),
     db: Session = Depends(get_db),
 ):
-    # Placeholder for user registration logic
     user = db.query(User).filter(User.username == username).first()
     if user:
         return templates.TemplateResponse(request=request, name="signup.html", context={"error": "Usuario ya resgistrado"})
@@ -99,7 +98,13 @@ async def login(
     password: str = Form(...),
     db: Session = Depends(get_db),
 ):
-    user = db.query(User).filter(User.username == username).first()
+    try:
+        user = db.query(User).filter(User.username == username).first()
+    except Exception as e:
+        db.rollback()  # Revertir cualquier cambio no confirmado
+        raise e
+    finally:
+        db.close()
     if not user or not user.verify_password(password):
         return templates.TemplateResponse(request=request, name="login.html", context={"error": "Usuario o contraseña incorrectos"})
 
@@ -126,8 +131,10 @@ async def get_form(
 
     if current_user_id in calculated_results:
         context.update(calculated_results[current_user_id])
-        context.update({"len_teams": len(context["teams"]),
-                        "skills": ["velocidad", "resistencia", "control", "pases", "tiro", "defensa", "habilidad_arquero", "fuerza_cuerpo", "vision"]})
+        context.update({
+            "len_teams": len(context["teams"]),
+            "skills": {"velocidad": "Velocidad", "resistencia": "Resistencia", "control": "Control", "pases": "Pases", "fuerza_cuerpo": "Fuerza cuerpo", "habilidad_arquero": "Hab. Arquero", "defensa": "Defensa", "tiro": "Tiro", "vision": "Visión"}
+        })
         del calculated_results[current_user_id]
 
     return templates.TemplateResponse(request=request, name="index.html", context=context)
@@ -202,9 +209,7 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
         for p in player_data
     ]
 
-    mejores_equipos, min_difference, min_difference_total = find_best_combination(
-        player_scores
-    )
+    mejores_equipos, min_difference_total = find_best_combination(player_scores)
 
     teams = []
     for equipos in mejores_equipos:
@@ -249,7 +254,6 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
 
     calculated_results[current_user_id] = {
         "teams": teams,
-        "min_difference": str(min_difference),
         "min_difference_total": str(min_difference_total)
     }
 

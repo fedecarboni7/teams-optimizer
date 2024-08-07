@@ -36,7 +36,7 @@ function addPlayer() {
     const toggleButton = document.createElement("button");
     toggleButton.className = "toggle-details";
     toggleButton.type = "button";
-    toggleButton.innerHTML = '<i class="fa-solid fa-angle-up toggle-icon"></i>';
+    toggleButton.innerHTML = '<i class="fa-solid fa-angle-down toggle-icon"></i>';
     toggleButton.addEventListener("click", function() {
         toggleDetails(this);
     });
@@ -46,7 +46,7 @@ function addPlayer() {
     const detailsContainer = document.createElement("div");
     detailsContainer.className = "details-container";
     detailsContainer.style.display = "block";
-    detailsContainer.style.maxHeight = "353px";
+    detailsContainer.style.maxHeight = "383px";
     detailsContainer.style.paddingBottom = "5px";
 
     // Skills Container
@@ -64,21 +64,52 @@ function addPlayer() {
         label.textContent = skill.charAt(0).toUpperCase() + skill.slice(1).replace('_', ' ') + ":";
         label.textContent = label.textContent.replace('Habilidad arquero', 'Hab. Arquero');
 
-        const input = document.createElement("input");
-        input.type = "number";
-        input.name = skill;
-        input.min = "1";
-        input.max = "5";
-        input.placeholder = "1-5";
-        input.required = true;
+        const starRating = document.createElement("div");
+        starRating.className = "star-rating";
+        starRating.setAttribute("data-skill", skill);
+
+        for (let i = 1; i <= 5; i++) {
+            const star = document.createElement("span");
+            star.className = "star";
+            star.textContent = "★";
+            star.setAttribute("data-value", i);
+            starRating.appendChild(star);
+        }
+
+        const hiddenInput = document.createElement("input");
+        hiddenInput.type = "hidden";
+        hiddenInput.name = skill;
+        hiddenInput.required = true;
+
+        starRating.appendChild(hiddenInput);
 
         skillEntry.appendChild(label);
-        skillEntry.appendChild(input);
+        skillEntry.appendChild(starRating);
         skillsContainer.appendChild(skillEntry);
     });
 
     detailsContainer.appendChild(skillsContainer);
     playerDiv.appendChild(detailsContainer);
+
+    // Agregar funcionalidad a las estrellas
+    skillsContainer.addEventListener('click', function(event) {
+        if (event.target.classList.contains('star')) {
+            const starRating = event.target.closest('.star-rating');
+            const stars = starRating.querySelectorAll('.star');
+            const hiddenInput = starRating.querySelector('input[type="hidden"]');
+            const value = event.target.getAttribute('data-value');
+
+            hiddenInput.value = value;
+
+            stars.forEach(star => {
+                if (star.getAttribute('data-value') <= value) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+    });
 
     // Botón para eliminar
     const deleteButton = document.createElement("button");
@@ -99,7 +130,23 @@ function addPlayer() {
 
     container.appendChild(playerDiv);
 
+    applyHoverEffect(skillsContainer);
     updateSelectedCount();
+
+    // Hide the details of the other players and rotate the toggle button
+    const toggleButtons = document.querySelectorAll('.toggle-details');
+    toggleButtons.forEach(button => {
+        const details = button.parentNode.nextElementSibling;
+        const icon = button.querySelector('.toggle-icon');
+        if (details.style.maxHeight != "0px") {
+            details.style.maxHeight = "0px";
+            details.style.paddingBottom = "0px";
+            icon.classList.remove('rotate');
+        }
+        toggleDetails(toggleButton)
+        const icon_ = toggleButton.querySelector('.toggle-icon');
+        icon_.classList.remove('rotate');
+    });
 }
 
 function renumerarJugadores() {
@@ -233,17 +280,6 @@ function toggleSelectPlayers() {
     updateSelectedCount();
 }
 
-function toggleTable(button) {
-    const tableContainer = button.nextElementSibling;
-    if (tableContainer.style.maxHeight === "0px" || tableContainer.style.maxHeight === "") {
-        tableContainer.style.maxHeight = tableContainer.scrollHeight + "px";
-        button.textContent = "Ocultar detalles";
-    } else {
-        tableContainer.style.maxHeight = "0px";
-        button.textContent = "Mostrar detalles";
-    }
-}
-
 function updateSelectedCount() {
     let selectedCount = document.querySelectorAll('input[name="selectedPlayers"]:checked').length;
     document.getElementById('selected-count').textContent = selectedCount;
@@ -373,6 +409,195 @@ function filterPlayers() {
             player.style.display = '';
         } else {
             player.style.display = 'none';
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const starRatings = document.querySelectorAll('.star-rating');
+    
+    starRatings.forEach(rating => {
+        const stars = rating.querySelectorAll('.star');
+        const input = rating.querySelector('input[type="hidden"]');
+        
+        // Inicializar las estrellas basado en el valor actual
+        updateStars(stars, input.value);
+        
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                const value = this.getAttribute('data-value');
+                input.value = value;
+                updateStars(stars, value);
+            });
+        });
+    });
+    
+    function updateStars(stars, value) {
+        stars.forEach(star => {
+            if (star.getAttribute('data-value') <= value) {
+                star.classList.add('active');
+            } else {
+                star.classList.remove('active');
+            }
+        });
+    }
+
+    const existingSkillsContainers = document.querySelectorAll('.skills-container');
+    existingSkillsContainers.forEach(container => {
+        applyHoverEffect(container);
+    });
+});
+
+function applyHoverEffect(container) {
+    container.addEventListener('mouseover', function(event) {
+        if (event.target.classList.contains('star')) {
+            const starRating = event.target.closest('.star-rating');
+            const stars = starRating.querySelectorAll('.star');
+            const hoverValue = parseInt(event.target.getAttribute('data-value'));
+
+            stars.forEach(star => {
+                const starValue = parseInt(star.getAttribute('data-value'));
+                if (starValue <= hoverValue) {
+                    star.classList.add('hover');
+                    star.classList.remove('active');
+                } else {
+                    star.classList.remove('hover');
+                    star.classList.remove('active');
+                }
+            });
+        }
+    });
+
+    container.addEventListener('mouseout', function(event) {
+        if (event.target.classList.contains('star')) {
+            const starRating = event.target.closest('.star-rating');
+            const stars = starRating.querySelectorAll('.star');
+            const selectedValue = parseInt(starRating.querySelector('input[type="hidden"]').value);
+
+            stars.forEach(star => {
+                star.classList.remove('hover');
+                if (parseInt(star.getAttribute('data-value')) <= selectedValue) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+    });
+}
+
+function toggleStats(button) {
+    const container = button.parentNode.nextElementSibling;
+    if (container.style.display === "none") {
+        container.style.display = "flex";
+        button.textContent = "Ocultar detalles";
+        createRadarChart(container);
+    } else {
+        container.style.display = "none";
+        button.textContent = "Mostrar detalles";
+    }
+}
+
+function createRadarChart(container) {
+    const tableContainer = container.querySelector('.table-container');
+    const chartContainer = container.querySelector('.chart-container');
+    const canvas = chartContainer.querySelector('canvas');
+    const contenedor = document.getElementById('resultados-equipos' + 1);
+    const listasJugadores = contenedor.querySelectorAll('li');
+    const cantidadJugadores = Math.floor(listasJugadores.length / 2);
+    
+    // Asignar un ID único al canvas si no tiene uno
+    if (!canvas.id) {
+        canvas.id = 'radarChart' + Math.floor(Math.random() * 1000);
+    }
+    
+    const ctx = canvas.getContext('2d');
+    
+    // Obtén los datos de la tabla
+    const skills = Array.from(tableContainer.querySelectorAll('tbody tr td:first-child')).map(td => td.textContent);
+    const team1Data = Array.from(tableContainer.querySelectorAll('tbody tr td:nth-child(2)')).map(td => parseInt(td.textContent));
+    const team2Data = Array.from(tableContainer.querySelectorAll('tbody tr td:nth-child(3)')).map(td => parseInt(td.textContent));
+
+    // Elimina la última fila (Total)
+    skills.pop();
+    team1Data.pop();
+    team2Data.pop();
+
+    new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: skills,
+            datasets: [{
+                label: 'Equipo 1',
+                data: team1Data,
+                radius: 4,
+                pointStyle: 'rect',
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgb(54, 162, 235)',
+                pointBackgroundColor: 'rgb(54, 162, 235)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgb(54, 162, 235)'
+            }, {
+                label: 'Equipo 2',
+                data: team2Data,
+                radius: 4,
+                pointStyle: 'triangle',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgb(255, 99, 132)',
+                pointBackgroundColor: 'rgb(255, 99, 132)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgb(255, 99, 132)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: {
+                        display: true,
+                        color: 'rgba(255, 255, 255, 0.4)',
+                        lineWidth: 1
+                    },
+                    // suggestedMin tiene que ser la cantidad de jugadores
+                    suggestedMin: cantidadJugadores,
+                    // suggestedMax tiene que ser la cantidad de jugadores * 5
+                    suggestedMax: cantidadJugadores * 5,
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.4)',
+                        lineWidth: 1
+                    },
+                    pointLabels: {
+                        color: '#e0e0e0',
+                        font: {
+                            size: 14,
+                            weight: 500,
+                            family:'Segoe UI'
+                        }
+                    },
+                    ticks: {
+                        color: '#e0e0e0',
+                        font: {
+                            size: 12
+                        },
+                        backdropColor: '#5a5a5a'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#e0e0e0',
+                        font: {
+                            size: 16,
+                            family:'Segoe UI',
+                            weight: 600
+                        }
+                    }
+                }
+            }
         }
     });
 }

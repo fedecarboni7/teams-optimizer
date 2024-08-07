@@ -5,17 +5,21 @@ from passlib.hash import pbkdf2_sha256
 from sqlalchemy import ForeignKey, create_engine, Column, Integer, String
 from sqlalchemy.orm import sessionmaker, relationship, declarative_base
 
-LOCAL_DB = os.environ.get("LOCAL_DB", "").lower() == "true"
+LOCAL_DB = os.getenv("LOCAL_DB", "").lower() == "true"
 
 if LOCAL_DB:
     dbUrl = "sqlite:///./test.db"
+    engine = create_engine(dbUrl, connect_args={'check_same_thread': False})
 else:
-    TURSO_DATABASE_URL = os.environ.get("TURSO_DATABASE_URL")
-    TURSO_AUTH_TOKEN = os.environ.get("TURSO_AUTH_TOKEN")
-    dbUrl = f"sqlite+{TURSO_DATABASE_URL}/?authToken={TURSO_AUTH_TOKEN}&secure=true"
+    TURSO_DATABASE_URL = os.getenv("TURSO_DATABASE_URL")
+    TURSO_AUTH_TOKEN = os.getenv("TURSO_AUTH_TOKEN")
+    timeout = int(os.getenv('DB_TIMEOUT', 30))
+    pool_size = int(os.getenv("POOL_SIZE", 5))
+    pool_recycle = int(os.getenv("POOL_RECYCLE", 1800))
 
-timeout = int(os.getenv('DB_TIMEOUT', 30))
-engine = create_engine(dbUrl, connect_args={'check_same_thread': False, 'timeout': timeout})
+    dbUrl = f"sqlite+{TURSO_DATABASE_URL}/?authToken={TURSO_AUTH_TOKEN}&secure=true"
+    engine = create_engine(dbUrl, connect_args={'check_same_thread': False, 'timeout': timeout}, pool_size=pool_size, pool_recycle=pool_recycle)
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()

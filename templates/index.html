@@ -11,6 +11,7 @@
     <link rel="stylesheet" type="text/css" href="/static/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <script src="static/js/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <h1>Armar Equipos</h1>
@@ -39,39 +40,102 @@
                     <div class="skills-container">
                         <div class="skill-entry">
                             <label>Velocidad:</label>
-                            <input type="number" name="velocidad" value="{{ player.velocidad }}" min="1" max="5" placeholder="1-5" required>
+                            <div class="star-rating" data-skill="velocidad">
+                                <span class="star" data-value="1">&#9733;</span>
+                                <span class="star" data-value="2">&#9733;</span>
+                                <span class="star" data-value="3">&#9733;</span>
+                                <span class="star" data-value="4">&#9733;</span>
+                                <span class="star" data-value="5">&#9733;</span>
+                                <input type="hidden" name="velocidad" value="{{ player.velocidad }}">
+                            </div>
                         </div>
                         <div class="skill-entry">
                             <label>Resistencia:</label>
-                            <input type="number" name="resistencia" value="{{ player.resistencia }}" min="1" max="5" placeholder="1-5" required>
+                            <div class="star-rating" data-skill="resistencia">
+                                <span class="star" data-value="1">&#9733;</span>
+                                <span class="star" data-value="2">&#9733;</span>
+                                <span class="star" data-value="3">&#9733;</span>
+                                <span class="star" data-value="4">&#9733;</span>
+                                <span class="star" data-value="5">&#9733;</span>
+                                <input type="hidden" name="resistencia" value="{{ player.resistencia }}">
+                            </div>
                         </div>
                         <div class="skill-entry">
                             <label>Control:</label>
-                            <input type="number" name="control" value="{{ player.control }}" min="1" max="5" placeholder="1-5" required>
+                            <div class="star-rating" data-skill="control">
+                                <span class="star" data-value="1">&#9733;</span>
+                                <span class="star" data-value="2">&#9733;</span>
+                                <span class="star" data-value="3">&#9733;</span>
+                                <span class="star" data-value="4">&#9733;</span>
+                                <span class="star" data-value="5">&#9733;</span>
+                                <input type="hidden" name="control" value="{{ player.control }}">
+                            </div>
                         </div>
                         <div class="skill-entry">
                             <label>Pases:</label>
-                            <input type="number" name="pases" value="{{ player.pases }}" min="1" max="5" placeholder="1-5" required>
+                            <div class="star-rating" data-skill="pases">
+                                <span class="star" data-value="1">&#9733;</span>
+                                <span class="star" data-value="2">&#9733;</span>
+                                <span class="star" data-value="3">&#9733;</span>
+                                <span class="star" data-value="4">&#9733;</span>
+                                <span class="star" data-value="5">&#9733;</span>
+                                <input type="hidden" name="pases" value="{{ player.pases }}">
+                            </div>
                         </div>
                         <div class="skill-entry">
                             <label>Tiro:</label>
-                            <input type="number" name="tiro" value="{{ player.tiro }}" min="1" max="5" placeholder="1-5" required>
+                            <div class="star-rating" data-skill="tiro">
+                                <span class="star" data-value="1">&#9733;</span>
+                                <span class="star" data-value="2">&#9733;</span>
+                                <span class="star" data-value="3">&#9733;</span>
+                                <span class="star" data-value="4">&#9733;</span>
+                                <span class="star" data-value="5">&#9733;</span>
+                                <input type="hidden" name="tiro" value="{{ player.tiro }}">
+                            </div>
                         </div>
                         <div class="skill-entry">
                             <label>Defensa:</label>
-                            <input type="number" name="defensa" value="{{ player.defensa }}" min="1" max="5" placeholder="1-5" required>
+                            <div class="star-rating" data-skill="defensa">
+                                <span class="star" data-value="1">&#9733;</span>
+                                <span class="star" data-value="2">&#9733;</span>
+                                <span class="star" data-value="3">&#9733;</span>
+                                <span class="star" data-value="4">&#9733;</span>
+                                <span class="star" data-value="5">&#9733;</span>
+                                <input type="hidden" name="defensa" value="{{ player.defensa }}">
+                            </div>
                         </div>
                         <div class="skill-entry">
                             <label>Hab. arquero:</label>
-                            <input type="number" name="habilidad_arquero" value="{{ player.habilidad_arquero }}" min="1" max="5" placeholder="1-5" required>
+                            <div class="star-rating" data-skill="habilidad_arquero">
+                                <span class="star" data-value="1">&#9733;</span>
+                                <span class="star" data-value="2">&#9733;</span>
+                                <span class="star" data-value="3">&#9733;</span>
+                                <span class="star" data-value="4">&#9733;</span>
+                                <span class="star" data-value="5">&#9733;</span>
+                                <input type="hidden" name="habilidad_arquero" value="{{ player.habilidad_arquero }}">
+                            </div>
                         </div>
                         <div class="skill-entry">
                             <label>Fuerza cuerpo:</label>
-                            <input type="number" name="fuerza_cuerpo" value="{{ player.fuerza_cuerpo }}" min="1" max="5" placeholder="1-5" required>
+                            <div class="star-rating" data-skill="fuerza_cuerpo">
+                                <span class="star" data-value="1">&#9733;</span>
+                                <span class="star" data-value="2">&#9733;</span>
+                                <span class="star" data-value="3">&#9733;</span>
+                                <span class="star" data-value="4">&#9733;</span>
+                                <span class="star" data-value="5">&#9733;</span>
+                                <input type="hidden" name="fuerza_cuerpo" value="{{ player.fuerza_cuerpo }}">
+                            </div>
                         </div>
                         <div class="skill-entry">
                             <label>Visión:</label>
-                            <input type="number" name="vision" value="{{ player.vision }}" min="1" max="5" placeholder="1-5" required>
+                            <div class="star-rating" data-skill="vision">
+                                <span class="star" data-value="1">&#9733;</span>
+                                <span class="star" data-value="2">&#9733;</span>
+                                <span class="star" data-value="3">&#9733;</span>
+                                <span class="star" data-value="4">&#9733;</span>
+                                <span class="star" data-value="5">&#9733;</span>
+                                <input type="hidden" name="vision" value="{{ player.vision }}">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -89,15 +153,13 @@
     </a>
 
     {% if teams %}
-        <p>Diferencia mínima de habilidades: {{ min_difference }}</p>
-        <p>Diferencia mínima encontrada: {{ min_difference_total }}</p>
-        <p>Combinaciones encontradas: {{ len_teams // 2 }}</p>
-
+        <p>Diferencia mínima entre equipos: {{ min_difference_total }}</p>
+        <p>Mejores combinaciones posibles: {{ len_teams // 2 }}</p>
+        <hr>
         {% for i in range(0, len_teams - 1, 2) %}
-            {% if len_teams > 2 %}
-                <p>Opción {{ i // 2 + 1 }}</p>
-            {% endif %}
-            <button type="button" class="share-button" id="shareButton{{ i // 2  + 1 }}" onclick="compartirEquipos(this)">Compartir Equipos</button>
+        {% if len_teams > 2 %}
+            <p>Opción {{ i // 2 + 1 }}</p>
+        {% endif %}
             <div class="team-container" id="resultados-equipos{{ i // 2  + 1 }}">
                 <div class="team">
                     <h2>Equipo 1</h2>
@@ -106,32 +168,6 @@
                         <li>{{ player }}</li>
                         {% endfor %}
                     </ul>
-                    <button type="button" onclick="toggleTable(this)">Mostrar detalles</button>
-                    <div class="table-container" style="max-height: 0;">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Habilidad</th>
-                                    <th>Total</th>
-                                    <th>Promedio</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for skill in skills %}
-                                <tr>
-                                    <td>{{ skill }}</td>
-                                    <td>{{ teams[i][1][0][skill]["total"] }}</td>
-                                    <td>{{ teams[i][1][0][skill]["avg"] }}</td>
-                                </tr>
-                                {% endfor %}
-                                <tr>
-                                    <td>Total</td>
-                                    <td>{{ teams[i][1][1] }}</td>
-                                    <td>{{ teams[i][1][2] }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
 
                 <div class="team">
@@ -141,31 +177,42 @@
                         <li>{{ player }}</li>
                         {% endfor %}
                     </ul>
-                    <button type="button" onclick="toggleTable(this)">Mostrar detalles</button>
-                    <div class="table-container" style="max-height: 0;">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Habilidad</th>
-                                    <th>Total</th>
-                                    <th>Promedio</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for skill in skills %}
-                                <tr>
-                                    <td>{{ skill }}</td>
-                                    <td>{{ teams[i + 1][1][0][skill]["total"] }}</td>
-                                    <td>{{ teams[i + 1][1][0][skill]["avg"] }}</td>
-                                </tr>
-                                {% endfor %}
-                                <tr>
-                                    <td>Total</td>
-                                    <td>{{ teams[i + 1][1][1] }}</td>
-                                    <td>{{ teams[i + 1][1][2] }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                </div>
+
+                <div class="stats-container">
+                    <div class="button-container">
+                        <button type="button" onclick="toggleStats(this)">Mostrar detalles</button>
+                        <button type="button" id="shareButton{{ i // 2  + 1 }}" onclick="compartirEquipos(this)">Compartir equipos</button>
+                    </div>
+                    <div class="content-container" style="display: none;">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Habilidad</th>
+                                        <th>Equipo 1</th>
+                                        <th>Equipo 2</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for key, value in skills.items() %}
+                                    <tr>
+                                        <td>{{ value }}</td>
+                                        <td>{{ teams[i][1][0][key]["total"] }}</td>
+                                        <td>{{ teams[i + 1][1][0][key]["total"] }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    <tr>
+                                        <td>Total</td>
+                                        <td>{{ teams[i][1][1] }}</td>
+                                        <td>{{ teams[i + 1][1][1] }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="radarChart"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -185,4 +232,12 @@
     </button>
     
 </body>
+<footer>
+    <div class="footer-links">
+        <a class="footer-link" href="mailto:fedecarboni7@gmail.com"><i class="fa-regular fa-comment"></i></a>
+        <a class="footer-link" href="https://www.linkedin.com/in/federicocarboni7/" target="_blank"><i class="fa-brands fa-linkedin"></i></a>
+        <a class="footer-link" href="https://github.com/fedecarboni7" target="_blank"><i class="fa-brands fa-github"></i></a>
+    </div>
+    <p class="copyright">© 2024 fedecarboni7</p>
+</footer>
 </html>
