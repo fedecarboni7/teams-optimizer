@@ -154,13 +154,13 @@
 
     {% if teams %}
         <!-- <p>Diferencia mínima de habilidades: {{ min_difference }}</p> -->
-        <p>Diferencia mínima encontrada: {{ min_difference_total }}</p>
-        <p>Combinaciones encontradas: {{ len_teams // 2 }}</p>
-
+        <p>Diferencia mínima entre equipos: {{ min_difference_total }}</p>
+        <p>Mejores combinaciones posibles: {{ len_teams // 2 }}</p>
+        <hr>
         {% for i in range(0, len_teams - 1, 2) %}
-            {% if len_teams > 2 %}
-                <p>Opción {{ i // 2 + 1 }}</p>
-            {% endif %}
+        {% if len_teams > 2 %}
+            <p>Opción {{ i // 2 + 1 }}</p>
+        {% endif %}
             <div class="team-container" id="resultados-equipos{{ i // 2  + 1 }}">
                 <div class="team">
                     <h2>Equipo 1</h2>
@@ -181,8 +181,10 @@
                 </div>
 
                 <div class="stats-container">
-                    <button type="button" class="share-button" id="shareButton{{ i // 2  + 1 }}" onclick="compartirEquipos(this)">Compartir Equipos</button>
-                    <button type="button" class="stats-button" onclick="toggleStats(this)">Mostrar detalles</button>
+                    <div class="button-container">
+                        <button type="button" onclick="toggleStats(this)">Mostrar detalles</button>
+                        <button type="button" id="shareButton{{ i // 2  + 1 }}" onclick="compartirEquipos(this)">Compartir equipos</button>
+                    </div>
                     <div class="content-container" style="display: none;">
                         <div class="table-container">
                             <table>

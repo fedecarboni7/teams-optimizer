@@ -487,7 +487,7 @@ function applyHoverEffect(container) {
 }
 
 function toggleStats(button) {
-    const container = button.nextElementSibling;
+    const container = button.parentNode.nextElementSibling;
     if (container.style.display === "none") {
         container.style.display = "flex";
         button.textContent = "Ocultar detalles";
