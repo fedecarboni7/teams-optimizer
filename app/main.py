@@ -70,7 +70,6 @@ async def signup(
     password: str = Form(...),
     db: Session = Depends(get_db),
 ):
-    # Placeholder for user registration logic
     user = db.query(User).filter(User.username == username).first()
     if user:
         return templates.TemplateResponse(request=request, name="signup.html", context={"error": "Usuario ya resgistrado"})
@@ -99,7 +98,11 @@ async def login(
     password: str = Form(...),
     db: Session = Depends(get_db),
 ):
-    user = db.query(User).filter(User.username == username).first()
+    try:
+        user = db.query(User).filter(User.username == username).first()
+    except Exception as e:
+        db.rollback()  # Revertir cualquier cambio no confirmado
+        raise e
     if not user or not user.verify_password(password):
         return templates.TemplateResponse(request=request, name="login.html", context={"error": "Usuario o contraseña incorrectos"})
 
