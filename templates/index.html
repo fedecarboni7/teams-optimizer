@@ -11,6 +11,7 @@
     <link rel="stylesheet" type="text/css" href="/static/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <script src="static/js/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <h1>Armar Equipos</h1>
@@ -160,7 +161,6 @@
             {% if len_teams > 2 %}
                 <p>Opción {{ i // 2 + 1 }}</p>
             {% endif %}
-            <button type="button" class="share-button" id="shareButton{{ i // 2  + 1 }}" onclick="compartirEquipos(this)">Compartir Equipos</button>
             <div class="team-container" id="resultados-equipos{{ i // 2  + 1 }}">
                 <div class="team">
                     <h2>Equipo 1</h2>
@@ -169,32 +169,6 @@
                         <li>{{ player }}</li>
                         {% endfor %}
                     </ul>
-                    <button type="button" onclick="toggleTable(this)">Mostrar detalles</button>
-                    <div class="table-container" style="max-height: 0;">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Habilidad</th>
-                                    <th>Total</th>
-                                    <th>Promedio</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for skill in skills %}
-                                <tr>
-                                    <td>{{ skill }}</td>
-                                    <td>{{ teams[i][1][0][skill]["total"] }}</td>
-                                    <td>{{ teams[i][1][0][skill]["avg"] }}</td>
-                                </tr>
-                                {% endfor %}
-                                <tr>
-                                    <td>Total</td>
-                                    <td>{{ teams[i][1][1] }}</td>
-                                    <td>{{ teams[i][1][2] }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
 
                 <div class="team">
@@ -204,59 +178,42 @@
                         <li>{{ player }}</li>
                         {% endfor %}
                     </ul>
-                    <button type="button" onclick="toggleTable(this)">Mostrar detalles</button>
-                    <div class="table-container" style="max-height: 0;">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Habilidad</th>
-                                    <th>Total</th>
-                                    <th>Promedio</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for skill in skills %}
-                                <tr>
-                                    <td>{{ skill }}</td>
-                                    <td>{{ teams[i + 1][1][0][skill]["total"] }}</td>
-                                    <td>{{ teams[i + 1][1][0][skill]["avg"] }}</td>
-                                </tr>
-                                {% endfor %}
-                                <tr>
-                                    <td>Total</td>
-                                    <td>{{ teams[i + 1][1][1] }}</td>
-                                    <td>{{ teams[i + 1][1][2] }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                </div>
+
+                <div class="stats-container">
+                    <button type="button" class="share-button" id="shareButton{{ i // 2  + 1 }}" onclick="compartirEquipos(this)">Compartir Equipos</button>
+                    <button type="button" class="stats-button" onclick="toggleStats(this)">Mostrar detalles</button>
+                    <div class="content-container" style="display: none;">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Habilidad</th>
+                                        <th>Equipo 1</th>
+                                        <th>Equipo 2</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for skill in skills %}
+                                    <tr>
+                                        <td>{{ skill }}</td>
+                                        <td>{{ teams[i][1][0][skill]["total"] }}</td>
+                                        <td>{{ teams[i + 1][1][0][skill]["total"] }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    <tr>
+                                        <td>Total</td>
+                                        <td>{{ teams[i][1][1] }}</td>
+                                        <td>{{ teams[i + 1][1][1] }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="radarChart"></canvas>
+                        </div>
                     </div>
                 </div>
-                <button type="button" onclick="toggleTable(this)">Mostrar detalles</button>
-                    <div class="table-container" style="max-height: 0;">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Habilidad</th>
-                                    <th>Equipo 1</th>
-                                    <th>Equipo 2</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for skill in skills %}
-                                <tr>
-                                    <td>{{ skill }}</td>
-                                    <td>{{ teams[i][1][0][skill]["total"] }}</td>
-                                    <td>{{ teams[i + 1][1][0][skill]["total"] }}</td>
-                                </tr>
-                                {% endfor %}
-                                <tr>
-                                    <td>Total</td>
-                                    <td>{{ teams[i][1][1] }}</td>
-                                    <td>{{ teams[i + 1][1][1] }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
             </div>
             <hr>
         {% endfor %}

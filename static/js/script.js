@@ -280,17 +280,6 @@ function toggleSelectPlayers() {
     updateSelectedCount();
 }
 
-function toggleTable(button) {
-    const tableContainer = button.nextElementSibling;
-    if (tableContainer.style.maxHeight === "0px" || tableContainer.style.maxHeight === "") {
-        tableContainer.style.maxHeight = tableContainer.scrollHeight + "px";
-        button.textContent = "Ocultar detalles";
-    } else {
-        tableContainer.style.maxHeight = "0px";
-        button.textContent = "Mostrar detalles";
-    }
-}
-
 function updateSelectedCount() {
     let selectedCount = document.querySelectorAll('input[name="selectedPlayers"]:checked').length;
     document.getElementById('selected-count').textContent = selectedCount;
@@ -493,6 +482,80 @@ function applyHoverEffect(container) {
                     star.classList.remove('active');
                 }
             });
+        }
+    });
+}
+
+function toggleStats(button) {
+    const container = button.nextElementSibling;
+    if (container.style.display === "none") {
+        container.style.display = "flex";
+        button.textContent = "Ocultar detalles";
+        createRadarChart(container);
+    } else {
+        container.style.display = "none";
+        button.textContent = "Mostrar detalles";
+    }
+}
+
+function createRadarChart(container) {
+    const tableContainer = container.querySelector('.table-container');
+    const chartContainer = container.querySelector('.chart-container');
+    const canvas = chartContainer.querySelector('canvas');
+    
+    // Asignar un ID único al canvas si no tiene uno
+    if (!canvas.id) {
+        canvas.id = 'radarChart' + Math.floor(Math.random() * 1000);
+    }
+    
+    const ctx = canvas.getContext('2d');
+    
+    // Obtén los datos de la tabla
+    const skills = Array.from(tableContainer.querySelectorAll('tbody tr td:first-child')).map(td => td.textContent);
+    const team1Data = Array.from(tableContainer.querySelectorAll('tbody tr td:nth-child(2)')).map(td => parseInt(td.textContent));
+    const team2Data = Array.from(tableContainer.querySelectorAll('tbody tr td:nth-child(3)')).map(td => parseInt(td.textContent));
+    
+    // Elimina la última fila (Total)
+    skills.pop();
+    team1Data.pop();
+    team2Data.pop();
+
+    new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: skills,
+            datasets: [{
+                label: 'Equipo 1',
+                data: team1Data,
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgb(54, 162, 235)',
+                pointBackgroundColor: 'rgb(54, 162, 235)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgb(54, 162, 235)'
+            }, {
+                label: 'Equipo 2',
+                data: team2Data,
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgb(255, 99, 132)',
+                pointBackgroundColor: 'rgb(255, 99, 132)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgb(255, 99, 132)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: {
+                        display: false
+                    },
+                    suggestedMin: 0,
+                    suggestedMax: 25
+                }
+            }
         }
     });
 }
