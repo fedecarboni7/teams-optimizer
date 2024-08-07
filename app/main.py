@@ -103,6 +103,8 @@ async def login(
     except Exception as e:
         db.rollback()  # Revertir cualquier cambio no confirmado
         raise e
+    finally:
+        db.close()
     if not user or not user.verify_password(password):
         return templates.TemplateResponse(request=request, name="login.html", context={"error": "Usuario o contraseña incorrectos"})
 

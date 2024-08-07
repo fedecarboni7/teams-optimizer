@@ -164,10 +164,9 @@ def test_find_best_combination():
         [3, 3, 3, 3, 3, 3, 3, 3, 3],
         [4, 4, 4, 4, 4, 4, 4, 4, 4]
     ]
-    best_teams, min_difference, min_difference_total = find_best_combination(scores)
+    best_teams, min_difference_total = find_best_combination(scores)
     
     assert len(best_teams) == 1
-    assert min_difference == 0
     assert min_difference_total == 0
 
     # Check if the teams are balanced
