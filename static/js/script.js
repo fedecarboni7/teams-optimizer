@@ -502,6 +502,9 @@ function createRadarChart(container) {
     const tableContainer = container.querySelector('.table-container');
     const chartContainer = container.querySelector('.chart-container');
     const canvas = chartContainer.querySelector('canvas');
+    const contenedor = document.getElementById('resultados-equipos' + 1);
+    const listasJugadores = contenedor.querySelectorAll('ul');
+    const cantidadJugadores = listasJugadores.length + 1;
     
     // Asignar un ID único al canvas si no tiene uno
     if (!canvas.id) {
@@ -514,7 +517,7 @@ function createRadarChart(container) {
     const skills = Array.from(tableContainer.querySelectorAll('tbody tr td:first-child')).map(td => td.textContent);
     const team1Data = Array.from(tableContainer.querySelectorAll('tbody tr td:nth-child(2)')).map(td => parseInt(td.textContent));
     const team2Data = Array.from(tableContainer.querySelectorAll('tbody tr td:nth-child(3)')).map(td => parseInt(td.textContent));
-    
+
     // Elimina la última fila (Total)
     skills.pop();
     team1Data.pop();
@@ -550,10 +553,45 @@ function createRadarChart(container) {
             scales: {
                 r: {
                     angleLines: {
-                        display: false
+                        display: true,
+                        color: 'rgba(255, 255, 255, 0.4)',
+                        lineWidth: 1
                     },
-                    suggestedMin: 0,
-                    suggestedMax: 25
+                    // suggestedMin tiene que ser la cantidad de jugadores
+                    suggestedMin: cantidadJugadores,
+                    // suggestedMax tiene que ser la cantidad de jugadores * 5
+                    suggestedMax: cantidadJugadores * 5,
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.4)',
+                        lineWidth: 1
+                    },
+                    pointLabels: {
+                        color: '#e0e0e0',
+                        font: {
+                            size: 14,
+                            weight: 500,
+                            family:'Segoe UI'
+                        }
+                    },
+                    ticks: {
+                        color: '#e0e0e0',
+                        font: {
+                            size: 12
+                        },
+                        backdropColor: '#5a5a5a'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#e0e0e0',
+                        font: {
+                            size: 16,
+                            family:'Segoe UI',
+                            weight: 600
+                        }
+                    }
                 }
             }
         }
