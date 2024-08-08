@@ -1,20 +1,15 @@
-import logging
 import os
 
 from passlib.hash import pbkdf2_sha256
-
 from sqlalchemy import ForeignKey, create_engine, Column, Integer, String
 from sqlalchemy.orm import sessionmaker, relationship, declarative_base
 
-from app.config.logging_config import setup_logging
-
-# Configuración general de logging
-setup_logging()
+from app.config.logging_config import logger
 
 LOCAL_DB = os.getenv("LOCAL_DB", "").lower() == "true"
 
 if LOCAL_DB:
-    logging.info("Using local database")
+    logger.info("Using local database")
     dbUrl = "sqlite:///./test.db"
     engine = create_engine(dbUrl, connect_args={'check_same_thread': False})
 else:
