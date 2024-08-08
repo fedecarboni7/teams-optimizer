@@ -1,5 +1,10 @@
-## TO-DO
+# TO-DO
+
+## Prioriratias
+- **Hacer refactor de código para mejorar la legibilidad y eficiencia**
 - **Implementar validación de entrada de datos para prevenir inyección SQL**
+
+## A futuro
 - **Agregar una opción para compartir datos de jugadores con otros usuarios**
 - **Permitir la selección de habilidades específicas para la comparación**
 - **Limitar la cantidad de opciones de equipos a 3 para optimizar la eficiencia**
