@@ -14,6 +14,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from sqlalchemy.orm import Session
 
 from app.auth import get_current_user
+from app.config.logging_config import setup_logging
 from app.database import User, get_db, Player
 from app.schemas import PlayerCreate
 from app.team_optimizer import find_best_combination
@@ -32,8 +33,8 @@ logging.getLogger('libsql_client.dbapi2._async_executor').setLevel(logging.WARNI
 logging.getLogger('libsql_client.dbapi2._sync_executor').setLevel(logging.WARNING)
 logging.getLogger('libsql_client.dbapi2.types').setLevel(logging.WARNING)
 
-# Configuración general de logging (opcional)
-logging.basicConfig(level=logging.INFO)
+# Configuración general de logging
+setup_logging()
 
 @app.middleware("http")
 async def measure_execution_time(request: Request, call_next):
@@ -43,10 +44,18 @@ async def measure_execution_time(request: Request, call_next):
         start_time = time.time()
         response = await call_next(request)
         process_time = time.time() - start_time
-        logging.info(f" {process_time:.4f} seconds to process request: {request.method} {request.url.path}")
+        logging.info(f"{process_time:.4f} seconds to process request: {request.method} {request.url.path}")
         return response
     else:
         return await call_next(request)
+
+
+@app.exception_handler(500)
+async def internal_server_error_handler(request: Request, exc: Exception):
+    """
+    Maneja los errores del servidor y muestra una página de error personalizada.
+    """
+    return templates.TemplateResponse("500.html", {"request": request}, status_code=500)
 
 
 @app.exception_handler(StarletteHTTPException)

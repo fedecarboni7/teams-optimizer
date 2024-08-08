@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error 500 - Error del servidor</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f8d7da;
+            color: #721c24;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            text-align: center;
+        }
+        .countdown {
+            font-size: 1rem;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 1.2rem;
+        }
+        .contact-button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            color: #ffffff;
+            background-color: #721c24;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .contact-button:hover {
+            background-color: #d3d3d3;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>500 - Error del servidor</h1>
+        <p>Lo sentimos, tuvimos un problema en el servidor.</p>
+        <p>Serás redirigido al login en <span id="countdown" class="countdown">10</span> segundos...</p>
+        <p class="message">Si sigues teniendo este problema, por favor comunícate con el creador del sitio.</p>
+        <a href="mailto:fedecarboni7@gmail.com" class="contact-button">Enviar email</a>
+    </div>
+    <script>
+        let countdownElement = document.getElementById('countdown');
+        let timeLeft = 10; // Tiempo en segundos
+
+        function updateCountdown() {
+            countdownElement.textContent = timeLeft;
+            if (timeLeft <= 0) {
+                window.location.href = '/login';
+            } else {
+                timeLeft--;
+                setTimeout(updateCountdown, 1000); // Actualiza cada segundo
+            }
+        }
+
+        // Inicia el contador
+        updateCountdown();
+    </script>
+</body>
+</html>

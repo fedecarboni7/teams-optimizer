@@ -1,3 +1,4 @@
+import logging
 import os
 
 from passlib.hash import pbkdf2_sha256
@@ -5,20 +6,24 @@ from passlib.hash import pbkdf2_sha256
 from sqlalchemy import ForeignKey, create_engine, Column, Integer, String
 from sqlalchemy.orm import sessionmaker, relationship, declarative_base
 
+from app.config.logging_config import setup_logging
+
+# Configuración general de logging
+setup_logging()
+
 LOCAL_DB = os.getenv("LOCAL_DB", "").lower() == "true"
 
 if LOCAL_DB:
+    logging.info("Using local database")
     dbUrl = "sqlite:///./test.db"
     engine = create_engine(dbUrl, connect_args={'check_same_thread': False})
 else:
     TURSO_DATABASE_URL = os.getenv("TURSO_DATABASE_URL")
     TURSO_AUTH_TOKEN = os.getenv("TURSO_AUTH_TOKEN")
     timeout = int(os.getenv('DB_TIMEOUT', 30))
-    pool_size = int(os.getenv("POOL_SIZE", 5))
-    pool_recycle = int(os.getenv("POOL_RECYCLE", 1800))
 
     dbUrl = f"sqlite+{TURSO_DATABASE_URL}/?authToken={TURSO_AUTH_TOKEN}&secure=true"
-    engine = create_engine(dbUrl, connect_args={'check_same_thread': False, 'timeout': timeout}, pool_size=pool_size, pool_recycle=pool_recycle)
+    engine = create_engine(dbUrl, connect_args={'check_same_thread': False, 'timeout': timeout}, pool_pre_ping=True)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
