@@ -6,9 +6,11 @@ from fastapi import FastAPI, Form, Request, Depends, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from sqlalchemy.orm import Session
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.sessions import SessionMiddleware
+from sqlalchemy.exc import OperationalError
+from sqlalchemy.orm import Session
+from tenacity import retry, wait_fixed, stop_after_attempt
 from typing import Dict, List
 
 from app.auth import get_current_user
@@ -60,6 +62,29 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
     raise exc
 
 
+@retry(wait=wait_fixed(2), stop=stop_after_attempt(5))
+def execute_with_retries(func, *args, **kwargs):
+    try:
+        return func(*args, **kwargs)
+    except OperationalError as e:
+        raise e
+    
+@retry(wait=wait_fixed(2), stop=stop_after_attempt(5))
+def execute_write_with_retries(func, *args, **kwargs):
+    try:
+        func(*args, **kwargs)
+    except OperationalError as e:
+        raise e
+
+def query_user(db: Session, username: str):
+    return db.query(User).filter(User.username == username).first()
+
+def query_players(db: Session, current_user_id: int):
+    return db.query(Player).filter(Player.user_id == current_user_id).all()
+
+def query_player(db: Session, player_id: int):
+    return db.query(Player).filter(Player.id == player_id).first()
+
 @app.get("/signup", response_class=HTMLResponse)
 async def signup_page(request: Request):
     if request.session.get("user_id"):
@@ -74,7 +99,11 @@ async def signup(
     password: str = Form(...),
     db: Session = Depends(get_db),
 ):
-    user = db.query(User).filter(User.username == username).first()
+    try:
+        user = execute_with_retries(query_user, db, username)
+    except OperationalError:
+        return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
+    
     if user:
         return templates.TemplateResponse(request=request, name="signup.html", context={"error": "Usuario ya resgistrado"})
 
@@ -103,12 +132,10 @@ async def login(
     db: Session = Depends(get_db),
 ):
     try:
-        user = db.query(User).filter(User.username == username).first()
-    except Exception as e:
-        db.rollback()  # Revertir cualquier cambio no confirmado
-        raise e
-    finally:
-        db.close()
+        user = execute_with_retries(query_user, db, username)
+    except OperationalError:
+        return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
+    
     if not user or not user.verify_password(password):
         return templates.TemplateResponse(request=request, name="login.html", context={"error": "Usuario o contraseña incorrectos"})
 
@@ -129,7 +156,10 @@ async def get_form(
         return RedirectResponse("/login", status_code=302)
     
     current_user_id = current_user.id
-    players = db.query(Player).filter(Player.user_id == current_user_id).all()
+    try:
+        players = execute_with_retries(query_players, db, current_user_id)
+    except OperationalError:
+        return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
 
     context = {"players": players}
 
@@ -175,7 +205,11 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
         player_data.append(player)
 
     # Guardar o actualizar jugadores en la base de datos
-    existing_players = db.query(Player).filter(Player.user_id == current_user_id).all()
+    try:
+        existing_players = execute_with_retries(query_players, db, current_user_id)
+    except OperationalError:
+        return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
+
     existing_players_dict = {player.name: player for player in existing_players}
 
     players_to_add = []
@@ -225,7 +259,11 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
     start_time_3 = time.time()
     
     # Calculate the total and average skills for each team
-    players = db.query(Player).filter(Player.user_id == current_user_id).all()
+    try:
+        players = execute_with_retries(query_players, db, current_user_id)
+    except OperationalError:
+        return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
+    
     player_data_dict = {player.name: player for player in players}
     
     for team in teams:
@@ -269,14 +307,26 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
 @app.get("/reset")
 async def reset_session(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     current_user_id = current_user.id
-    db.query(Player).filter(Player.user_id == current_user_id).delete()
-    db.commit()
+
+    def delete_players():
+        db.query(Player).filter(Player.user_id == current_user_id).delete()
+        db.commit()
+
+    try:
+        execute_write_with_retries(delete_players)
+    except OperationalError:
+        return {"error": "Error al acceder a la base de datos. Inténtalo de nuevo más tarde."}
+    
     return {"ok": True}
 
 
 @app.get("/player/{player_id}")
 def get_player(player_id: int, db: Session = Depends(get_db)):
-    player = db.query(Player).filter(Player.id == player_id).first()
+    try:
+        player = execute_with_retries(query_player, db, player_id)
+    except OperationalError:
+        return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
+
     if player is None:
         raise HTTPException(status_code=404, detail="Player not found")
     return player
@@ -284,23 +334,47 @@ def get_player(player_id: int, db: Session = Depends(get_db)):
 
 @app.put("/player/{player_id}")
 def update_player(player_id: int, player: PlayerCreate, db: Session = Depends(get_db)):
-    db_player = db.query(Player).filter(Player.id == player_id).first()
+    try:
+        db_player = execute_with_retries(query_player, db, player_id)
+    except OperationalError:
+        return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
+    
     if db_player is None:
         raise HTTPException(status_code=404, detail="Player not found")
     for key, value in player.model_dump().items():
         setattr(db_player, key, value)
-    db.commit()
-    db.refresh(db_player)
+    
+    def update_and_commit():
+        db.commit()
+        db.refresh(db_player)
+
+    try:
+        execute_write_with_retries(update_and_commit)
+    except OperationalError:
+        return HTMLResponse("Error al realizar la actualización. Inténtalo de nuevo más tarde.", status_code=500)
+
     return db_player
 
 
 @app.delete("/player/{player_id}")
 def delete_player(player_id: int, db: Session = Depends(get_db)):
-    player = db.query(Player).filter(Player.id == player_id).first()
+    try:
+        player = execute_with_retries(query_player, db, player_id)
+    except OperationalError:
+        return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
+    
     if player is None:
         raise HTTPException(status_code=404, detail="Player not found")
-    db.delete(player)
-    db.commit()
+    
+    def delete_player():
+        db.delete(player)
+        db.commit()
+
+    try:
+        execute_write_with_retries(delete_player)
+    except OperationalError:
+        return HTMLResponse("Error al eliminar el jugador. Inténtalo de nuevo más tarde.", status_code=500)
+
     return {"ok": True}
 
 @app.get("/logout")
