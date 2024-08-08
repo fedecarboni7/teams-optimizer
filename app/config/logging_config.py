@@ -1,5 +1,29 @@
 import logging
+import os
 
-def setup_logging():
-    logging.basicConfig(level=logging.INFO, format='%(levelname)s:     %(message)s')
-    #logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+import colorlog
+
+# Configuración del colorlog
+handler = colorlog.StreamHandler()
+formatter = colorlog.ColoredFormatter(
+    '%(log_color)s%(levelname)s%(white)s: %(message)s',
+    log_colors={
+        'DEBUG': 'cyan',
+        'INFO': 'green',
+        'WARNING': 'yellow',
+        'ERROR': 'red',
+        'CRITICAL': 'red,bg_white',
+    }
+)
+handler.setFormatter(formatter)
+
+# Configuración básica del logging
+logger = logging.getLogger()
+logging_level = os.getenv('LOGGING_LEVEL', 'INFO').upper()
+
+try:
+    logger.setLevel(getattr(logging, logging_level))
+except AttributeError:
+    logger.setLevel(logging.INFO)
+
+logger.addHandler(handler)

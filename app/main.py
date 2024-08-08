@@ -1,20 +1,20 @@
 import logging
 import os
 import time
-from typing import Dict, List
 
 from fastapi import FastAPI, Form, Request, Depends, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
-from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from starlette.middleware.sessions import SessionMiddleware
+from fastapi.templating import Jinja2Templates
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.middleware.sessions import SessionMiddleware
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
 from tenacity import retry, wait_fixed, stop_after_attempt
+from typing import Dict, List
 
 from app.auth import get_current_user
-from app.config.logging_config import setup_logging
+from app.config.logging_config import logger
 from app.database import User, get_db, Player
 from app.schemas import PlayerCreate
 from app.team_optimizer import find_best_combination
@@ -33,9 +33,6 @@ logging.getLogger('libsql_client.dbapi2._async_executor').setLevel(logging.WARNI
 logging.getLogger('libsql_client.dbapi2._sync_executor').setLevel(logging.WARNING)
 logging.getLogger('libsql_client.dbapi2.types').setLevel(logging.WARNING)
 
-# Configuración general de logging
-setup_logging()
-
 @app.middleware("http")
 async def measure_execution_time(request: Request, call_next):
     ignore_paths = ["/static", "/favicon.ico", "/sm/"]
@@ -44,7 +41,7 @@ async def measure_execution_time(request: Request, call_next):
         start_time = time.time()
         response = await call_next(request)
         process_time = time.time() - start_time
-        logging.info(f"{process_time:.4f} seconds to process request: {request.method} {request.url.path}")
+        logger.debug(f"{process_time:.4f} seconds to process request: {request.method} {request.url.path}")
         return response
     else:
         return await call_next(request)
@@ -230,7 +227,7 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
     db.commit()
 
     process_time_1 = time.time() - start_time_1
-    logging.info(f" {process_time_1:.4f} seconds to save or update players in the database")
+    logger.debug(f"{process_time_1:.4f} seconds to save or update players in the database")
     start_time_2 = time.time()
 
     # Calcular equipos
@@ -258,7 +255,7 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
         teams.append([[player_names[i] for i in list(equipos[1])]])
 
     process_time_2 = time.time() - start_time_2
-    logging.info(f" {process_time_2:.4f} seconds to calculate the best teams")
+    logger.debug(f"{process_time_2:.4f} seconds to calculate the best teams")
     start_time_3 = time.time()
     
     # Calculate the total and average skills for each team
@@ -303,7 +300,7 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
     }
 
     process_time_3 = time.time() - start_time_3
-    logging.info(f" {process_time_3:.4f} seconds to calculate the total skills of each team and return the results")
+    logger.debug(f"{process_time_3:.4f} seconds to calculate the total skills of each team and return the results")
     return RedirectResponse(url="/", status_code=303)
 
 

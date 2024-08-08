@@ -7,3 +7,4 @@ starlette==0.37.2
 itsdangerous
 sqlalchemy-libsql
 tenacity
+colorlog
