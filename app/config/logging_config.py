@@ -1,0 +1,29 @@
+import logging
+import os
+
+import colorlog
+
+# Configuración del colorlog
+handler = colorlog.StreamHandler()
+formatter = colorlog.ColoredFormatter(
+    '%(log_color)s%(levelname)s%(white)s: %(message)s',
+    log_colors={
+        'DEBUG': 'cyan',
+        'INFO': 'green',
+        'WARNING': 'yellow',
+        'ERROR': 'red',
+        'CRITICAL': 'red,bg_white',
+    }
+)
+handler.setFormatter(formatter)
+
+# Configuración básica del logging
+logger = logging.getLogger()
+logging_level = os.getenv('LOGGING_LEVEL', 'INFO').upper()
+
+try:
+    logger.setLevel(getattr(logging, logging_level))
+except AttributeError:
+    logger.setLevel(logging.INFO)
+
+logger.addHandler(handler)

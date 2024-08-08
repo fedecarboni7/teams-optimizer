@@ -6,3 +6,4 @@ SQLAlchemy==2.0.31
 starlette==0.37.2
 itsdangerous
 sqlalchemy-libsql
+colorlog
