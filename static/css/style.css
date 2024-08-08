@@ -427,8 +427,8 @@ tr:last-child {
 
 #scroll-button {
     position: fixed;
-    bottom: 18px;
-    right: 164px;
+    bottom: 20px;
+    right: 65px;
     background-color: transparent;
     padding: 0;
     font-size: 24px;
