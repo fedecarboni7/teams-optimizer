@@ -124,7 +124,7 @@ def test_post_signup(db_session):
     response = client.post("/signup", data={"username": "newuser1", "password": "newpassword"}, follow_redirects=False)
     assert response.status_code == 200
     assert response.template.name == "signup.html"
-    assert "Usuario ya resgistrado" in response.text
+    assert "Usuario ya registrado" in response.text
 
 def test_post_login(db_session):
     # Empty the database
