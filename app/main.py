@@ -171,7 +171,7 @@ async def login(
     username = username.strip().lower()
 
     try:
-        user = execute_with_retries(query_user, db, username)
+        user: User = execute_with_retries(query_user, db, username)
     except OperationalError:
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
     
