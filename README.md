@@ -4,9 +4,10 @@ This project aims to develop a tool that assists in optimizing the composition o
 
 ## Features
 
-* **Team Composition:** The tool will analyze individual profiles and suggest optimal team combinations based on their skills and expertise.
+* **Team Composition:** The tool will analyze individual profiles and suggest optimal team combinations based on their skills.
 * **Skill Matching:** It will identify and match individuals with complementary skills to enhance team performance.
-* **Weakness Mitigation:** The tool will consider individual weaknesses and suggest strategies to mitigate their impact on team performance.
+* **Team Skill Visualization:** Provides a radar chart visualization comparing the skills of suggested teams, allowing for quick assessment of team strengths and weaknesses.
+* **Sharing Results:** Enables efficient sharing of team compositions with colleagues, facilitating collaboration and discussion.
 
 ## Benefits
 
@@ -17,7 +18,7 @@ This project aims to develop a tool that assists in optimizing the composition o
 
 ## Usage
 
-The tool can be used by managers, team leaders, or anyone responsible for assembling teams. It will require input data on individual skills, strengths, and weaknesses. The tool will then generate recommendations for optimal team compositions.
+The tool can be used by managers, team leaders, or anyone responsible for assembling teams. It will require input data on individual skills. The tool will then generate recommendations for optimal team compositions.
 
 ## Future Development
 
@@ -33,4 +34,4 @@ Contributions to this project are welcome. Please contact the owner of this repo
 
 ## License
 
-This project is licensed under the [Apache License 2.0](LICENSE).
+This project is licensed under the [MIT License](LICENSE).
