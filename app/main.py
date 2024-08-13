@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import time
 
 from fastapi import FastAPI, Form, Request, Depends, HTTPException
@@ -52,7 +53,7 @@ async def internal_server_error_handler(request: Request, exc: Exception):
     """
     Maneja los errores del servidor y muestra una página de error personalizada.
     """
-    return templates.TemplateResponse("500.html", {"request": request}, status_code=500)
+    return templates.TemplateResponse(request=request, name="500.html", status_code=500)
 
 
 @app.exception_handler(StarletteHTTPException)
@@ -92,6 +93,33 @@ async def signup_page(request: Request):
     return templates.TemplateResponse(request=request, name="signup.html")
 
 
+def validate_username(username: str):
+    if len(username) < 3 or len(username) > 30:
+        raise ValueError("El nombre de usuario debe tener entre 3 y 30 caracteres.")
+    if not re.match(r'^[\w.]+$', username):
+        raise ValueError("El nombre de usuario solo puede contener letras, números, guiones bajos y puntos.")
+
+def validate_password(password: str):
+    if len(password) < 8:
+        raise ValueError("La contraseña debe tener al menos 8 caracteres.")
+    if not re.search(r"[A-Z]", password):
+        raise ValueError("La contraseña debe contener al menos una letra mayúscula.")
+    if not re.search(r"[a-z]", password):
+        raise ValueError("La contraseña debe contener al menos una letra minúscula.")
+    if not re.search(r"[0-9]", password):
+        raise ValueError("La contraseña debe contener al menos un número.")
+    if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
+        raise ValueError("La contraseña debe contener al menos un carácter especial.")
+    if re.search(r"(.)\1\1\1", password):
+        raise ValueError("La contraseña no debe contener más de tres caracteres repetidos consecutivos.")
+    if re.search(r"(012|123|234|345|456|567|678|789|890|qwerty|asdf)", password.lower()):
+        raise ValueError("La contraseña no debe contener secuencias de números o teclas comunes.")
+
+    common_passwords = ["123456", "password", "12345678", "qwerty", "abc123"]
+    if password.lower() in common_passwords:
+        raise ValueError("La contraseña es demasiado común. Por favor, elija una diferente.")
+
+
 @app.post("/signup")
 async def signup(
     request: Request,
@@ -99,13 +127,21 @@ async def signup(
     password: str = Form(...),
     db: Session = Depends(get_db),
 ):
+    username = username.strip().lower()
+
+    # Validar nombre de usuario y contraseña
     try:
+        validate_username(username)
+
         user = execute_with_retries(query_user, db, username)
+        if user:
+            raise ValueError("Usuario ya registrado")
+        
+        validate_password(password)
+    except ValueError as e:
+        return templates.TemplateResponse(request=request, name="signup.html", context={"error": str(e)})
     except OperationalError:
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
-    
-    if user:
-        return templates.TemplateResponse(request=request, name="signup.html", context={"error": "Usuario ya resgistrado"})
 
     new_user = User(username=username)
     new_user.set_password(password)
@@ -131,8 +167,10 @@ async def login(
     password: str = Form(...),
     db: Session = Depends(get_db),
 ):
+    username = username.strip().lower()
+
     try:
-        user = execute_with_retries(query_user, db, username)
+        user: User = execute_with_retries(query_user, db, username)
     except OperationalError:
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
     
