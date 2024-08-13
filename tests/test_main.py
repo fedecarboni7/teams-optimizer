@@ -1,11 +1,14 @@
 import pytest
+
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from app.database import Base, User, Player
-from app.main import app, get_db
-from app.auth import get_current_user
-from app.team_optimizer import find_best_combination
+
+from app.db.database import Base, get_db
+from app.main import app
+from app.db.models import Player, User
+from app.utils.auth import get_current_user
+from app.utils.team_optimizer import find_best_combination
 
 # Set up test database
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
