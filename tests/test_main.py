@@ -6,9 +6,9 @@ from sqlalchemy.orm import sessionmaker
 
 from app.db.database import Base, get_db
 from app.main import app
-from app.auth import get_current_user
 from app.db.models import Player, User
-from app.team_optimizer import find_best_combination
+from app.utils.auth import get_current_user
+from app.utils.team_optimizer import find_best_combination
 
 # Set up test database
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"

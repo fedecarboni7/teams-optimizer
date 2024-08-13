@@ -6,14 +6,14 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
 
-from app.auth import get_current_user
-from app.team_optimizer import find_best_combination
 from app.config.config import templates
 from app.config.logging_config import logger
 from app.db.database import get_db
 from app.db.database_utils import execute_with_retries, execute_write_with_retries, query_player, query_players
 from app.db.models import Player, User
 from app.db.schemas import PlayerCreate
+from app.utils.auth import get_current_user
+from app.utils.team_optimizer import find_best_combination
 
 
 router = APIRouter()

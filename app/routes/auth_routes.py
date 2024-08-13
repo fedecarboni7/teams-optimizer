@@ -3,11 +3,11 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import OperationalError
 
-from app.validators import validate_password, validate_username
 from app.config.config import templates
 from app.db.database import get_db
 from app.db.database_utils import execute_with_retries, query_user
 from app.db.models import User
+from app.utils.validators import validate_password, validate_username
 
 
 router = APIRouter()
