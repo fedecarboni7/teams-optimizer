@@ -39,7 +39,7 @@ def test_get_home():
     assert response.template.name == "login.html"
 
     # Authenticate the user
-    response = client.post("/signup", data={"username": "testuser1", "password": "testpassword1"}, follow_redirects=False)
+    response = client.post("/signup", data={"username": "testuser1", "password": "Testpassword1*"}, follow_redirects=False)
     assert response.status_code == 302
     assert response.headers["location"] == "/"
 
@@ -112,16 +112,18 @@ def test_get_login():
     assert response.template.name == "login.html"
 
 def test_post_signup(db_session):
-    response = client.post("/signup", data={"username": "newuser1", "password": "newpassword"}, follow_redirects=False)
+    username = "newuser1"
+    password = "Newpassword1*"
+    response = client.post("/signup", data={"username": username, "password": password}, follow_redirects=False)
     assert response.status_code == 302
     assert response.headers["location"] == "/"
 
-    db_user = db_session.query(User).filter(User.username == "newuser1").first()
+    db_user = db_session.query(User).filter(User.username == username).first()
     assert db_user is not None
-    assert db_user.verify_password("newpassword")
+    assert db_user.verify_password(password)
 
     # Test that the user cannot be created again
-    response = client.post("/signup", data={"username": "newuser1", "password": "newpassword"}, follow_redirects=False)
+    response = client.post("/signup", data={"username": username, "password": password}, follow_redirects=False)
     assert response.status_code == 200
     assert response.template.name == "signup.html"
     assert "Usuario ya registrado" in response.text

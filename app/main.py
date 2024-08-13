@@ -53,7 +53,7 @@ async def internal_server_error_handler(request: Request, exc: Exception):
     """
     Maneja los errores del servidor y muestra una página de error personalizada.
     """
-    return templates.TemplateResponse("500.html", {"request": request}, status_code=500)
+    return templates.TemplateResponse(request=request, name="500.html", status_code=500)
 
 
 @app.exception_handler(StarletteHTTPException)
@@ -139,7 +139,7 @@ async def signup(
         
         validate_password(password)
     except ValueError as e:
-        return templates.TemplateResponse("signup.html", {"request": request, "error": str(e)})
+        return templates.TemplateResponse(request=request, name="signup.html", context={"error": str(e)})
     except OperationalError:
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
 
