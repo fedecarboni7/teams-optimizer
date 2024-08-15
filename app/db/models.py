@@ -1,5 +1,5 @@
 from passlib.hash import pbkdf2_sha256
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from app.db.database import Base
@@ -36,3 +36,23 @@ class Player(Base):
     vision = Column(Integer)
     user_id = Column(Integer, ForeignKey("users.id"))
     user = relationship("User", back_populates="players")
+
+class UserSession(Base):
+    __tablename__ = "user_sessions"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    session_id = Column(String, unique=True, index=True)
+    created_at = Column(DateTime(timezone=True))
+    last_activity = Column(DateTime(timezone=True))
+
+
+class ErrorLog(Base):
+    __tablename__ = "error_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    session_id = Column(String, index=True)
+    error_message = Column(String)
+    stack_trace = Column(String)
+    created_at = Column(DateTime(timezone=True))

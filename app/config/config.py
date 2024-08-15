@@ -1,19 +1,27 @@
+from datetime import datetime
 import os
-import time
+import traceback
+import uuid
 
 from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+import pytz
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.sessions import SessionMiddleware
 
-from app.config.logging_config import configure_logging, logger
+from app.config.logging_config import configure_logging
+from app.db.database import SessionLocal
+from app.db.models import ErrorLog, UserSession
 
 templates = Jinja2Templates(directory="templates")
 
+def get_buenos_aires_time():
+    return datetime.now(pytz.timezone('America/Argentina/Buenos_Aires'))
+
 def create_app() -> FastAPI:
-    app = FastAPI(docs_url=None, redoc_url=None)
+    app = FastAPI(docs_url="/admin", redoc_url=None)
 
     # Configuración de logging
     configure_logging()
@@ -24,23 +32,44 @@ def create_app() -> FastAPI:
     app.mount("/static", StaticFiles(directory="static"), name="static")
 
     @app.middleware("http")
-    async def measure_execution_time(request: Request, call_next):
-        ignore_paths = ["/static", "/favicon.ico", "/sm/"]
-        
-        if not any(request.url.path.startswith(prefix) for prefix in ignore_paths):
-            start_time = time.time()
+    async def session_middleware(request: Request, call_next):
+        session_id = request.cookies.get("session_id")
+        if not session_id:
+            session_id = str(uuid.uuid4())
             response = await call_next(request)
-            process_time = time.time() - start_time
-            logger.debug(f"{process_time:.4f} seconds to process request: {request.method} {request.url.path}")
-            return response
+            response.set_cookie(key="session_id", value=session_id)
         else:
-            return await call_next(request)
+            response = await call_next(request)
+
+        # Registrar o actualizar la sesión en la base de datos
+        db = SessionLocal()
+        user_id = request.session.get("user_id")
+        session = db.query(UserSession).filter(UserSession.session_id == session_id).first()
+        if not session:
+            new_session = UserSession(user_id=user_id, session_id=session_id, created_at=get_buenos_aires_time(), last_activity=get_buenos_aires_time())
+            db.add(new_session)
+        else:
+            session.last_activity = get_buenos_aires_time()
+        db.commit()
+        db.close()
+
+        return response
 
     @app.exception_handler(500)
     async def internal_server_error_handler(request: Request, exc: Exception):
-        """
-        Maneja los errores del servidor y muestra una página de error personalizada.
-        """
+        db = SessionLocal()
+        session_id = request.cookies.get("session_id")
+        user_id = request.session.get("user_id")
+        error_log = ErrorLog(
+            user_id=user_id,
+            session_id=session_id,
+            error_message=str(exc),
+            stack_trace=traceback.format_exc(),
+            created_at=get_buenos_aires_time()
+        )
+        db.add(error_log)
+        db.commit()
+        db.close()
         return templates.TemplateResponse(request=request, name="500.html", status_code=500)
 
 
