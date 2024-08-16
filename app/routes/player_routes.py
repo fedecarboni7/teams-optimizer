@@ -51,6 +51,10 @@ async def get_form(
 
 @router.post("/submit", response_class=HTMLResponse)
 async def submit_form(request: Request, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    if not current_user:
+        request.session.clear()
+        return RedirectResponse("/login", status_code=302)
+
     start_time_1 = time.time()
     current_user_id = current_user.id
     form_data = await request.form()
@@ -181,6 +185,9 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
 
 @router.get("/reset")
 async def reset_session(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    if not current_user:
+        return {"error": "No hay un usuario autenticado"}
+
     current_user_id = current_user.id
 
     def delete_players():
@@ -232,7 +239,10 @@ def update_player(player_id: int, player: PlayerCreate, db: Session = Depends(ge
 
 
 @router.delete("/player/{player_id}")
-def delete_player(player_id: int, db: Session = Depends(get_db)):
+def delete_player(player_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    if not current_user:
+        return HTMLResponse("No hay un usuario autenticado", status_code=401)
+
     try:
         player = execute_with_retries(query_player, db, player_id)
     except OperationalError:
