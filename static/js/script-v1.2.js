@@ -240,20 +240,42 @@ function renumerarJugadores() {
 }
 
 // Mostrar u ocultar detalles de un jugador
-function toggleDetails(button) {
-    const details = button.parentNode.nextElementSibling;
-    const icon = button.querySelector('.toggle-icon');
-
-    if (details.style.maxHeight === "0px") {
-        details.style.maxHeight = details.scrollHeight + "px";
-        details.style.paddingBottom = "5px";
-        icon.classList.add('rotate');
-    } else {
-        details.style.maxHeight = "0px";
-        details.style.paddingBottom = "0px";
-        icon.classList.remove('rotate');
-    }
+function rotateIcon(detailsContainer, icon) {
+    //wait for the animation to finish before removing the class
+    detailsContainer.addEventListener('transitionend', function() {
+        if (detailsContainer.style.maxHeight === "0px") {
+            if (icon) {
+                icon.classList.remove('rotate');
+            } else {
+                icon = detailsContainer.previousElementSibling.querySelector('.toggle-icon');
+                icon.classList.remove('rotate');
+            }
+        } else {
+            if (icon) {
+                icon.classList.add('rotate');
+            } else {
+                icon = detailsContainer.previousElementSibling.querySelector('.toggle-icon');
+                icon.classList.add('rotate');
+            }
+        }
+    });
 }
+
+function toggleDetails(element) {
+    const detailsContainer = element.parentNode.nextElementSibling;
+    const icon = element.querySelector('.toggle-icon');
+
+    if (detailsContainer.style.maxHeight === "0px") {
+        detailsContainer.style.maxHeight = detailsContainer.scrollHeight + "px";
+        detailsContainer.style.paddingBottom = "5px";
+    } else {
+        detailsContainer.style.maxHeight = "0px";
+        detailsContainer.style.paddingBottom = "0px";
+    }
+
+    rotateIcon(detailsContainer, icon);
+}
+
 
 // Puntuar habilidades de los jugadores con estrellas
 document.addEventListener('DOMContentLoaded', function() {
