@@ -64,6 +64,13 @@
               name="password"
               required />
           </label>
+          <ul class="text-sm list-disc pl-5 mt-2" id="password-requirements">
+            <li id="length-requirement" class="text-gray-600">Al menos 8 caracteres</li>
+            <li id="uppercase-requirement" class="text-gray-600">Una letra mayúscula</li>
+            <li id="lowercase-requirement" class="text-gray-600">Una letra minúscula</li>
+            <li id="number-requirement" class="text-gray-600">Un número</li>
+            <li id="special-char-requirement" class="text-gray-600 hidden">Un carácter especial (si tiene menos de 12 caracteres)</li>
+          </ul>
           <br />
           <button type="submit" class="btn btn-primary w-full">Crear</button>
         </form>
@@ -74,4 +81,47 @@
       </div>
     </div>
   </body>
+  <script>
+    const passwordInput = document.querySelector('input[name="password"]');
+    const submitButton = document.querySelector('button[type="submit"]');
+    const lengthReq = document.getElementById('length-requirement');
+    const uppercaseReq = document.getElementById('uppercase-requirement');
+    const lowercaseReq = document.getElementById('lowercase-requirement');
+    const numberReq = document.getElementById('number-requirement');
+    const specialCharReq = document.getElementById('special-char-requirement');
+  
+    passwordInput.addEventListener('input', function () {
+      const password = passwordInput.value;
+      const minLength = password.length >= 8;
+      const hasUppercase = /[A-Z]/.test(password);
+      const hasLowercase = /[a-z]/.test(password);
+      const hasNumber = /\d/.test(password);
+      const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+  
+      lengthReq.classList.toggle('text-green-600', minLength);
+      lengthReq.classList.toggle('text-gray-600', !minLength);
+  
+      uppercaseReq.classList.toggle('text-green-600', hasUppercase);
+      uppercaseReq.classList.toggle('text-gray-600', !hasUppercase);
+  
+      lowercaseReq.classList.toggle('text-green-600', hasLowercase);
+      lowercaseReq.classList.toggle('text-gray-600', !hasLowercase);
+  
+      numberReq.classList.toggle('text-green-600', hasNumber);
+      numberReq.classList.toggle('text-gray-600', !hasNumber);
+  
+      const specialCharRequired = password.length < 12;
+      specialCharReq.classList.toggle('hidden', !specialCharRequired);
+      specialCharReq.classList.toggle('text-green-600', hasSpecialChar && specialCharRequired);
+      specialCharReq.classList.toggle('text-gray-600', !(hasSpecialChar && specialCharRequired));
+  
+      let valid = minLength && hasUppercase && hasLowercase && hasNumber;
+  
+      if (specialCharRequired) {
+        valid = valid && hasSpecialChar;
+      }
+  
+      submitButton.disabled = !valid;
+    });
+  </script>  
 </html>
