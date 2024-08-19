@@ -4,7 +4,7 @@ import re
 def validate_username(username: str):
     if len(username) < 3 or len(username) > 30:
         raise ValueError("El nombre de usuario debe tener entre 3 y 30 caracteres.")
-    if not re.match(r'^[\w.]+$', username):
+    if not re.match(r'^[\w.@]+$', username):
         raise ValueError("El nombre de usuario solo puede contener letras, números, guiones bajos y puntos.")
 
 def validate_password(password: str):
@@ -18,3 +18,4 @@ def validate_password(password: str):
         raise ValueError("La contraseña debe contener al menos un número.")
     if len(password) < 12 and not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
         raise ValueError("La contraseña de menos de 12 caracteres debe contener al menos un carácter especial.")
+    
