@@ -10,7 +10,7 @@
     <link rel="manifest" href="../static/favicon-v1.0/site.webmanifest">
     <link rel="stylesheet" type="text/css" href="/static/css/styles-v1.0.0.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <script src="static/js/script-v1.2.js"></script>
+    <script src="/static/js/script-v1.0.3.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -182,8 +182,13 @@
 
                 <div class="stats-container">
                     <div class="button-container">
-                        <button type="button" onclick="toggleStats(this)">Mostrar detalles</button>
-                        <button type="button" id="shareButton{{ i // 2  + 1 }}" onclick="compartirEquipos(this)">Compartir equipos</button>
+                        <button type="button" onclick="toggleStats(this)">
+                            <i class="fas fa-chart-bar" style="padding-right: 5px;"></i>
+                            <span>Mostrar detalles</span>
+                        </button>
+                        <button type="button" id="shareButton{{ i // 2  + 1 }}" onclick="compartirEquipos(this)">
+                            <i class="fas fa-share" style="padding-right: 5px;"></i> Enviar equipos
+                        </button>
                     </div>
                     <div class="content-container" style="display: none;">
                         <div class="table-container">
