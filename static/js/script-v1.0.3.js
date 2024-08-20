@@ -503,14 +503,15 @@ function compartirEquipos(button) {
         }
         textoCompartir += '\n'; // Agrega una línea en blanco entre equipos
     }
-    if (navigator.share) {
-        navigator.share({
-            title: 'Resultados de los Equipos - Opción ' + (parseInt(indice)),
-            text: textoCompartir
-        })
-        .then(() => console.log('Resultados compartidos exitosamente.'))
-        .catch((error) => console.error('Error al compartir:', error));
-    } else {
+    textoCompartir += 'Generado con: https://armar-equipos.up.railway.app'; // Agrega el enlace al sitio web
+    const shareData = {
+        title: 'Resultados de los Equipos - Opción ' + (parseInt(indice)),
+        text: textoCompartir
+    };
+    try {
+        navigator.share(shareData)
+    } catch (err) {
+        console.log(`Error: ${err}`);
         // Opción alternativa para navegadores que no soportan Web Share API
         alert('Tu navegador no soporta la función de compartir. Por favor, copia el texto manualmente.');
         navigator.clipboard.writeText(textoCompartir)
@@ -526,13 +527,15 @@ function compartirEquipos(button) {
 // Mostrar u ocultar detalles de los equipos
 function toggleStats(button) {
     const container = button.parentNode.nextElementSibling;
-    if (container.style.display === "none") {
+    const textSpan = button.querySelector('span');
+
+    if (container.style.display === "none" || container.style.display === "") {
         container.style.display = "flex";
-        button.textContent = "Ocultar detalles";
+        textSpan.textContent = "Ocultar detalles";
         createRadarChart(container);
     } else {
         container.style.display = "none";
-        button.textContent = "Mostrar detalles";
+        textSpan.textContent = "Mostrar detalles";
     }
 }
 
