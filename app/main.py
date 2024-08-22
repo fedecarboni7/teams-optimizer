@@ -5,6 +5,6 @@ from app.routes.admin_routes import router as admin_router
 
 app = create_app()
 
-app.include_router(player_router)
-app.include_router(auth_router)
-app.include_router(admin_router)
+app.include_router(player_router, tags=["player"])
+app.include_router(auth_router, tags=["auth"])
+app.include_router(admin_router, tags=["admin"])

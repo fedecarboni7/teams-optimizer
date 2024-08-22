@@ -20,7 +20,7 @@ router = APIRouter()
 
 calculated_results: Dict[str, dict] = {}
 
-@router.get("/", response_class=HTMLResponse)
+@router.get("/", response_class=HTMLResponse, include_in_schema=False)
 async def get_form(
     request: Request,
     db: Session = Depends(get_db),
@@ -49,7 +49,7 @@ async def get_form(
     return templates.TemplateResponse(request=request, name="index.html", context=context)
 
 
-@router.post("/submit", response_class=HTMLResponse)
+@router.post("/submit", response_class=HTMLResponse, include_in_schema=False)
 async def submit_form(request: Request, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     start_time_1 = time.time()
     current_user_id = current_user.id

@@ -37,15 +37,6 @@ class Player(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     user = relationship("User", back_populates="players")
 
-class UserSession(Base):
-    __tablename__ = "user_sessions"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    session_id = Column(String, unique=True, index=True)
-    created_at = Column(DateTime(timezone=True))
-    last_activity = Column(DateTime(timezone=True))
-
 
 class ErrorLog(Base):
     __tablename__ = "error_logs"
@@ -53,6 +44,7 @@ class ErrorLog(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     session_id = Column(String, index=True)
+    error_code = Column(Integer)
     error_message = Column(String)
     stack_trace = Column(String)
     created_at = Column(DateTime(timezone=True))
