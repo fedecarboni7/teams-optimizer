@@ -35,7 +35,7 @@ async def generate_and_execute_sql_query(
     db: Session = Depends(get_db),
     current_user: str = Depends(verify_token)
 ):
-    verify_admin_user(current_user)
+    verify_admin_user(current_user, HTTPException(status_code=401, detail="Unauthorized"))
 
     # Obtener la estructura de la base de datos
     db_structure = get_db_structure(db)

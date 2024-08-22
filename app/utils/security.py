@@ -31,9 +31,6 @@ def verify_token(token: str = Depends(oauth2_scheme)):
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Token inválido")
     
-def verify_admin_user(current_user: str):
+def verify_admin_user(current_user: str, http_exc: HTTPException):
     if current_user not in ["admin", "fedecarboni7"]:
-        raise HTTPException(
-            status_code=401,
-            detail="The user doesn't have enough privileges"
-        )
+        raise http_exc
