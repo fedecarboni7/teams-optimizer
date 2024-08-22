@@ -2,7 +2,7 @@ from datetime import datetime
 import os
 import traceback
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -13,7 +13,9 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from app.config.logging_config import configure_logging
 from app.db.database import SessionLocal
-from app.db.models import ErrorLog
+from app.db.models import ErrorLog, User
+from app.utils.auth import get_current_user
+from app.utils.security import verify_admin_user
 
 
 templates = Jinja2Templates(directory="templates")
@@ -22,7 +24,18 @@ def get_buenos_aires_time():
     return datetime.now(pytz.timezone('America/Argentina/Buenos_Aires'))
 
 def create_app() -> FastAPI:
-    app = FastAPI(title="Armar Equipos")
+    app = FastAPI(title="Armar Equipos", docs_url=None, redoc_url=None, openapi_url=None)
+
+    @app.get("/docs", include_in_schema=False)
+    async def get_documentation(current_user: User = Depends(get_current_user)):
+        verify_admin_user(current_user.username, HTTPException(status_code=404, detail="No autorizado"))
+        from fastapi.openapi.docs import get_swagger_ui_html
+        return get_swagger_ui_html(openapi_url="/openapi.json", title="docs")
+
+    @app.get("/openapi.json", include_in_schema=False)
+    async def openapi(current_user: User = Depends(get_current_user)):
+        verify_admin_user(current_user.username, HTTPException(status_code=404, detail="No autorizado"))
+        return app.openapi()
 
     # Configuración de logging
     configure_logging()
