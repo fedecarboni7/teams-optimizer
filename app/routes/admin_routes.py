@@ -5,7 +5,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
-from app.db.database_utils import get_db_structure
+from app.db.database_utils import execute_with_retries, get_db_structure
 from app.utils import llm_service
 from app.utils.security import verify_admin_user, verify_token
 
@@ -15,7 +15,7 @@ def validate_sql_query(sql_query: str) -> str:
     if not llm_service.is_safe_query(sql_query):
         raise HTTPException(
             status_code=400,
-            detail=f"Generated query is not safe: {sql_query}"
+            detail=f"Bad Request: Generated query is not safe: {sql_query}"
         )
     
     # Corregir la consulta SQL
@@ -48,10 +48,11 @@ async def generate_and_execute_sql_query(
 
     # Ejecutar la consulta
     try:
+        # result = execute_with_retries(db.execute, text(sql_query)) TODO: chequear
         result = db.execute(text(sql_query))
         return SQLQueryOutput(query=sql_query, result=str(result.scalar()))
     except SQLAlchemyError as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Error executing query: {str(e)}"
+            detail=f"Error executing query: {str(e)}\nQuery: {sql_query}"
         )
