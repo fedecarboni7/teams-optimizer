@@ -161,21 +161,27 @@
         {% if len_teams > 2 %}
             <p>Opción {{ i // 2 + 1 }}</p>
         {% endif %}
-            <div class="team-container" id="resultados-equipos{{ i // 2  + 1 }}">
+            <div class="team-container" id="resultados-equipos{{ i // 2 + 1 }}">
                 <div class="team">
                     <h2>Equipo 1</h2>
-                    <ul>
+                    <ul class="team-list" data-team="team1" data-index="{{ i // 2 + 1 }}">
                         {% for player in teams[i][0] %}
-                        <li>{{ player }}</li>
+                        <li class="player-item">
+                            <span class="player-name">{{ player }}</span>
+                            <button type="button" class="swap-button" onclick="swapPlayer('{{ player }}', '{{ i // 2 + 1 }}', '{{ i // 2 + 2 }}')"><i class="fa-solid fa-right-left"></i></button>
+                        </li>
                         {% endfor %}
                     </ul>
                 </div>
-
+            
                 <div class="team">
                     <h2>Equipo 2</h2>
-                    <ul>
+                    <ul class="team-list" data-team="team2" data-index="{{ i // 2 + 2 }}">
                         {% for player in teams[i + 1][0] %}
-                        <li>{{ player }}</li>
+                        <li class="player-item">
+                            <span class="player-name">{{ player }}</span>
+                            <button type="button" class="swap-button" onclick="swapPlayer('{{ player }}', '{{ i // 2 + 2 }}', '{{ i // 2 + 1 }}')"><i class="fa-solid fa-right-left"></i></button>
+                        </li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -192,7 +198,7 @@
                     </div>
                     <div class="content-container" style="display: none;">
                         <div class="table-container">
-                            <table>
+                            <table id="skills-table">
                                 <thead>
                                     <tr>
                                         <th>Habilidad</th>
@@ -247,4 +253,10 @@
         <p class="copyright">© 2024 fedecarboni7</p>
     </footer>
 </body>
+{% if playerDataDict %}
+    <script>
+        var playerDataDict = '{{ playerDataDict | tojson | safe }}';
+        playerDataDict = JSON.parse(playerDataDict);
+    </script>
+{% endif %}
 </html>

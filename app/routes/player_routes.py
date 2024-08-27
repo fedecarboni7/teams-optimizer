@@ -173,9 +173,25 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
     
         team.append([team_skills, total_skills, avg_skills])
 
+    player_data_dict = {
+        player.name: {
+            "velocidad": player.velocidad,
+            "resistencia": player.resistencia,
+            "control": player.control,
+            "pases": player.pases,
+            "fuerza_cuerpo": player.fuerza_cuerpo,
+            "habilidad_arquero": player.habilidad_arquero,
+            "defensa": player.defensa,
+            "tiro": player.tiro,
+            "vision": player.vision
+        }
+        for _, player in player_data_dict.items()
+    }
+
     calculated_results[current_user_id] = {
         "teams": teams,
-        "min_difference_total": str(min_difference_total)
+        "min_difference_total": str(min_difference_total),
+        "playerDataDict": player_data_dict
     }
 
     process_time_3 = time.time() - start_time_3

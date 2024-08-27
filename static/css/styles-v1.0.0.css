@@ -487,6 +487,26 @@ tr:last-child {
     }
 }
 
+.player-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+}
+
+.player-name {
+    flex-grow: 1;
+    padding-left: 20px;
+}
+
+.swap-button {
+    border: none;
+    padding: 5px 10px;
+    margin-right: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
 .copyright {
     text-align: center;
     font-size: smaller;

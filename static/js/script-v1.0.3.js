@@ -539,6 +539,121 @@ function toggleStats(button) {
     }
 }
 
+function swapPlayer(player, fromTeamIndex, toTeamIndex) {
+    // Obtener las listas de jugadores de ambos equipos
+    var fromTeamList = document.querySelector(`.team-list[data-index='${fromTeamIndex}']`);
+    var toTeamList = document.querySelector(`.team-list[data-index='${toTeamIndex}']`);
+
+    // Buscar el elemento del jugador en la lista del equipo de origen
+    var playerElement = Array.from(fromTeamList.children).find(function(element) {
+        return element.querySelector(".player-name").textContent === player;
+    });
+
+    // Remover el jugador del equipo de origen
+    if (playerElement) {
+        fromTeamList.removeChild(playerElement);
+        
+        // Crear un nuevo elemento de lista para el jugador en el equipo de destino
+        var newPlayerElement = document.createElement("li");
+        newPlayerElement.classList.add("player-item");
+
+        // Crear el span para el nombre del jugador
+        var playerNameSpan = document.createElement("span");
+        playerNameSpan.classList.add("player-name");
+        playerNameSpan.textContent = player;
+
+        // Crear el botón de swap
+        var swapButton = document.createElement("button");
+        swapButton.type = "button";
+        swapButton.classList.add("swap-button");
+        swapButton.innerHTML = `<i class="fa-solid fa-right-left"></i>`;
+        swapButton.onclick = function() {
+            swapPlayer(player, toTeamIndex, fromTeamIndex);
+        };
+
+        // Añadir el span del nombre del jugador y el botón al nuevo elemento de lista
+        newPlayerElement.appendChild(playerNameSpan);
+        newPlayerElement.appendChild(swapButton);
+
+        // Añadir el nuevo elemento de lista al equipo de destino
+        toTeamList.appendChild(newPlayerElement);
+    }
+
+    // Actualizar la tabla de habilidades
+    updateSkillsTable(fromTeamIndex, toTeamIndex);
+
+    // Actualizar el gráfico de radar
+    var container = document.querySelector('.chart-container').parentElement;
+    createRadarChart(container);
+}
+
+function updateSkillsTable(fromTeamIndex, toTeamIndex) {
+    // Definir equipo 1 y equipo 2
+    var team1Index = fromTeamIndex;
+    var team2Index = toTeamIndex;
+    if (fromTeamIndex > toTeamIndex) {
+        team1Index = toTeamIndex;
+        team2Index = fromTeamIndex;
+    }
+    team1List = document.querySelector(`.team-list[data-index='${team1Index}']`);
+    team2List = document.querySelector(`.team-list[data-index='${team2Index}']`);
+
+    // Obtener los nombres de los jugadores de ambos equipos
+    var team1Players = Array.from(team1List.children).map(function(element) {
+        return element.querySelector(".player-name").textContent;
+    });
+    var team2Players = Array.from(team2List.children).map(function(element) {
+        return element.querySelector(".player-name").textContent;
+    });
+
+    // Obtener las habilidades de los jugadores de ambos equipos
+    var team1Skills = getTeamSkills(team1Players);
+    var team2Skills = getTeamSkills(team2Players);
+
+    // Actualizar la tabla de habilidades id = "skills-table"
+    var table = document.getElementById("skills-table");
+    var rows = table.querySelectorAll("tbody tr");
+    var skills = ["velocidad", "resistencia", "control", "pases", "tiro", "defensa", "habilidad_arquero", "fuerza_cuerpo", "vision", "total"];
+    for (var i = 0; i < skills.length; i++) {
+        var row = rows[i];
+        var cells = row.querySelectorAll("td");
+        cells[1].textContent = team1Skills[skills[i]];
+        cells[2].textContent = team2Skills[skills[i]];
+    }
+}
+
+function getTeamSkills(players) {
+    var skills = {
+        velocidad: 0,
+        resistencia: 0,
+        control: 0,
+        pases: 0,
+        tiro: 0,
+        defensa: 0,
+        habilidad_arquero: 0,
+        fuerza_cuerpo: 0,
+        vision: 0,
+        total: 0
+    };
+
+    // Obtener las habilidades de los jugadores leyendo playerDataDict
+    players.forEach(function(player) {
+        var playerSkills = playerDataDict[player];
+        for (var skill in playerSkills) {
+            skills[skill] += playerSkills[skill];
+        }
+    });
+
+    // Calcular el total de habilidades
+    skills.total = Object.values(skills).reduce(function(total, value) {
+        return total + value;
+    }, 0);
+
+    return skills;
+}
+
+let radarChart; // Variable global para almacenar el gráfico
+
 // Crear gráfico de radar
 function createRadarChart(container) {
     const tableContainer = container.querySelector('.table-container');
@@ -565,7 +680,13 @@ function createRadarChart(container) {
     team1Data.pop();
     team2Data.pop();
 
-    new Chart(ctx, {
+    // Destruir el gráfico existente si ya existe
+    if (radarChart) {
+        radarChart.destroy();
+    }
+
+    // Create the new radar chart
+    radarChart = new Chart(ctx, {
         type: 'radar',
         data: {
             labels: skills,
