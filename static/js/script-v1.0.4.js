@@ -526,15 +526,15 @@ function compartirEquipos(button) {
 
 // Mostrar u ocultar detalles de los equipos
 function toggleStats(button) {
-    const container = button.parentNode.nextElementSibling;
+    const contentContainer = button.parentNode.nextElementSibling;
     const textSpan = button.querySelector('span');
 
-    if (container.style.display === "none" || container.style.display === "") {
-        container.style.display = "flex";
+    if (contentContainer.style.display === "none" || contentContainer.style.display === "") {
+        contentContainer.style.display = "flex";
         textSpan.textContent = "Ocultar detalles";
-        createRadarChart(container);
+        createRadarChart(contentContainer);
     } else {
-        container.style.display = "none";
+        contentContainer.style.display = "none";
         textSpan.textContent = "Mostrar detalles";
     }
 }
@@ -579,15 +579,6 @@ function swapPlayer(player, fromTeamIndex, toTeamIndex) {
         toTeamList.appendChild(newPlayerElement);
     }
 
-    // Actualizar la tabla de habilidades
-    updateSkillsTable(fromTeamIndex, toTeamIndex);
-
-    // Actualizar el gráfico de radar
-    var container = document.querySelector('.chart-container').parentElement;
-    createRadarChart(container);
-}
-
-function updateSkillsTable(fromTeamIndex, toTeamIndex) {
     // Definir equipo 1 y equipo 2
     var team1Index = fromTeamIndex;
     var team2Index = toTeamIndex;
@@ -595,6 +586,17 @@ function updateSkillsTable(fromTeamIndex, toTeamIndex) {
         team1Index = toTeamIndex;
         team2Index = fromTeamIndex;
     }
+
+    // Actualizar la tabla de habilidades
+    updateSkillsTable(team1Index, team2Index);
+
+    // Actualizar el gráfico de radar
+    var containerNumber = Math.floor(team1Index / 2) + 1;
+    var contentContainer = document.getElementById('content-container' + containerNumber);
+    createRadarChart(contentContainer);
+}
+
+function updateSkillsTable(team1Index, team2Index) {
     team1List = document.querySelector(`.team-list[data-index='${team1Index}']`);
     team2List = document.querySelector(`.team-list[data-index='${team2Index}']`);
 
@@ -610,8 +612,9 @@ function updateSkillsTable(fromTeamIndex, toTeamIndex) {
     var team1Skills = getTeamSkills(team1Players);
     var team2Skills = getTeamSkills(team2Players);
 
-    // Actualizar la tabla de habilidades id = "skills-table"
-    var table = document.getElementById("skills-table");
+    // Actualizar la tabla específica de habilidades que representa la comparación de ambos equipos
+    var tableNumber = Math.floor(team1Index / 2) + 1;
+    var table = document.getElementById("skills-table" + tableNumber);
     var rows = table.querySelectorAll("tbody tr");
     var skills = ["velocidad", "resistencia", "control", "pases", "tiro", "defensa", "habilidad_arquero", "fuerza_cuerpo", "vision", "total"];
     for (var i = 0; i < skills.length; i++) {
@@ -652,22 +655,17 @@ function getTeamSkills(players) {
     return skills;
 }
 
-let radarChart; // Variable global para almacenar el gráfico
+let radarCharts = {}; // Objeto global para almacenar gráficos por número de contenedor
 
 // Crear gráfico de radar
-function createRadarChart(container) {
-    const tableContainer = container.querySelector('.table-container');
-    const chartContainer = container.querySelector('.chart-container');
+function createRadarChart(contentContainer) {
+    const tableContainer = contentContainer.querySelector('.table-container');
+    const chartContainer = contentContainer.querySelector('.chart-container');
     const canvas = chartContainer.querySelector('canvas');
-    const contenedor = document.getElementById('resultados-equipos' + 1);
-    const listasJugadores = contenedor.querySelectorAll('li');
+    const resultadosEquiposContainer = document.getElementById('resultados-equipos1');
+    const listasJugadores = resultadosEquiposContainer.querySelectorAll('li');
     const cantidadJugadores = Math.floor(listasJugadores.length / 2);
-    
-    // Asignar un ID único al canvas si no tiene uno
-    if (!canvas.id) {
-        canvas.id = 'radarChart' + Math.floor(Math.random() * 1000);
-    }
-    
+    const containerNumber = parseInt(contentContainer.id.replace('content-container', ''));
     const ctx = canvas.getContext('2d');
     
     // Obtén los datos de la tabla
@@ -681,12 +679,12 @@ function createRadarChart(container) {
     team2Data.pop();
 
     // Destruir el gráfico existente si ya existe
-    if (radarChart) {
-        radarChart.destroy();
+    if (radarCharts[containerNumber]) {
+        radarCharts[containerNumber].destroy();
     }
 
     // Create the new radar chart
-    radarChart = new Chart(ctx, {
+    radarCharts[containerNumber] = new Chart(ctx, {
         type: 'radar',
         data: {
             labels: skills,

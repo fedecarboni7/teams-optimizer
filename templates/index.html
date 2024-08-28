@@ -164,11 +164,11 @@
             <div class="team-container" id="resultados-equipos{{ i // 2 + 1 }}">
                 <div class="team">
                     <h2>Equipo 1</h2>
-                    <ul class="team-list" data-team="team1" data-index="{{ i // 2 + 1 }}">
+                    <ul class="team-list" data-index="{{ i }}">
                         {% for player in teams[i][0] %}
                         <li class="player-item">
                             <span class="player-name">{{ player }}</span>
-                            <button type="button" class="swap-button" onclick="swapPlayer('{{ player }}', '{{ i // 2 + 1 }}', '{{ i // 2 + 2 }}')"><i class="fa-solid fa-right-left"></i></button>
+                            <button type="button" class="swap-button" onclick="swapPlayer('{{ player }}', '{{ i }}', '{{ i + 1 }}')"><i class="fa-solid fa-right-left"></i></button>
                         </li>
                         {% endfor %}
                     </ul>
@@ -176,11 +176,11 @@
             
                 <div class="team">
                     <h2>Equipo 2</h2>
-                    <ul class="team-list" data-team="team2" data-index="{{ i // 2 + 2 }}">
+                    <ul class="team-list" data-index="{{ i + 1 }}">
                         {% for player in teams[i + 1][0] %}
                         <li class="player-item">
                             <span class="player-name">{{ player }}</span>
-                            <button type="button" class="swap-button" onclick="swapPlayer('{{ player }}', '{{ i // 2 + 2 }}', '{{ i // 2 + 1 }}')"><i class="fa-solid fa-right-left"></i></button>
+                            <button type="button" class="swap-button" onclick="swapPlayer('{{ player }}', '{{ i + 1 }}', '{{ i }}')"><i class="fa-solid fa-right-left"></i></button>
                         </li>
                         {% endfor %}
                     </ul>
@@ -192,13 +192,13 @@
                             <i class="fas fa-chart-bar" style="padding-right: 5px;"></i>
                             <span>Mostrar detalles</span>
                         </button>
-                        <button type="button" id="shareButton{{ i // 2  + 1 }}" onclick="compartirEquipos(this)">
+                        <button type="button" id="shareButton{{ i // 2 + 1 }}" onclick="compartirEquipos(this)">
                             <i class="fas fa-share" style="padding-right: 5px;"></i> Enviar equipos
                         </button>
                     </div>
-                    <div class="content-container" style="display: none;">
+                    <div class="content-container" id="content-container{{ i // 2 + 1 }}" style="display: none;">
                         <div class="table-container">
-                            <table id="skills-table">
+                            <table id="skills-table{{ i // 2 + 1 }}">
                                 <thead>
                                     <tr>
                                         <th>Habilidad</th>
@@ -223,7 +223,7 @@
                             </table>
                         </div>
                         <div class="chart-container">
-                            <canvas id="radarChart"></canvas>
+                            <canvas></canvas>
                         </div>
                     </div>
                 </div>
