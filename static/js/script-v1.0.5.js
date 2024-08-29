@@ -662,18 +662,20 @@ document.addEventListener("DOMContentLoaded", function () {
     // Verificar si el usuario ya vio el banner
     var hasSeenPopup = localStorage.getItem('hasSeenPopup');
   
-    if (!hasSeenPopup) {
+    if (!hasSeenPopup && popup !== null) {
       // Mostrar el pop-up después de 2 segundos si no lo ha visto
       setTimeout(function () {
         popup.style.display = "block";
       }, 2000);
     }
-  
-    closeButton.addEventListener("click", function () {
-      popup.style.display = "none";
-      // Guardar en localStorage que el usuario ya vio el banner
-      localStorage.setItem('hasSeenPopup', 'true');
-    });
+    
+    if (closeButton !== null) {
+        closeButton.addEventListener("click", function () {
+          popup.style.display = "none";
+          // Guardar en localStorage que el usuario ya vio el banner
+          localStorage.setItem('hasSeenPopup', 'true');
+        });
+    }
 });  
 
 let radarCharts = {}; // Objeto global para almacenar gráficos por número de contenedor
