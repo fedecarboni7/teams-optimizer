@@ -1,4 +1,4 @@
-# Teams Optimizer
+# Armar Equipos
 
 This project aims to develop a tool that assists in optimizing the composition of teams for various activities or tasks. The tool will consider factors such as individual skills, strengths, and weaknesses to create well-balanced and effective teams.
 
@@ -30,7 +30,7 @@ The project will continue to be developed to incorporate additional features and
 
 ## Contributing
 
-Contributions to this project are welcome. Please contact the owner of this repository for more information.
+Contributions to this project are welcome. Please refer to the [Contribution Guidelines](CONTRIBUTING.md) for more information.
 
 ## License
 

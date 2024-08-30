@@ -526,33 +526,169 @@ function compartirEquipos(button) {
 
 // Mostrar u ocultar detalles de los equipos
 function toggleStats(button) {
-    const container = button.parentNode.nextElementSibling;
+    const contentContainer = button.parentNode.nextElementSibling;
     const textSpan = button.querySelector('span');
 
-    if (container.style.display === "none" || container.style.display === "") {
-        container.style.display = "flex";
+    if (contentContainer.style.display === "none" || contentContainer.style.display === "") {
+        contentContainer.style.display = "flex";
         textSpan.textContent = "Ocultar detalles";
-        createRadarChart(container);
+        createRadarChart(contentContainer);
     } else {
-        container.style.display = "none";
+        contentContainer.style.display = "none";
         textSpan.textContent = "Mostrar detalles";
     }
 }
 
-// Crear gráfico de radar
-function createRadarChart(container) {
-    const tableContainer = container.querySelector('.table-container');
-    const chartContainer = container.querySelector('.chart-container');
-    const canvas = chartContainer.querySelector('canvas');
-    const contenedor = document.getElementById('resultados-equipos' + 1);
-    const listasJugadores = contenedor.querySelectorAll('li');
-    const cantidadJugadores = Math.floor(listasJugadores.length / 2);
-    
-    // Asignar un ID único al canvas si no tiene uno
-    if (!canvas.id) {
-        canvas.id = 'radarChart' + Math.floor(Math.random() * 1000);
+function swapPlayer(player, fromTeamIndex, toTeamIndex) {
+    // Obtener las listas de jugadores de ambos equipos
+    var fromTeamList = document.querySelector(`.team-list[data-index='${fromTeamIndex}']`);
+    var toTeamList = document.querySelector(`.team-list[data-index='${toTeamIndex}']`);
+
+    // Buscar el elemento del jugador en la lista del equipo de origen
+    var playerElement = Array.from(fromTeamList.children).find(function(element) {
+        return element.querySelector(".player-name").textContent === player;
+    });
+
+    // Remover el jugador del equipo de origen
+    if (playerElement) {
+        fromTeamList.removeChild(playerElement);
+        
+        // Crear un nuevo elemento de lista para el jugador en el equipo de destino
+        var newPlayerElement = document.createElement("li");
+        newPlayerElement.classList.add("player-item");
+
+        // Crear el span para el nombre del jugador
+        var playerNameSpan = document.createElement("span");
+        playerNameSpan.classList.add("player-name");
+        playerNameSpan.textContent = player;
+
+        // Crear el botón de swap
+        var swapButton = document.createElement("button");
+        swapButton.type = "button";
+        swapButton.classList.add("swap-button");
+        swapButton.innerHTML = `<i class="fa-solid fa-right-left"></i>`;
+        swapButton.onclick = function() {
+            swapPlayer(player, toTeamIndex, fromTeamIndex);
+        };
+
+        // Añadir el span del nombre del jugador y el botón al nuevo elemento de lista
+        newPlayerElement.appendChild(playerNameSpan);
+        newPlayerElement.appendChild(swapButton);
+
+        // Añadir el nuevo elemento de lista al equipo de destino
+        toTeamList.appendChild(newPlayerElement);
+    }
+
+    // Definir equipo 1 y equipo 2
+    var team1Index = fromTeamIndex;
+    var team2Index = toTeamIndex;
+    if (fromTeamIndex > toTeamIndex) {
+        team1Index = toTeamIndex;
+        team2Index = fromTeamIndex;
+    }
+
+    // Actualizar la tabla de habilidades
+    updateSkillsTable(team1Index, team2Index);
+
+    // Actualizar el gráfico de radar
+    var containerNumber = Math.floor(team1Index / 2) + 1;
+    var contentContainer = document.getElementById('content-container' + containerNumber);
+    createRadarChart(contentContainer);
+}
+
+function updateSkillsTable(team1Index, team2Index) {
+    team1List = document.querySelector(`.team-list[data-index='${team1Index}']`);
+    team2List = document.querySelector(`.team-list[data-index='${team2Index}']`);
+
+    // Obtener los nombres de los jugadores de ambos equipos
+    var team1Players = Array.from(team1List.children).map(function(element) {
+        return element.querySelector(".player-name").textContent;
+    });
+    var team2Players = Array.from(team2List.children).map(function(element) {
+        return element.querySelector(".player-name").textContent;
+    });
+
+    // Obtener las habilidades de los jugadores de ambos equipos
+    var team1Skills = getTeamSkills(team1Players);
+    var team2Skills = getTeamSkills(team2Players);
+
+    // Actualizar la tabla específica de habilidades que representa la comparación de ambos equipos
+    var tableNumber = Math.floor(team1Index / 2) + 1;
+    var table = document.getElementById("skills-table" + tableNumber);
+    var rows = table.querySelectorAll("tbody tr");
+    var skills = ["velocidad", "resistencia", "control", "pases", "tiro", "defensa", "habilidad_arquero", "fuerza_cuerpo", "vision", "total"];
+    for (var i = 0; i < skills.length; i++) {
+        var row = rows[i];
+        var cells = row.querySelectorAll("td");
+        cells[1].textContent = team1Skills[skills[i]];
+        cells[2].textContent = team2Skills[skills[i]];
+    }
+}
+
+function getTeamSkills(players) {
+    var skills = {
+        velocidad: 0,
+        resistencia: 0,
+        control: 0,
+        pases: 0,
+        tiro: 0,
+        defensa: 0,
+        habilidad_arquero: 0,
+        fuerza_cuerpo: 0,
+        vision: 0,
+        total: 0
+    };
+
+    // Obtener las habilidades de los jugadores leyendo playerDataDict
+    players.forEach(function(player) {
+        var playerSkills = playerDataDict[player];
+        for (var skill in playerSkills) {
+            skills[skill] += playerSkills[skill];
+        }
+    });
+
+    // Calcular el total de habilidades
+    skills.total = Object.values(skills).reduce(function(total, value) {
+        return total + value;
+    }, 0);
+
+    return skills;
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    var popup = document.getElementById("popup");
+    var closeButton = document.getElementById("closeButton");
+  
+    // Verificar si el usuario ya vio el banner
+    var hasSeenPopup = localStorage.getItem('hasSeenPopup');
+  
+    if (!hasSeenPopup && popup !== null) {
+      // Mostrar el pop-up después de 2 segundos si no lo ha visto
+      setTimeout(function () {
+        popup.style.display = "block";
+      }, 2000);
     }
     
+    if (closeButton !== null) {
+        closeButton.addEventListener("click", function () {
+          popup.style.display = "none";
+          // Guardar en localStorage que el usuario ya vio el banner
+          localStorage.setItem('hasSeenPopup', 'true');
+        });
+    }
+});  
+
+let radarCharts = {}; // Objeto global para almacenar gráficos por número de contenedor
+
+// Crear gráfico de radar
+function createRadarChart(contentContainer) {
+    const tableContainer = contentContainer.querySelector('.table-container');
+    const chartContainer = contentContainer.querySelector('.chart-container');
+    const canvas = chartContainer.querySelector('canvas');
+    const resultadosEquiposContainer = document.getElementById('resultados-equipos1');
+    const listasJugadores = resultadosEquiposContainer.querySelectorAll('li');
+    const cantidadJugadores = Math.floor(listasJugadores.length / 2);
+    const containerNumber = parseInt(contentContainer.id.replace('content-container', ''));
     const ctx = canvas.getContext('2d');
     
     // Obtén los datos de la tabla
@@ -565,7 +701,13 @@ function createRadarChart(container) {
     team1Data.pop();
     team2Data.pop();
 
-    new Chart(ctx, {
+    // Destruir el gráfico existente si ya existe
+    if (radarCharts[containerNumber]) {
+        radarCharts[containerNumber].destroy();
+    }
+
+    // Create the new radar chart
+    radarCharts[containerNumber] = new Chart(ctx, {
         type: 'radar',
         data: {
             labels: skills,
