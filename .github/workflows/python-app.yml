@@ -6,8 +6,16 @@ name: Python application
 on:
   push:
     branches: [ "master", "dev" ]
+    paths-ignore:
+      - '**/*.md'
+      - '.github/workflows/**'
+      - 'tailwindcss.js'
   pull_request:
     branches: [ "master", "dev" ]
+    paths-ignore:
+      - '**/*.md'
+      - '.github/workflows/**'
+      - 'tailwindcss.js'
 
 permissions:
   contents: read
