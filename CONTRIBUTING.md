@@ -1,18 +1,35 @@
 # Contributing to Armar Equipos
 
-¡Gracias por considerar contribuir a Armar Equipos! A continuación se detallan las pautas para contribuir a este proyecto.
+¡Gracias por considerar contribuir a Armar Equipos! ❤️
 
 ## Cómo contribuir
 
 ### 1. Fork del repositorio  
 
-Haz un fork del repositorio y clona el fork a tu máquina local para realizar cambios.
+Haz un fork del repositorio y clona el fork a tu máquina local para realizar cambios. [Qué es un fork?](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo)
 
 ```bash
-git clone https://github.com/fedecarboni7/teams-optimizer.git
+git clone https://github.com/tu-usuario/nombre-del-proyecto.git
 ```
-    
-### 2. Crea una rama para tu feature o bugfix
+
+### 2. Instalación y Ejecución Local
+
+- Instala las dependencias
+  Asegurate de tener Python y pip instalados. Para instalar las dependencias necesarias, usa el siguiente comando:
+  ```bash
+  pip install -r requirements.txt
+  ```
+- Corre el proyecto localmente
+  ```bash
+  uvicorn app.main:app --reload
+  ```
+- Verifica que todo funcione correctamente
+  Antes de comenzar a trabajar, verificá que el proyecto se ejecute correctamente y que todas las pruebas pasen. Podés correr las pruebas con:
+    ```bash
+    pytest
+    ```
+
+### 3. Crea una rama para tu feature o bugfix
     
 Crea una nueva rama en tu fork para trabajar en una nueva característica o corrección de errores. Usa un nombre de rama descriptivo.
 
@@ -20,13 +37,9 @@ Crea una nueva rama en tu fork para trabajar en una nueva característica o corr
 git checkout -b nombre-de-la-rama
 ```
 
-### 3. Realiza cambios
-
-Realiza los cambios que consideres necesarios en tu rama. Asegúrate de seguir las mejores prácticas y de que tu código esté limpio y bien documentado.
-
 ### 4. Escribe pruebas
 
-Si es necesario, añade o modifica pruebas para garantizar que tus cambios no rompan nada. Asegúrate de que todas las pruebas pasen antes de continuar.
+Si es necesario, añade o modifica pruebas en la carpeta tests para garantizar que tus cambios no rompan nada. Asegurate de que todas las pruebas pasen antes de continuar.
 
 ### 5. Haz commit de tus cambios
 
