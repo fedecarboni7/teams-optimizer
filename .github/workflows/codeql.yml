@@ -5,11 +5,13 @@ on:
     branches: [ "master" ]
     paths-ignore:
       - '**/*.md'
+      - '.github/workflows/**'
       - 'tailwind/**/*.js'
   pull_request:
     branches: [ "master" ]
     paths-ignore:
       - '**/*.md'
+      - '.github/workflows/**'
       - 'tailwind/**/*.js'
 
 jobs:
