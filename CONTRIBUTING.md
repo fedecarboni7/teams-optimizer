@@ -9,7 +9,7 @@
 Haz un fork del repositorio y clona el fork a tu máquina local para realizar cambios.
 
 ```bash
-git clone https://github.com/tu-usuario/nombre-del-proyecto.git
+git clone https://github.com/fedecarboni7/teams-optimizer.git
 ```
     
 ### 2. Crea una rama para tu feature o bugfix
