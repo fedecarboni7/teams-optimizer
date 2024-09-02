@@ -366,23 +366,37 @@ function deletePlayer(playerId) {
     updateSelectedCount();
 }
 
-// Botón para seleccionar/deseleccionar a todos los jugadores
-function toggleSelectPlayers() {
-    const checkboxes = document.querySelectorAll('input[name="selectedPlayers"]');
+// Actualizar el texto del botón de seleccionar/deseleccionar según el estado actual de los checkboxes
+function updateToggleButtonText() {
     const toggleButton = document.getElementById('toggle-select-button');
+    const checkboxes = document.querySelectorAll('input[name="selectedPlayers"]');
     const allSelected = Array.from(checkboxes).every(checkbox => checkbox.checked);
-    
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = !allSelected;
+    toggleButton.textContent = allSelected ? "Deseleccionar a todos" : "Seleccionar a todos";
+}
+
+// Botón para seleccionar/deseleccionar a todos los jugadores
+document.addEventListener('DOMContentLoaded', function () {
+    const toggleButton = document.getElementById('toggle-select-button');
+    const checkboxes = document.querySelectorAll('input[name="selectedPlayers"]');
+
+    // Botón para seleccionar/deseleccionar a todos los jugadores
+    toggleButton.addEventListener('click', function () {
+        const allSelected = Array.from(checkboxes).every(checkbox => checkbox.checked);
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = !allSelected;
+        });
+        updateSelectedCount();
+        updateToggleButtonText();
     });
 
-    if (allSelected) {
-        toggleButton.textContent = "Seleccionar a todos";
-    } else {
-        toggleButton.textContent = "Deseleccionar a todos";
-    }
-    updateSelectedCount();
-}
+    // Detectar cambios en los checkboxes individuales para actualizar el botón de seleccionar/deseleccionar
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function () {
+            updateSelectedCount();
+            updateToggleButtonText();
+        });
+    });
+});
 
 // Botón para borrar la información de todos los jugadores
 function reset() {
@@ -426,11 +440,34 @@ function updateSelectedPlayersList() {
     });
 }
 
+document.addEventListener('DOMContentLoaded', function () {
+    const floatingButton = document.getElementById('floating-button');
+    const playersList = document.getElementById('selected-players-list');
+
+    // Mostrar/Ocultar la lista de jugadores seleccionados al hacer clic en el botón flotante
+    floatingButton.addEventListener('click', function (event) {
+        event.stopPropagation(); // Evita que el clic en el botón cierre la lista
+        if (playersList.style.display === 'block') {
+            playersList.style.display = 'none';
+        } else {
+            playersList.style.display = 'block';
+        }
+    });
+
+    // Cerrar la lista si se hace clic fuera de ella
+    document.addEventListener('click', function (event) {
+        if (!floatingButton.contains(event.target) && !playersList.contains(event.target)) {
+            playersList.style.display = 'none';
+        }
+    });
+});
+
 // Crear botón para deseleccionar un jugador de la lista del contador
 function createDeselectButton(playerId) {
     let button = document.createElement('button');
     button.textContent = '✖';
-    button.onclick = function() {
+    button.onclick = function(event) {
+        event.stopPropagation();
         deselectPlayer(playerId);
     };
     return button;
@@ -442,16 +479,9 @@ function deselectPlayer(playerId) {
     if (checkbox) {
         checkbox.checked = false;
         updateSelectedCount();
+        updateToggleButtonText();
     }
 }
-
-// Evento para actualizar la cantidad de jugadores seleccionados
-document.addEventListener('DOMContentLoaded', function() {
-    let checkboxes = document.querySelectorAll('input[name="selectedPlayers"]');
-    checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', updateSelectedCount);
-    });
-});
 
 // Botón de scroll
 function scrollToSubmit() {
@@ -655,7 +685,7 @@ function getTeamSkills(players) {
     return skills;
 }
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener('DOMContentLoaded', function () {
     var popup = document.getElementById("popup");
     var closeButton = document.getElementById("closeButton");
   
