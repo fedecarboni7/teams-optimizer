@@ -310,6 +310,7 @@ function addPlayer() {
         container.removeChild(playerDiv);
         renumerarJugadores();
         updateSelectedCount();
+        updateToggleButtonText();
     });
     playerHeader.appendChild(deleteButton);
 
