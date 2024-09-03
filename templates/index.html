@@ -8,9 +8,9 @@
     <link rel="icon" type="image/png" sizes="32x32" href="../static/favicon-v1.0/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="../static/favicon-v1.0/favicon-16x16.png">
     <link rel="manifest" href="../static/favicon-v1.0/site.webmanifest">
-    <link rel="stylesheet" type="text/css" href="/static/css/styles-v1.0.2.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/styles-v1.0.3.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <script src="/static/js/script-v1.0.5.js"></script>
+    <script src="/static/js/script-v1.0.6.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -145,7 +145,7 @@
         </div>
         <button type="submit" id="submitBtn">Armar Equipos</button>
         <button type="button" onclick="addPlayer()">Agregar jugador</button>
-        <button type="button" id="toggle-select-button" onclick="toggleSelectPlayers()">Seleccionar a todos</button>
+        <button type="button" id="toggle-select-button">Seleccionar a todos</button>
     </form>
     <button class="reset-button" type="button" onclick="reset()">Borrar a todos</button>
     <br>
@@ -163,13 +163,8 @@
         {% endif %}
             <div id="popup" class="popup">
                 <div class="popup-content">
-                <h2>Nueva Funcionalidad Disponible</h2>
-                <p>
-                    Ahora podés intercambiar jugadores entre equipos usando el botón
-                    <button type="button" class="swap-button"><i class="fa-solid fa-right-left"></i></button>
-                    y ver las nuevas estadísticas de cada equipo.
-                </p>
-                <p>Para restaurar la disposición óptima de los equipos, volvé a tocar el botón "Armar Equipos".</p>
+                <button type="button" class="swap-button"><i class="fa-solid fa-right-left"></i></button>
+                <p>Ahora podés intercambiar jugadores entre equipos usando este botón y ver las nuevas estadísticas de cada equipo. Para restaurar la disposición óptima de los equipos, volvé a tocar el botón "Armar Equipos".</p>
                 <button id="closeButton">Cerrar</button>
                 </div>
             </div>

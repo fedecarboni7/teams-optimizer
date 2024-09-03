@@ -391,11 +391,6 @@ tr:last-child {
     z-index: 1000;
 }
 
-#floating-button:hover #selected-players-list {
-    display: block;
-    padding: 5px 10px;
-}
-
 #selected-players-ul {
     list-style: none;
     padding: 0;
