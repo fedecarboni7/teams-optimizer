@@ -1,3 +1,108 @@
+// Ejecutar el código cuando el DOM esté completamente cargado
+document.addEventListener('DOMContentLoaded', function () {
+    // Botón para seleccionar/deseleccionar a todos los jugadores
+    const toggleButton = document.getElementById('toggle-select-button');
+    const checkboxes = document.querySelectorAll('input[name="selectedPlayers"]');
+    
+    toggleButton.addEventListener('click', function () {
+        const checkboxes = document.querySelectorAll('input[name="selectedPlayers"]');
+        const allSelected = Array.from(checkboxes).every(checkbox => checkbox.checked);
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = !allSelected;
+        });
+        updateSelectedCount();
+        updateToggleButtonText();
+    });
+
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function () {
+            updateSelectedCount();
+            updateToggleButtonText();
+        });
+    });
+
+    // Puntuar habilidades de los jugadores con estrellas
+    const starRatings = document.querySelectorAll('.star-rating');
+    
+    starRatings.forEach(rating => {
+        const stars = rating.querySelectorAll('.star');
+        const input = rating.querySelector('input[type="hidden"]');
+        
+        updateStars(stars, input.value);
+        
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                const value = this.getAttribute('data-value');
+                input.value = value;
+                updateStars(stars, value);
+            });
+        });
+    });
+    
+    function updateStars(stars, value) {
+        stars.forEach(star => {
+            if (star.getAttribute('data-value') <= value) {
+                star.classList.add('active');
+            } else {
+                star.classList.remove('active');
+            }
+        });
+    }
+
+    const existingSkillsContainers = document.querySelectorAll('.skills-container');
+    existingSkillsContainers.forEach(container => {
+        applyHoverEffect(container);
+    });
+
+    // Inicializar el estado del botón de scroll al cargar la página
+    const scrollButton = document.getElementById('scroll-button');
+    if (window.scrollY + window.innerHeight >= document.body.scrollHeight) {
+        scrollButton.style.display = 'none';
+    } else {
+        scrollButton.style.display = 'block';
+    }
+
+    // Mostrar/Ocultar la lista de jugadores seleccionados al hacer clic en el botón flotante
+    const floatingButton = document.getElementById('floating-button');
+    const playersList = document.getElementById('selected-players-list');
+
+    floatingButton.addEventListener('click', function (event) {
+        event.stopPropagation();
+        if (playersList.style.display === 'block') {
+            playersList.style.display = 'none';
+        } else {
+            playersList.style.display = 'block';
+        }
+    });
+
+    // Cerrar la lista si se hace clic fuera de ella
+    document.addEventListener('click', function (event) {
+        if (!floatingButton.contains(event.target) && !playersList.contains(event.target)) {
+            playersList.style.display = 'none';
+        }
+    });
+
+    // Mostrar el pop-up si el usuario no lo ha visto
+    const popup = document.getElementById("popup");
+    const closeButton = document.getElementById("closeButton");
+  
+    const hasSeenPopup = localStorage.getItem('hasSeenPopup');
+  
+    if (!hasSeenPopup && popup !== null) {
+        setTimeout(function () {
+            popup.style.display = "block";
+        }, 2000);
+    }
+    
+    if (closeButton !== null) {
+        closeButton.addEventListener("click", function () {
+            popup.style.display = "none";
+            localStorage.setItem('hasSeenPopup', 'true');
+        });
+    }
+});
+
+
 // Buscador
 function filterPlayers() {
     const searchInput = document.getElementById('searchInput').value.toLowerCase();
@@ -90,6 +195,12 @@ function addPlayer() {
     checkbox.value = playerCount;
     checkbox.checked = true;
     playerHeader.appendChild(checkbox);
+
+    // Añadir el manejador de eventos para los checkboxes nuevos
+    checkbox.addEventListener('change', function () {
+        updateSelectedCount();
+        updateToggleButtonText();
+    });
 
     // Nombre del jugador
     const nameLabel = document.createElement("label");
@@ -276,43 +387,6 @@ function toggleDetails(element) {
     rotateIcon(detailsContainer, icon);
 }
 
-
-// Puntuar habilidades de los jugadores con estrellas
-document.addEventListener('DOMContentLoaded', function() {
-    const starRatings = document.querySelectorAll('.star-rating');
-    
-    starRatings.forEach(rating => {
-        const stars = rating.querySelectorAll('.star');
-        const input = rating.querySelector('input[type="hidden"]');
-        
-        // Inicializar las estrellas basado en el valor actual
-        updateStars(stars, input.value);
-        
-        stars.forEach(star => {
-            star.addEventListener('click', function() {
-                const value = this.getAttribute('data-value');
-                input.value = value;
-                updateStars(stars, value);
-            });
-        });
-    });
-    
-    function updateStars(stars, value) {
-        stars.forEach(star => {
-            if (star.getAttribute('data-value') <= value) {
-                star.classList.add('active');
-            } else {
-                star.classList.remove('active');
-            }
-        });
-    }
-
-    const existingSkillsContainers = document.querySelectorAll('.skills-container');
-    existingSkillsContainers.forEach(container => {
-        applyHoverEffect(container);
-    });
-});
-
 // Aplicar efecto hover a las estrellas
 function applyHoverEffect(container) {
     container.addEventListener('mouseover', function(event) {
@@ -374,30 +448,6 @@ function updateToggleButtonText() {
     toggleButton.textContent = allSelected ? "Deseleccionar a todos" : "Seleccionar a todos";
 }
 
-// Botón para seleccionar/deseleccionar a todos los jugadores
-document.addEventListener('DOMContentLoaded', function () {
-    const toggleButton = document.getElementById('toggle-select-button');
-    const checkboxes = document.querySelectorAll('input[name="selectedPlayers"]');
-
-    // Botón para seleccionar/deseleccionar a todos los jugadores
-    toggleButton.addEventListener('click', function () {
-        const allSelected = Array.from(checkboxes).every(checkbox => checkbox.checked);
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = !allSelected;
-        });
-        updateSelectedCount();
-        updateToggleButtonText();
-    });
-
-    // Detectar cambios en los checkboxes individuales para actualizar el botón de seleccionar/deseleccionar
-    checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function () {
-            updateSelectedCount();
-            updateToggleButtonText();
-        });
-    });
-});
-
 // Botón para borrar la información de todos los jugadores
 function reset() {
     if (confirm("Estás a punto de borrar la información de todos los jugadores. ¿Estás seguro de que querés continuar?")) {
@@ -440,28 +490,6 @@ function updateSelectedPlayersList() {
     });
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-    const floatingButton = document.getElementById('floating-button');
-    const playersList = document.getElementById('selected-players-list');
-
-    // Mostrar/Ocultar la lista de jugadores seleccionados al hacer clic en el botón flotante
-    floatingButton.addEventListener('click', function (event) {
-        event.stopPropagation(); // Evita que el clic en el botón cierre la lista
-        if (playersList.style.display === 'block') {
-            playersList.style.display = 'none';
-        } else {
-            playersList.style.display = 'block';
-        }
-    });
-
-    // Cerrar la lista si se hace clic fuera de ella
-    document.addEventListener('click', function (event) {
-        if (!floatingButton.contains(event.target) && !playersList.contains(event.target)) {
-            playersList.style.display = 'none';
-        }
-    });
-});
-
 // Crear botón para deseleccionar un jugador de la lista del contador
 function createDeselectButton(playerId) {
     let button = document.createElement('button');
@@ -499,16 +527,6 @@ window.addEventListener('scroll', function() {
     const windowBottom = window.scrollY + window.innerHeight;
 
     if (windowBottom >= submitBtnPosition) {
-        scrollButton.style.display = 'none';
-    } else {
-        scrollButton.style.display = 'block';
-    }
-});
-
-// Inicializar el estado del botón de scroll al cargar la página
-document.addEventListener('DOMContentLoaded', function() {
-    const scrollButton = document.getElementById('scroll-button');
-    if (window.scrollY + window.innerHeight >= document.body.scrollHeight) {
         scrollButton.style.display = 'none';
     } else {
         scrollButton.style.display = 'block';
@@ -684,29 +702,6 @@ function getTeamSkills(players) {
 
     return skills;
 }
-
-document.addEventListener('DOMContentLoaded', function () {
-    var popup = document.getElementById("popup");
-    var closeButton = document.getElementById("closeButton");
-  
-    // Verificar si el usuario ya vio el banner
-    var hasSeenPopup = localStorage.getItem('hasSeenPopup');
-  
-    if (!hasSeenPopup && popup !== null) {
-      // Mostrar el pop-up después de 2 segundos si no lo ha visto
-      setTimeout(function () {
-        popup.style.display = "block";
-      }, 2000);
-    }
-    
-    if (closeButton !== null) {
-        closeButton.addEventListener("click", function () {
-          popup.style.display = "none";
-          // Guardar en localStorage que el usuario ya vio el banner
-          localStorage.setItem('hasSeenPopup', 'true');
-        });
-    }
-});  
 
 let radarCharts = {}; // Objeto global para almacenar gráficos por número de contenedor
 
