@@ -1,20 +1,3 @@
-# Python
-*.pyc
-__pycache__/
-venv/
-.venv/
-*.env
-.pytest_cache
-
-# SQLite
-*.db
-
-# VSCode
-.vscode
-
-# IDX
-.idx
-
 # Created by https://www.gitignore.io/api/node,sublimetext,windows,macos,sass
 
 ### macOS ###
