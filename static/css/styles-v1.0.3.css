@@ -511,6 +511,11 @@ tr:last-child {
     margin-top: 10px;
 }
 
+.copyright a {
+    color: #e0e0e065;
+    text-decoration: none;
+}
+
 .footer-links {
     display: flex;
     justify-content: center;
