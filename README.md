@@ -5,7 +5,7 @@ Este proyecto tiene como objetivo proporcionar una aplicación web que ayude a o
 ## Funcionalidades
 
 * **Creación de jugadores:** La aplicación te permite crear los perfiles de jugadores puntuando cada una de sus habilidades específicas, y guardarlos para futuros partidos.
-* **Composición de Equipos:** La herramienta analizará perfiles individuales y sugerirá combinaciones óptimas de equipos basadas en sus habilidades.
+* **Composición de Equipos:** El algoritmo analizará perfiles individuales y sugerirá combinaciones óptimas de equipos basadas en sus habilidades.
 * **Emparejamiento de Habilidades:** Identificará y emparejará a individuos con habilidades complementarias para mejorar el rendimiento del equipo.
 * **Visualización de Habilidades del Equipo:** Proporciona una visualización en una tabla de habilidades y un gráfico de radar comparando las habilidades de los equipos sugeridos, permitiendo una evaluación rápida de las fortalezas y debilidades del equipo.
 
