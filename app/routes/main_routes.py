@@ -20,7 +20,7 @@ router = APIRouter()
 
 @router.get("/landing-page", response_class=HTMLResponse)
 async def landing_page(request: Request):
-    return templates.TemplateResponse("landing-page.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="landing-page.html")
 
 calculated_results: Dict[str, dict] = {}
 
