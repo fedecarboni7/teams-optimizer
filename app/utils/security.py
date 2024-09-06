@@ -7,7 +7,6 @@ import jwt
 
 from app.db.models import User
 
-
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
 

@@ -59,6 +59,9 @@ async def signup(
 
 @router.get("/login", response_class=HTMLResponse, include_in_schema=False)
 async def login_page(request: Request):
+    referer = request.headers.get("referer")
+    if 'logout' in referer:
+        request.session.clear()
     if request.session.get("user_id"):
         return RedirectResponse(url="/", status_code=302)
     return templates.TemplateResponse(request=request, name="login.html")
@@ -84,7 +87,7 @@ async def login(
     request.session["user_id"] = user.id
     return RedirectResponse(url="/", status_code=302)
 
-@router.get("/logout", include_in_schema=False)
+@router.get("/logout")
 async def logout(request: Request):
     request.session.clear()
     return RedirectResponse("/login", status_code=307)
@@ -94,17 +97,24 @@ class Token(BaseModel):
     token_type: str
 
 @router.post("/token", response_model=Token)
-async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-                                 db: Session = Depends(get_db)) -> Token:
+async def login_for_access_token(
+        form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+        db: Session = Depends(get_db)
+    ) -> Token:
+
     user = db.query(User).filter(User.username == form_data.username).first()
+
     if not user or not user.verify_password(form_data.password):
         raise HTTPException(
             status_code=401,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    
     access_token_expires = timedelta(minutes=15)
+    
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
+
     return Token(access_token=access_token, token_type="bearer")
