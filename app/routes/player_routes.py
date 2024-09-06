@@ -13,6 +13,7 @@ from app.db.database_utils import execute_with_retries, execute_write_with_retri
 from app.db.models import Player, User
 from app.db.schemas import PlayerCreate
 from app.utils.auth import get_current_user
+from app.utils.security import verify_token
 from app.utils.team_optimizer import find_best_combination
 
 
@@ -51,7 +52,6 @@ async def get_form(
 
 @router.post("/submit", response_class=HTMLResponse, include_in_schema=False)
 async def submit_form(request: Request, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    start_time_1 = time.time()
     current_user_id = current_user.id
     form_data = await request.form()
     list_players = form_data._list
@@ -101,10 +101,6 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
 
     db.commit()
 
-    process_time_1 = time.time() - start_time_1
-    logger.debug(f"{process_time_1:.4f} seconds to save or update players in the database")
-    start_time_2 = time.time()
-
     # Calcular equipos
     player_names = [p.name for p in player_data]
     player_scores = [
@@ -129,10 +125,6 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
         teams.append([[player_names[i] for i in list(equipos[0])]])
         teams.append([[player_names[i] for i in list(equipos[1])]])
 
-    process_time_2 = time.time() - start_time_2
-    logger.debug(f"{process_time_2:.4f} seconds to calculate the best teams")
-    start_time_3 = time.time()
-    
     # Calculate the total and average skills for each team
     try:
         players = execute_with_retries(query_players, db, current_user_id)
@@ -174,13 +166,11 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
         "min_difference_total": str(min_difference_total)
     }
 
-    process_time_3 = time.time() - start_time_3
-    logger.debug(f"{process_time_3:.4f} seconds to calculate the total skills of each team and return the results")
     return RedirectResponse(url="/", status_code=303)
 
 
 @router.get("/reset")
-async def reset_session(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+async def reset_players(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     current_user_id = current_user.id
 
     def delete_players():
@@ -208,7 +198,7 @@ def get_player(player_id: int, db: Session = Depends(get_db)):
 
 
 @router.put("/player/{player_id}")
-def update_player(player_id: int, player: PlayerCreate, db: Session = Depends(get_db)):
+def update_player(player_id: int, player: PlayerCreate, db: Session = Depends(get_db), current_user: str = Depends(verify_token)):
     try:
         db_player = execute_with_retries(query_player, db, player_id)
     except OperationalError:

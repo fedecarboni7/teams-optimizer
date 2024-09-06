@@ -5,6 +5,8 @@ from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 import jwt
 
+from app.db.models import User
+
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
@@ -31,6 +33,8 @@ def verify_token(token: str = Depends(oauth2_scheme)):
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Token inválido")
     
-def verify_admin_user(current_user: str, http_exc: HTTPException):
-    if current_user not in ["admin", "fedecarboni7"]:
-        raise http_exc
+def verify_admin_user(current_user: User, detail: str):
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Usuario no autenticado")
+    if current_user.username != "admin":
+        raise HTTPException(status_code=401, detail=detail)

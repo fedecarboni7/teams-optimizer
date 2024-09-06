@@ -36,15 +36,3 @@ class Player(Base):
     vision = Column(Integer)
     user_id = Column(Integer, ForeignKey("users.id"))
     user = relationship("User", back_populates="players")
-
-
-class ErrorLog(Base):
-    __tablename__ = "error_logs"
-
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    session_id = Column(String, index=True)
-    error_code = Column(Integer)
-    error_message = Column(String)
-    stack_trace = Column(String)
-    created_at = Column(DateTime(timezone=True))
