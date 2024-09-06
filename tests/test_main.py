@@ -39,7 +39,7 @@ def test_get_home():
     client = TestClient(app, cookies=None)
     response = client.get("/")
     assert response.status_code == 200
-    assert response.template.name == "login.html"
+    assert response.template.name == "landing-page.html"
 
     # Authenticate the user
     response = client.post("/signup", data={"username": "testuser1", "password": "Testpassword1*"}, follow_redirects=False)

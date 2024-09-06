@@ -1,3 +1,108 @@
+// Ejecutar el código cuando el DOM esté completamente cargado
+document.addEventListener('DOMContentLoaded', function () {
+    // Botón para seleccionar/deseleccionar a todos los jugadores
+    const toggleButton = document.getElementById('toggle-select-button');
+    const checkboxes = document.querySelectorAll('input[name="selectedPlayers"]');
+    
+    toggleButton.addEventListener('click', function () {
+        const checkboxes = document.querySelectorAll('input[name="selectedPlayers"]');
+        const allSelected = Array.from(checkboxes).every(checkbox => checkbox.checked);
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = !allSelected;
+        });
+        updateSelectedCount();
+        updateToggleButtonText();
+    });
+
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function () {
+            updateSelectedCount();
+            updateToggleButtonText();
+        });
+    });
+
+    // Puntuar habilidades de los jugadores con estrellas
+    const starRatings = document.querySelectorAll('.star-rating');
+    
+    starRatings.forEach(rating => {
+        const stars = rating.querySelectorAll('.star');
+        const input = rating.querySelector('input[type="hidden"]');
+        
+        updateStars(stars, input.value);
+        
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                const value = this.getAttribute('data-value');
+                input.value = value;
+                updateStars(stars, value);
+            });
+        });
+    });
+    
+    function updateStars(stars, value) {
+        stars.forEach(star => {
+            if (star.getAttribute('data-value') <= value) {
+                star.classList.add('active');
+            } else {
+                star.classList.remove('active');
+            }
+        });
+    }
+
+    const existingSkillsContainers = document.querySelectorAll('.skills-container');
+    existingSkillsContainers.forEach(container => {
+        applyHoverEffect(container);
+    });
+
+    // Inicializar el estado del botón de scroll al cargar la página
+    const scrollButton = document.getElementById('scroll-button');
+    if (window.scrollY + window.innerHeight >= document.body.scrollHeight) {
+        scrollButton.style.display = 'none';
+    } else {
+        scrollButton.style.display = 'block';
+    }
+
+    // Mostrar/Ocultar la lista de jugadores seleccionados al hacer clic en el botón flotante
+    const floatingButton = document.getElementById('floating-button');
+    const playersList = document.getElementById('selected-players-list');
+
+    floatingButton.addEventListener('click', function (event) {
+        event.stopPropagation();
+        if (playersList.style.display === 'block') {
+            playersList.style.display = 'none';
+        } else {
+            playersList.style.display = 'block';
+        }
+    });
+
+    // Cerrar la lista si se hace clic fuera de ella
+    document.addEventListener('click', function (event) {
+        if (!floatingButton.contains(event.target) && !playersList.contains(event.target)) {
+            playersList.style.display = 'none';
+        }
+    });
+
+    // Mostrar el pop-up si el usuario no lo ha visto
+    const popup = document.getElementById("popup");
+    const closeButton = document.getElementById("closeButton");
+  
+    const hasSeenPopup = localStorage.getItem('hasSeenPopup');
+  
+    if (!hasSeenPopup && popup !== null) {
+        setTimeout(function () {
+            popup.style.display = "block";
+        }, 2000);
+    }
+    
+    if (closeButton !== null) {
+        closeButton.addEventListener("click", function () {
+            popup.style.display = "none";
+            localStorage.setItem('hasSeenPopup', 'true');
+        });
+    }
+});
+
+
 // Buscador
 function filterPlayers() {
     const searchInput = document.getElementById('searchInput').value.toLowerCase();
@@ -90,6 +195,12 @@ function addPlayer() {
     checkbox.value = playerCount;
     checkbox.checked = true;
     playerHeader.appendChild(checkbox);
+
+    // Añadir el manejador de eventos para los checkboxes nuevos
+    checkbox.addEventListener('change', function () {
+        updateSelectedCount();
+        updateToggleButtonText();
+    });
 
     // Nombre del jugador
     const nameLabel = document.createElement("label");
@@ -199,6 +310,7 @@ function addPlayer() {
         container.removeChild(playerDiv);
         renumerarJugadores();
         updateSelectedCount();
+        updateToggleButtonText();
     });
     playerHeader.appendChild(deleteButton);
 
@@ -240,56 +352,41 @@ function renumerarJugadores() {
 }
 
 // Mostrar u ocultar detalles de un jugador
-function toggleDetails(button) {
-    const details = button.parentNode.nextElementSibling;
-    const icon = button.querySelector('.toggle-icon');
-
-    if (details.style.maxHeight === "0px") {
-        details.style.maxHeight = details.scrollHeight + "px";
-        details.style.paddingBottom = "5px";
-        icon.classList.add('rotate');
-    } else {
-        details.style.maxHeight = "0px";
-        details.style.paddingBottom = "0px";
-        icon.classList.remove('rotate');
-    }
+function rotateIcon(detailsContainer, icon) {
+    //wait for the animation to finish before removing the class
+    detailsContainer.addEventListener('transitionend', function() {
+        if (detailsContainer.style.maxHeight === "0px") {
+            if (icon) {
+                icon.classList.remove('rotate');
+            } else {
+                icon = detailsContainer.previousElementSibling.querySelector('.toggle-icon');
+                icon.classList.remove('rotate');
+            }
+        } else {
+            if (icon) {
+                icon.classList.add('rotate');
+            } else {
+                icon = detailsContainer.previousElementSibling.querySelector('.toggle-icon');
+                icon.classList.add('rotate');
+            }
+        }
+    });
 }
 
-// Puntuar habilidades de los jugadores con estrellas
-document.addEventListener('DOMContentLoaded', function() {
-    const starRatings = document.querySelectorAll('.star-rating');
-    
-    starRatings.forEach(rating => {
-        const stars = rating.querySelectorAll('.star');
-        const input = rating.querySelector('input[type="hidden"]');
-        
-        // Inicializar las estrellas basado en el valor actual
-        updateStars(stars, input.value);
-        
-        stars.forEach(star => {
-            star.addEventListener('click', function() {
-                const value = this.getAttribute('data-value');
-                input.value = value;
-                updateStars(stars, value);
-            });
-        });
-    });
-    
-    function updateStars(stars, value) {
-        stars.forEach(star => {
-            if (star.getAttribute('data-value') <= value) {
-                star.classList.add('active');
-            } else {
-                star.classList.remove('active');
-            }
-        });
+function toggleDetails(element) {
+    const detailsContainer = element.parentNode.nextElementSibling;
+    const icon = element.querySelector('.toggle-icon');
+
+    if (detailsContainer.style.maxHeight === "0px") {
+        detailsContainer.style.maxHeight = detailsContainer.scrollHeight + "px";
+        detailsContainer.style.paddingBottom = "5px";
+    } else {
+        detailsContainer.style.maxHeight = "0px";
+        detailsContainer.style.paddingBottom = "0px";
     }
 
-    const existingSkillsContainers = document.querySelectorAll('.skills-container');
-    existingSkillsContainers.forEach(container => {
-        applyHoverEffect(container);
-    });
-});
+    rotateIcon(detailsContainer, icon);
+}
 
 // Aplicar efecto hover a las estrellas
 function applyHoverEffect(container) {
@@ -344,22 +441,12 @@ function deletePlayer(playerId) {
     updateSelectedCount();
 }
 
-// Botón para seleccionar/deseleccionar a todos los jugadores
-function toggleSelectPlayers() {
-    const checkboxes = document.querySelectorAll('input[name="selectedPlayers"]');
+// Actualizar el texto del botón de seleccionar/deseleccionar según el estado actual de los checkboxes
+function updateToggleButtonText() {
     const toggleButton = document.getElementById('toggle-select-button');
+    const checkboxes = document.querySelectorAll('input[name="selectedPlayers"]');
     const allSelected = Array.from(checkboxes).every(checkbox => checkbox.checked);
-    
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = !allSelected;
-    });
-
-    if (allSelected) {
-        toggleButton.textContent = "Seleccionar a todos";
-    } else {
-        toggleButton.textContent = "Deseleccionar a todos";
-    }
-    updateSelectedCount();
+    toggleButton.textContent = allSelected ? "Deseleccionar a todos" : "Seleccionar a todos";
 }
 
 // Botón para borrar la información de todos los jugadores
@@ -408,7 +495,8 @@ function updateSelectedPlayersList() {
 function createDeselectButton(playerId) {
     let button = document.createElement('button');
     button.textContent = '✖';
-    button.onclick = function() {
+    button.onclick = function(event) {
+        event.stopPropagation();
         deselectPlayer(playerId);
     };
     return button;
@@ -420,16 +508,9 @@ function deselectPlayer(playerId) {
     if (checkbox) {
         checkbox.checked = false;
         updateSelectedCount();
+        updateToggleButtonText();
     }
 }
-
-// Evento para actualizar la cantidad de jugadores seleccionados
-document.addEventListener('DOMContentLoaded', function() {
-    let checkboxes = document.querySelectorAll('input[name="selectedPlayers"]');
-    checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', updateSelectedCount);
-    });
-});
 
 // Botón de scroll
 function scrollToSubmit() {
@@ -447,16 +528,6 @@ window.addEventListener('scroll', function() {
     const windowBottom = window.scrollY + window.innerHeight;
 
     if (windowBottom >= submitBtnPosition) {
-        scrollButton.style.display = 'none';
-    } else {
-        scrollButton.style.display = 'block';
-    }
-});
-
-// Inicializar el estado del botón de scroll al cargar la página
-document.addEventListener('DOMContentLoaded', function() {
-    const scrollButton = document.getElementById('scroll-button');
-    if (window.scrollY + window.innerHeight >= document.body.scrollHeight) {
         scrollButton.style.display = 'none';
     } else {
         scrollButton.style.display = 'block';
@@ -481,14 +552,15 @@ function compartirEquipos(button) {
         }
         textoCompartir += '\n'; // Agrega una línea en blanco entre equipos
     }
-    if (navigator.share) {
-        navigator.share({
-            title: 'Resultados de los Equipos - Opción ' + (parseInt(indice)),
-            text: textoCompartir
-        })
-        .then(() => console.log('Resultados compartidos exitosamente.'))
-        .catch((error) => console.error('Error al compartir:', error));
-    } else {
+    textoCompartir += 'Generado con: https://armar-equipos.up.railway.app'; // Agrega el enlace al sitio web
+    const shareData = {
+        title: 'Resultados de los Equipos - Opción ' + (parseInt(indice)),
+        text: textoCompartir
+    };
+    try {
+        navigator.share(shareData)
+    } catch (err) {
+        console.log(`Error: ${err}`);
         // Opción alternativa para navegadores que no soportan Web Share API
         alert('Tu navegador no soporta la función de compartir. Por favor, copia el texto manualmente.');
         navigator.clipboard.writeText(textoCompartir)
@@ -503,31 +575,146 @@ function compartirEquipos(button) {
 
 // Mostrar u ocultar detalles de los equipos
 function toggleStats(button) {
-    const container = button.parentNode.nextElementSibling;
-    if (container.style.display === "none") {
-        container.style.display = "flex";
-        button.textContent = "Ocultar detalles";
-        createRadarChart(container);
+    const contentContainer = button.parentNode.nextElementSibling;
+    const textSpan = button.querySelector('span');
+
+    if (contentContainer.style.display === "none" || contentContainer.style.display === "") {
+        contentContainer.style.display = "flex";
+        textSpan.textContent = "Ocultar detalles";
+        createRadarChart(contentContainer);
     } else {
-        container.style.display = "none";
-        button.textContent = "Mostrar detalles";
+        contentContainer.style.display = "none";
+        textSpan.textContent = "Mostrar detalles";
     }
 }
 
-// Crear gráfico de radar
-function createRadarChart(container) {
-    const tableContainer = container.querySelector('.table-container');
-    const chartContainer = container.querySelector('.chart-container');
-    const canvas = chartContainer.querySelector('canvas');
-    const contenedor = document.getElementById('resultados-equipos' + 1);
-    const listasJugadores = contenedor.querySelectorAll('li');
-    const cantidadJugadores = Math.floor(listasJugadores.length / 2);
-    
-    // Asignar un ID único al canvas si no tiene uno
-    if (!canvas.id) {
-        canvas.id = 'radarChart' + Math.floor(Math.random() * 1000);
+function swapPlayer(player, fromTeamIndex, toTeamIndex) {
+    // Obtener las listas de jugadores de ambos equipos
+    var fromTeamList = document.querySelector(`.team-list[data-index='${fromTeamIndex}']`);
+    var toTeamList = document.querySelector(`.team-list[data-index='${toTeamIndex}']`);
+
+    // Buscar el elemento del jugador en la lista del equipo de origen
+    var playerElement = Array.from(fromTeamList.children).find(function(element) {
+        return element.querySelector(".player-name").textContent === player;
+    });
+
+    // Remover el jugador del equipo de origen
+    if (playerElement) {
+        fromTeamList.removeChild(playerElement);
+        
+        // Crear un nuevo elemento de lista para el jugador en el equipo de destino
+        var newPlayerElement = document.createElement("li");
+        newPlayerElement.classList.add("player-item");
+
+        // Crear el span para el nombre del jugador
+        var playerNameSpan = document.createElement("span");
+        playerNameSpan.classList.add("player-name");
+        playerNameSpan.textContent = player;
+
+        // Crear el botón de swap
+        var swapButton = document.createElement("button");
+        swapButton.type = "button";
+        swapButton.classList.add("swap-button");
+        swapButton.innerHTML = `<i class="fa-solid fa-right-left"></i>`;
+        swapButton.onclick = function() {
+            swapPlayer(player, toTeamIndex, fromTeamIndex);
+        };
+
+        // Añadir el span del nombre del jugador y el botón al nuevo elemento de lista
+        newPlayerElement.appendChild(playerNameSpan);
+        newPlayerElement.appendChild(swapButton);
+
+        // Añadir el nuevo elemento de lista al equipo de destino
+        toTeamList.appendChild(newPlayerElement);
     }
-    
+
+    // Definir equipo 1 y equipo 2
+    var team1Index = fromTeamIndex;
+    var team2Index = toTeamIndex;
+    if (fromTeamIndex > toTeamIndex) {
+        team1Index = toTeamIndex;
+        team2Index = fromTeamIndex;
+    }
+
+    // Actualizar la tabla de habilidades
+    updateSkillsTable(team1Index, team2Index);
+
+    // Actualizar el gráfico de radar
+    var containerNumber = Math.floor(team1Index / 2) + 1;
+    var contentContainer = document.getElementById('content-container' + containerNumber);
+    createRadarChart(contentContainer);
+}
+
+function updateSkillsTable(team1Index, team2Index) {
+    team1List = document.querySelector(`.team-list[data-index='${team1Index}']`);
+    team2List = document.querySelector(`.team-list[data-index='${team2Index}']`);
+
+    // Obtener los nombres de los jugadores de ambos equipos
+    var team1Players = Array.from(team1List.children).map(function(element) {
+        return element.querySelector(".player-name").textContent;
+    });
+    var team2Players = Array.from(team2List.children).map(function(element) {
+        return element.querySelector(".player-name").textContent;
+    });
+
+    // Obtener las habilidades de los jugadores de ambos equipos
+    var team1Skills = getTeamSkills(team1Players);
+    var team2Skills = getTeamSkills(team2Players);
+
+    // Actualizar la tabla específica de habilidades que representa la comparación de ambos equipos
+    var tableNumber = Math.floor(team1Index / 2) + 1;
+    var table = document.getElementById("skills-table" + tableNumber);
+    var rows = table.querySelectorAll("tbody tr");
+    var skills = ["velocidad", "resistencia", "control", "pases", "tiro", "defensa", "habilidad_arquero", "fuerza_cuerpo", "vision", "total"];
+    for (var i = 0; i < skills.length; i++) {
+        var row = rows[i];
+        var cells = row.querySelectorAll("td");
+        cells[1].textContent = team1Skills[skills[i]];
+        cells[2].textContent = team2Skills[skills[i]];
+    }
+}
+
+function getTeamSkills(players) {
+    var skills = {
+        velocidad: 0,
+        resistencia: 0,
+        control: 0,
+        pases: 0,
+        tiro: 0,
+        defensa: 0,
+        habilidad_arquero: 0,
+        fuerza_cuerpo: 0,
+        vision: 0,
+        total: 0
+    };
+
+    // Obtener las habilidades de los jugadores leyendo playerDataDict
+    players.forEach(function(player) {
+        var playerSkills = playerDataDict[player];
+        for (var skill in playerSkills) {
+            skills[skill] += playerSkills[skill];
+        }
+    });
+
+    // Calcular el total de habilidades
+    skills.total = Object.values(skills).reduce(function(total, value) {
+        return total + value;
+    }, 0);
+
+    return skills;
+}
+
+let radarCharts = {}; // Objeto global para almacenar gráficos por número de contenedor
+
+// Crear gráfico de radar
+function createRadarChart(contentContainer) {
+    const tableContainer = contentContainer.querySelector('.table-container');
+    const chartContainer = contentContainer.querySelector('.chart-container');
+    const canvas = chartContainer.querySelector('canvas');
+    const resultadosEquiposContainer = document.getElementById('resultados-equipos1');
+    const listasJugadores = resultadosEquiposContainer.querySelectorAll('li');
+    const cantidadJugadores = Math.floor(listasJugadores.length / 2);
+    const containerNumber = parseInt(contentContainer.id.replace('content-container', ''));
     const ctx = canvas.getContext('2d');
     
     // Obtén los datos de la tabla
@@ -540,7 +727,13 @@ function createRadarChart(container) {
     team1Data.pop();
     team2Data.pop();
 
-    new Chart(ctx, {
+    // Destruir el gráfico existente si ya existe
+    if (radarCharts[containerNumber]) {
+        radarCharts[containerNumber].destroy();
+    }
+
+    // Create the new radar chart
+    radarCharts[containerNumber] = new Chart(ctx, {
         type: 'radar',
         data: {
             labels: skills,
