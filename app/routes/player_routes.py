@@ -8,7 +8,6 @@ from app.db.database_utils import execute_with_retries, execute_write_with_retri
 from app.db.models import Player, User
 from app.db.schemas import PlayerCreate
 from app.utils.auth import get_current_user
-from app.utils.security import verify_token
 
 router = APIRouter()
 
@@ -32,9 +31,9 @@ async def reset_players(db: Session = Depends(get_db), current_user: User = Depe
 
 
 @router.get("/player/{player_id}")
-def get_player(player_id: int, db: Session = Depends(get_db)):
+def get_player(player_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     try:
-        player = execute_with_retries(query_player, db, player_id)
+        player = execute_with_retries(query_player, db, player_id, current_user.id)
     except OperationalError:
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
 
@@ -44,9 +43,9 @@ def get_player(player_id: int, db: Session = Depends(get_db)):
 
 
 @router.put("/player/{player_id}")
-def update_player(player_id: int, player: PlayerCreate, db: Session = Depends(get_db), current_user: str = Depends(verify_token)):
+def update_player(player_id: int, player: PlayerCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     try:
-        db_player = execute_with_retries(query_player, db, player_id)
+        db_player = execute_with_retries(query_player, db, player_id, current_user.id)
     except OperationalError:
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
     
@@ -73,7 +72,7 @@ def delete_player(player_id: int, db: Session = Depends(get_db), current_user: U
         return HTMLResponse("No hay un usuario autenticado", status_code=401)
 
     try:
-        player = execute_with_retries(query_player, db, player_id)
+        player = execute_with_retries(query_player, db, player_id, current_user.id)
     except OperationalError:
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
     
