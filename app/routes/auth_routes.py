@@ -60,7 +60,7 @@ async def signup(
 @router.get("/login", response_class=HTMLResponse, include_in_schema=False)
 async def login_page(request: Request):
     referer = request.headers.get("referer")
-    if 'logout' in referer:
+    if referer and 'logout' in referer:
         request.session.clear()
     if request.session.get("user_id"):
         return RedirectResponse(url="/", status_code=302)

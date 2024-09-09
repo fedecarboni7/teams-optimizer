@@ -179,10 +179,14 @@ def test_find_best_combination():
     assert len(team1) == len(team2)
 
 def test_reset():
+    response = client.get("/reset", follow_redirects=False)
+    assert response.status_code == 401
+    assert response.text == "No hay un usuario autenticado"
+
     response = client.post("/login", data={"username": "loginuser", "password": "loginpassword"}, follow_redirects=False)
     response = client.get("/reset", follow_redirects=False)
     assert response.status_code == 200
-    assert response.json() == {"ok": True}
+    assert response.text == "Jugadores eliminados correctamente"
 
 # Pending tests:
 # Test Submit Form
