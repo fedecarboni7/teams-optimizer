@@ -10,3 +10,5 @@ tenacity
 colorlog
 pyjwt[crypto]
 httpx
+uvicorn
+python-multipart
