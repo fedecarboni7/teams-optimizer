@@ -123,3 +123,18 @@ def get_players(
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
     
     return players
+
+@router.post("/player", response_model=PlayerCreate)
+def create_player(
+        player: PlayerCreate,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+    ) -> PlayerCreate:
+    if not current_user:
+        return HTMLResponse("No hay un usuario autenticado", status_code=401)
+    db_player = Player(**player.model_dump())
+    db_player.user_id = current_user.id
+    db.add(db_player)
+    db.commit()
+    db.refresh(db_player)
+    return db_player
