@@ -1,5 +1,5 @@
 from passlib.hash import pbkdf2_sha256
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from app.db.database import Base

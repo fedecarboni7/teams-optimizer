@@ -4,18 +4,20 @@ from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
-from app.db.database_utils import execute_with_retries, execute_write_with_retries, query_player
+from app.db.database_utils import execute_with_retries, execute_write_with_retries, query_player, query_players
 from app.db.models import Player, User
 from app.db.schemas import PlayerCreate
 from app.utils.auth import get_current_user
 
-
 router = APIRouter()
 
-@router.get("/reset")
-async def reset_session(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+@router.get("/reset", response_class=HTMLResponse)
+async def reset_players(
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+    ):
     if not current_user:
-        return {"error": "No hay un usuario autenticado"}
+        return HTMLResponse("No hay un usuario autenticado", status_code=401)
 
     current_user_id = current_user.id
 
@@ -26,15 +28,21 @@ async def reset_session(db: Session = Depends(get_db), current_user: User = Depe
     try:
         execute_write_with_retries(delete_players)
     except OperationalError:
-        return {"error": "Error al acceder a la base de datos. Inténtalo de nuevo más tarde."}
+        return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
     
-    return {"ok": True}
+    return HTMLResponse("Jugadores eliminados correctamente")
 
 
 @router.get("/player/{player_id}")
-def get_player(player_id: int, db: Session = Depends(get_db)):
+def get_player(
+        player_id: int,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+    ) -> PlayerCreate:
+    if not current_user:
+        return HTMLResponse("No hay un usuario autenticado", status_code=401)
     try:
-        player = execute_with_retries(query_player, db, player_id)
+        player = execute_with_retries(query_player, db, player_id, current_user.id)
     except OperationalError:
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
 
@@ -44,9 +52,16 @@ def get_player(player_id: int, db: Session = Depends(get_db)):
 
 
 @router.put("/player/{player_id}")
-def update_player(player_id: int, player: PlayerCreate, db: Session = Depends(get_db)):
+def update_player(
+        player_id: int,
+        player: PlayerCreate,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+    ) -> PlayerCreate:
+    if not current_user:
+        return HTMLResponse("No hay un usuario autenticado", status_code=401)
     try:
-        db_player = execute_with_retries(query_player, db, player_id)
+        db_player = execute_with_retries(query_player, db, player_id, current_user.id)
     except OperationalError:
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
     
@@ -67,13 +82,17 @@ def update_player(player_id: int, player: PlayerCreate, db: Session = Depends(ge
     return db_player
 
 
-@router.delete("/player/{player_id}")
-def delete_player(player_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+@router.delete("/player/{player_id}", response_class=HTMLResponse)
+def delete_player(
+        player_id: int,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+    ):
     if not current_user:
         return HTMLResponse("No hay un usuario autenticado", status_code=401)
 
     try:
-        player = execute_with_retries(query_player, db, player_id)
+        player = execute_with_retries(query_player, db, player_id, current_user.id)
     except OperationalError:
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
     
@@ -89,4 +108,18 @@ def delete_player(player_id: int, db: Session = Depends(get_db), current_user: U
     except OperationalError:
         return HTMLResponse("Error al eliminar el jugador. Inténtalo de nuevo más tarde.", status_code=500)
 
-    return {"ok": True}
+    return HTMLResponse("Jugador eliminado correctamente")
+
+@router.get("/players")
+def get_players(
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+    ) -> list[PlayerCreate]:
+    if not current_user:
+        return HTMLResponse("No hay un usuario autenticado", status_code=401)
+    try:
+        players = execute_with_retries(query_players, db, current_user.id)
+    except OperationalError:
+        return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
+    
+    return players

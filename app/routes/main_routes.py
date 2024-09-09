@@ -1,4 +1,3 @@
-import time
 from typing import Dict, List
 
 from fastapi import APIRouter, Depends, Request
@@ -7,7 +6,6 @@ from sqlite3 import OperationalError
 from requests import Session
 
 from app.config.config import templates
-from app.config.logging_config import logger
 from app.db.database import get_db
 from app.db.database_utils import execute_with_retries, query_players
 from app.db.models import Player, User
@@ -18,18 +16,18 @@ from app.utils.team_optimizer import find_best_combination
 
 router = APIRouter()
 
-@router.get("/landing-page", response_class=HTMLResponse)
+@router.get("/landing-page", response_class=HTMLResponse, include_in_schema=False)
 async def landing_page(request: Request):
     return templates.TemplateResponse(request=request, name="landing-page.html")
 
 calculated_results: Dict[str, dict] = {}
 
-@router.get("/", response_class=HTMLResponse)
+@router.get("/", response_class=HTMLResponse, include_in_schema=False)
 async def get_form(
-    request: Request,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
+        request: Request,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+    ):
     if not current_user:
         request.session.clear()
         return RedirectResponse("/landing-page", status_code=302)
@@ -53,13 +51,16 @@ async def get_form(
     return templates.TemplateResponse(request=request, name="index.html", context=context)
 
 
-@router.post("/submit", response_class=HTMLResponse)
-async def submit_form(request: Request, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+@router.post("/submit", response_class=HTMLResponse, include_in_schema=False)
+async def submit_form(
+        request: Request,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+    ):
     if not current_user:
         request.session.clear()
         return RedirectResponse("/landing-page", status_code=302)
 
-    start_time_1 = time.time()
     current_user_id = current_user.id
     form_data = await request.form()
     list_players = form_data._list
@@ -109,10 +110,6 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
 
     db.commit()
 
-    process_time_1 = time.time() - start_time_1
-    logger.debug(f"{process_time_1:.4f} seconds to save or update players in the database")
-    start_time_2 = time.time()
-
     # Calcular equipos
     player_names = [p.name for p in player_data]
     player_scores = [
@@ -136,10 +133,6 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
     for equipos in mejores_equipos:
         teams.append([[player_names[i] for i in list(equipos[0])]])
         teams.append([[player_names[i] for i in list(equipos[1])]])
-
-    process_time_2 = time.time() - start_time_2
-    logger.debug(f"{process_time_2:.4f} seconds to calculate the best teams")
-    start_time_3 = time.time()
     
     # Calculate the total and average skills for each team
     try:
@@ -198,6 +191,4 @@ async def submit_form(request: Request, db: Session = Depends(get_db), current_u
         "playerDataDict": player_data_dict
     }
 
-    process_time_3 = time.time() - start_time_3
-    logger.debug(f"{process_time_3:.4f} seconds to calculate the total skills of each team and return the results")
     return RedirectResponse(url="/", status_code=303)

@@ -5,6 +5,6 @@ from app.routes.main_routes import router as main_router
 
 app = create_app()
 
-app.include_router(player_router)
-app.include_router(auth_router)
-app.include_router(main_router)
+app.include_router(player_router, tags=["player"])
+app.include_router(auth_router, tags=["auth"])
+app.include_router(main_router, tags=["main"])
