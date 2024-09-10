@@ -8,8 +8,8 @@ def validate_username(username: str):
         raise ValueError("El nombre de usuario solo puede contener letras, números, guiones bajos y puntos.")
 
 def validate_password(password: str):
-    if len(password) < 8:
-        raise ValueError("La contraseña debe tener al menos 8 caracteres.")
+    if len(password) < 8 or len(password) > 30:
+        raise ValueError("La contraseña debe tener entre 8 y 30 caracteres.")
     if not re.search(r"[A-Z]", password):
         raise ValueError("La contraseña debe contener al menos una letra mayúscula.")
     if not re.search(r"[a-z]", password):
