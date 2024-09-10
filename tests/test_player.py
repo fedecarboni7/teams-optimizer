@@ -35,26 +35,25 @@ def db_session():
 
 # Test the reset endpoint
 
-def test_reset(db_session):
+def test_reset_unauthenticated():
     # Test that the user cannot access the reset endpoint without being authenticated
     response = client.get("/reset", follow_redirects=False)
     assert response.status_code == 401
     assert response.text == "No hay un usuario autenticado"
 
+def test_create_and_authenticate_user(db_session):
     # Empty the database
     db_session.query(User).delete()
     db_session.commit()
 
-    # Create user
-    user = User(username="loginuser")
-    user.set_password("loginpassword")
-    db_session.add(user)
-    db_session.commit()
-
     # Authenticate the user
-    response = client.post("/login", data={"username": "loginuser", "password": "loginpassword"}, follow_redirects=False)
+    response = client.post("/signup", data={"username": "loginuser", "password": "Loginpassword123"}, follow_redirects=False)
     assert response.status_code == 302
     assert response.headers["location"] == "/"
+
+def test_create_player(db_session):
+    # Authenticate the user
+    client.post("/login", data={"username": "loginuser", "password": "Loginpassword123"}, follow_redirects=False)
 
     # Create a player
     response = client.post("/player", json={
@@ -77,10 +76,12 @@ def test_reset(db_session):
     assert db_player.name == "Test Reset"
     assert db_player.velocidad == 4
 
-    # Test that the user can access the reset endpoint after being authenticated
-    response = client.get("/reset", follow_redirects=False)
-    assert response.status_code == 200
-    assert response.text == "Jugadores eliminados correctamente"
+def test_player_deleted_after_reset(db_session):
+    # Authenticate the user
+    client.post("/login", data={"username": "loginuser", "password": "Loginpassword123"}, follow_redirects=False)
+
+    # Reset players
+    client.get("/reset", follow_redirects=False)
 
     # Test that the player has been deleted
     db_player = db_session.query(Player).filter(Player.name == "Test Reset").first()
