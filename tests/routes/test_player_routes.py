@@ -87,17 +87,30 @@ def test_player_deleted_after_reset(db_session):
     db_player = db_session.query(Player).filter(Player.name == "Test Reset").first()
     assert db_player is None
 
-def test_create_player(db_session):
-    # Delete all players from the database
-    db_session.query(Player).delete()
-    db_session.commit()
-    
-    user = User(username="testuser2")
-    user.set_password("testpassword")
-    db_session.add(user)
-    db_session.commit()
 
-    player = Player(
+# Test the get player endpoint
+
+def test_get_player_unauthenticated():
+    # Test that the user cannot access the get player endpoint without being authenticated
+    response = client.get("/player/1", follow_redirects=False)
+    assert response.status_code == 401
+    assert response.text == "No hay un usuario autenticado"
+
+def test_get_nonexistent_player(db_session):
+    # Authenticate the user
+    client.post("/login", data={"username": "loginuser", "password": "Loginpassword123"}, follow_redirects=False)
+
+    # Try to get a player that does not exist
+    response = client.get("/player/999", follow_redirects=False)
+    assert response.status_code == 307
+    assert response.json() == {"detail": "Player not found"}
+
+def test_get_player(db_session):
+    # Authenticate the user
+    client.post("/login", data={"username": "loginuser", "password": "Loginpassword123"}, follow_redirects=False)
+
+    # Create a player
+    new_player = Player(
         name="Test Player",
         velocidad=4,
         resistencia=5,
@@ -108,14 +121,16 @@ def test_create_player(db_session):
         habilidad_arquero=3,
         fuerza_cuerpo=5,
         vision=1,
-        user_id=user.id
+        user_id=1
     )
-    db_session.add(player)
+    db_session.add(new_player)
     db_session.commit()
 
-    db_player = db_session.query(Player).filter(Player.name == "Test Player").first()
-    assert db_player is not None
-    assert db_player.name == "Test Player"
-    assert db_player.velocidad == 4
-    assert db_player.user_id == user.id
+    # Get the player
+    response = client.get(f"/player/{new_player.id}", follow_redirects=False)
+    assert response.status_code == 200
+    player_data = response.json()
+    assert player_data["name"] == "Test Player"
+    assert player_data["velocidad"] == 4
+    assert player_data["resistencia"] == 5
 
