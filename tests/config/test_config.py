@@ -1,17 +1,12 @@
 import pytest
 
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
-from app.db.database import Base, get_db
 from app.main import app
+from app.db.database import get_db
+from tests.conftest import TestingSessionLocal
 
-# Set up test database
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base.metadata.create_all(bind=engine)
+client = TestClient(app)
 
 def override_get_db():
     try:
@@ -20,17 +15,12 @@ def override_get_db():
     finally:
         db.close()
 
-app.dependency_overrides[get_db] = override_get_db
-
-client = TestClient(app)
-
 @pytest.fixture
 def db_session():
-    db = TestingSessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+    app.dependency_overrides[get_db] = override_get_db
+    db = next(override_get_db())
+    yield db
+    db.close()
 
 # Test the /docs endpoint
 

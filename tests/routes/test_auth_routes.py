@@ -1,18 +1,13 @@
 import pytest
 
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
-from app.db.database import Base, get_db
 from app.main import app
+from app.db.database import get_db
 from app.db.models import User
+from tests.conftest import TestingSessionLocal
 
-# Set up test database
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base.metadata.create_all(bind=engine)
+client = TestClient(app)
 
 def override_get_db():
     try:
@@ -21,17 +16,12 @@ def override_get_db():
     finally:
         db.close()
 
-app.dependency_overrides[get_db] = override_get_db
-
-client = TestClient(app)
-
 @pytest.fixture
 def db_session():
-    db = TestingSessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+    app.dependency_overrides[get_db] = override_get_db
+    db = next(override_get_db())
+    yield db
+    db.close()
 
 
 # Test the signup endpoints
@@ -106,7 +96,7 @@ def test_logout():
 
 # Test the token endpoint
 
-def test_token(db_session):
+def test_create_user_and_generate_token(db_session):
     # Empty the database
     db_session.query(User).delete()
     db_session.commit()
@@ -121,29 +111,28 @@ def test_token(db_session):
     assert response.json()["access_token"]
     assert response.json()["token_type"] == "bearer"
 
-    # Test that the user cannot login with wrong password
+def test_login_with_wrong_password(db_session):
     response = client.post("/token", data={"username": "tokenuser", "password": "wrongpassword"}, follow_redirects=False)
     assert response.status_code == 401
     assert response.json()["detail"] == "Incorrect username or password"
-    
-    # Test that the user cannot login with wrong username
+
+def test_login_with_wrong_username(db_session):
     response = client.post("/token", data={"username": "wronguser", "password": "tokenpassword"}, follow_redirects=False)
     assert response.status_code == 401
     assert response.json()["detail"] == "Incorrect username or password"
-    
-    # Test that the user cannot login with empty credentials
+
+def test_login_with_empty_credentials(db_session):
     response = client.post("/token", data={"username": "", "password": ""}, follow_redirects=False)
     assert response.status_code == 422
-    # response.json()["detail"] == [{'type': 'missing', 'loc': ['body', 'username'], 'msg': 'Field required', 'input': None}, {'type': 'missing', 'loc': ['body', 'password'], 'msg': 'Field required', 'input': None}]
     assert response.json()["detail"][0]["msg"] == "Field required"
     assert response.json()["detail"][1]["msg"] == "Field required"
-    
-    # Test that the user cannot login with empty username
+
+def test_login_with_empty_username(db_session):
     response = client.post("/token", data={"username": "", "password": "tokenpassword"}, follow_redirects=False)
     assert response.status_code == 422
     assert response.json()["detail"][0]["msg"] == "Field required"
-    
-    # Test that the user cannot login with empty password
+
+def test_login_with_empty_password(db_session):
     response = client.post("/token", data={"username": "tokenuser", "password": ""}, follow_redirects=False)
     assert response.status_code == 422
     assert response.json()["detail"][0]["msg"] == "Field required"
