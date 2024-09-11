@@ -2,46 +2,43 @@ import pytest
 
 from fastapi.testclient import TestClient
 
+from app.db.models import Player, User
 from app.main import app
 from app.db.database import get_db
-from app.db.models import Player, User
-from tests.conftest import TestingSessionLocal
 
-client = TestClient(app)
-
-def override_get_db():
-    try:
-        db = TestingSessionLocal()
-        yield db
-    finally:
-        db.close()
-
-@pytest.fixture
-def db_session():
+@pytest.fixture(scope="module")
+def client(db):
+    def override_get_db():
+        try:
+            yield db
+        finally:
+            db.rollback()
+    
     app.dependency_overrides[get_db] = override_get_db
-    db = next(override_get_db())
-    yield db
-    db.close()
+    with TestClient(app) as client:
+        yield client
+    app.dependency_overrides.clear()
+
 
 # Test the reset endpoint
 
-def test_reset_unauthenticated():
+def test_reset_unauthenticated(client):
     # Test that the user cannot access the reset endpoint without being authenticated
     response = client.get("/reset", follow_redirects=False)
     assert response.status_code == 401
     assert response.text == "No hay un usuario autenticado"
 
-def test_create_and_authenticate_user(db_session):
+def test_create_and_authenticate_user(client, db):
     # Empty the database
-    db_session.query(User).delete()
-    db_session.commit()
+    db.query(User).delete()
+    db.commit()
 
     # Authenticate the user
     response = client.post("/signup", data={"username": "loginuser", "password": "Loginpassword123"}, follow_redirects=False)
     assert response.status_code == 302
     assert response.headers["location"] == "/"
 
-def test_create_player(db_session):
+def test_create_player(client, db):
     # Authenticate the user
     client.post("/login", data={"username": "loginuser", "password": "Loginpassword123"}, follow_redirects=False)
 
@@ -61,12 +58,12 @@ def test_create_player(db_session):
     })
 
     assert response.status_code == 200
-    db_player = db_session.query(Player).filter(Player.name == "Test Reset").first()
+    db_player = db.query(Player).filter(Player.name == "Test Reset").first()
     assert db_player is not None
     assert db_player.name == "Test Reset"
     assert db_player.velocidad == 4
 
-def test_player_deleted_after_reset(db_session):
+def test_player_deleted_after_reset(client, db):
     # Authenticate the user
     client.post("/login", data={"username": "loginuser", "password": "Loginpassword123"}, follow_redirects=False)
 
@@ -74,19 +71,19 @@ def test_player_deleted_after_reset(db_session):
     client.get("/reset", follow_redirects=False)
 
     # Test that the player has been deleted
-    db_player = db_session.query(Player).filter(Player.name == "Test Reset").first()
+    db_player = db.query(Player).filter(Player.name == "Test Reset").first()
     assert db_player is None
 
 
 # Test the get player endpoint
 
-def test_get_player_unauthenticated():
+def test_get_player_unauthenticated(client):
     # Test that the user cannot access the get player endpoint without being authenticated
     response = client.get("/player/1", follow_redirects=False)
     assert response.status_code == 401
     assert response.text == "No hay un usuario autenticado"
 
-def test_get_nonexistent_player(db_session):
+def test_get_nonexistent_player(client, db):
     # Authenticate the user
     client.post("/login", data={"username": "loginuser", "password": "Loginpassword123"}, follow_redirects=False)
 
@@ -95,7 +92,7 @@ def test_get_nonexistent_player(db_session):
     assert response.status_code == 307
     assert response.json() == {"detail": "Player not found"}
 
-def test_get_player(db_session):
+def test_get_player(client, db):
     # Authenticate the user
     client.post("/login", data={"username": "loginuser", "password": "Loginpassword123"}, follow_redirects=False)
 
@@ -113,8 +110,8 @@ def test_get_player(db_session):
         vision=1,
         user_id=1
     )
-    db_session.add(new_player)
-    db_session.commit()
+    db.add(new_player)
+    db.commit()
 
     # Get the player
     response = client.get(f"/player/{new_player.id}", follow_redirects=False)

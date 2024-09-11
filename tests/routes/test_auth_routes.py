@@ -2,43 +2,39 @@ import pytest
 
 from fastapi.testclient import TestClient
 
+from app.db.models import User
 from app.main import app
 from app.db.database import get_db
-from app.db.models import User
-from tests.conftest import TestingSessionLocal
 
-client = TestClient(app)
-
-def override_get_db():
-    try:
-        db = TestingSessionLocal()
-        yield db
-    finally:
-        db.close()
-
-@pytest.fixture
-def db_session():
+@pytest.fixture(scope="module")
+def client(db):
+    def override_get_db():
+        try:
+            yield db
+        finally:
+            db.rollback()
+    
     app.dependency_overrides[get_db] = override_get_db
-    db = next(override_get_db())
-    yield db
-    db.close()
+    with TestClient(app) as client:
+        yield client
+    app.dependency_overrides.clear()
 
 
 # Test the signup endpoints
 
-def test_get_signup():
+def test_get_signup(client):
     response = client.get("/signup")
     assert response.status_code == 200
     assert response.template.name == "signup.html"
 
-def test_post_signup(db_session):
+def test_post_signup(client, db):
     username = "newuser1"
     password = "Newpassword1*"
     response = client.post("/signup", data={"username": username, "password": password}, follow_redirects=False)
     assert response.status_code == 302
     assert response.headers["location"] == "/"
 
-    db_user = db_session.query(User).filter(User.username == username).first()
+    db_user = db.query(User).filter(User.username == username).first()
     assert db_user is not None
     assert db_user.verify_password(password)
 
@@ -51,23 +47,23 @@ def test_post_signup(db_session):
 
 # Test the login endpoints
 
-def test_get_login():
+def test_get_login(client):
     response = client.get("/logout", follow_redirects=False)
     
     response = client.get("/login")
     assert response.status_code == 200
     assert response.template.name == "login.html"
 
-def test_post_login(db_session):
+def test_post_login(client, db):
     # Empty the database
-    db_session.query(User).delete()
-    db_session.commit()
+    db.query(User).delete()
+    db.commit()
 
     # Create user
     user = User(username="loginuser")
     user.set_password("loginpassword")
-    db_session.add(user)
-    db_session.commit()
+    db.add(user)
+    db.commit()
 
     response = client.post("/login", data={"username": "loginuser", "password": "loginpassword"}, follow_redirects=False)
     assert response.status_code == 302
@@ -88,7 +84,7 @@ def test_post_login(db_session):
 
 # Test the logout endpoint
 
-def test_logout():
+def test_logout(client):
     response = client.get("/logout", follow_redirects=False)
     assert response.status_code == 307
     assert response.headers["location"] == "/login"
@@ -96,43 +92,43 @@ def test_logout():
 
 # Test the token endpoint
 
-def test_create_user_and_generate_token(db_session):
+def test_create_user_and_generate_token(client, db):
     # Empty the database
-    db_session.query(User).delete()
-    db_session.commit()
+    db.query(User).delete()
+    db.commit()
 
     user = User(username="tokenuser")
     user.set_password("tokenpassword")
-    db_session.add(user)
-    db_session.commit()
+    db.add(user)
+    db.commit()
 
     response = client.post("/token", data={"username": "tokenuser", "password": "tokenpassword"}, follow_redirects=False)
     assert response.status_code == 200
     assert response.json()["access_token"]
     assert response.json()["token_type"] == "bearer"
 
-def test_login_with_wrong_password(db_session):
+def test_login_with_wrong_password(client):
     response = client.post("/token", data={"username": "tokenuser", "password": "wrongpassword"}, follow_redirects=False)
     assert response.status_code == 401
     assert response.json()["detail"] == "Incorrect username or password"
 
-def test_login_with_wrong_username(db_session):
+def test_login_with_wrong_username(client):
     response = client.post("/token", data={"username": "wronguser", "password": "tokenpassword"}, follow_redirects=False)
     assert response.status_code == 401
     assert response.json()["detail"] == "Incorrect username or password"
 
-def test_login_with_empty_credentials(db_session):
+def test_login_with_empty_credentials(client):
     response = client.post("/token", data={"username": "", "password": ""}, follow_redirects=False)
     assert response.status_code == 422
     assert response.json()["detail"][0]["msg"] == "Field required"
     assert response.json()["detail"][1]["msg"] == "Field required"
 
-def test_login_with_empty_username(db_session):
+def test_login_with_empty_username(client):
     response = client.post("/token", data={"username": "", "password": "tokenpassword"}, follow_redirects=False)
     assert response.status_code == 422
     assert response.json()["detail"][0]["msg"] == "Field required"
 
-def test_login_with_empty_password(db_session):
+def test_login_with_empty_password(client):
     response = client.post("/token", data={"username": "tokenuser", "password": ""}, follow_redirects=False)
     assert response.status_code == 422
     assert response.json()["detail"][0]["msg"] == "Field required"

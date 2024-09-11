@@ -2,30 +2,27 @@ import pytest
 
 from fastapi.testclient import TestClient
 
+from app.db.models import User
 from app.main import app
 from app.db.database import get_db
-from app.db.models import User
 from app.utils.auth import get_current_user
 from app.utils.team_optimizer import find_best_combination
-from tests.conftest import TestingSessionLocal
 
-client = TestClient(app)
-
-def override_get_db():
-    try:
-        db = TestingSessionLocal()
-        yield db
-    finally:
-        db.close()
-
-@pytest.fixture
-def db_session():
+@pytest.fixture(scope="module")
+def client(db):
+    def override_get_db():
+        try:
+            yield db
+        finally:
+            db.rollback()
+    
     app.dependency_overrides[get_db] = override_get_db
-    db = next(override_get_db())
-    yield db
-    db.close()
+    with TestClient(app) as client:
+        yield client
+    app.dependency_overrides.clear()
 
-def test_get_home():
+
+def test_get_home(client):
     client = TestClient(app, cookies=None)
     response = client.get("/")
     assert response.status_code == 200
@@ -36,18 +33,18 @@ def test_get_home():
     assert response.status_code == 302
     assert response.headers["location"] == "/"
 
-def test_get_current_user(db_session):
+def test_get_current_user(client, db):
     user = User(username="testuser3")
     user.set_password("testpassword")
-    db_session.add(user)
-    db_session.commit()
+    db.add(user)
+    db.commit()
 
     class MockRequest:
         def __init__(self):
             self.session = {"user_id": user.id}
 
     request = MockRequest()
-    current_user = get_current_user(request, db_session)
+    current_user = get_current_user(request, db)
     assert current_user is not None
     assert current_user.username == "testuser3"
 
