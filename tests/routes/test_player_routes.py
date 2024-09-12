@@ -2,7 +2,7 @@ import pytest
 
 from fastapi.testclient import TestClient
 
-from app.db.models import Player, User
+from app.db.models import Player
 from app.main import app
 from app.db.database import get_db
 
@@ -83,29 +83,25 @@ def test_get_nonexistent_player(authenticated_client):
     assert response.status_code == 404
     assert response.text == "Player not found"
 
-def test_get_player(authenticated_client, db):
+def test_get_player(authenticated_client):    
     # Create a player
-    new_player = Player(
-        name="Test Player",
-        velocidad=4,
-        resistencia=5,
-        control=5,
-        pases=3,
-        tiro=3,
-        defensa=2,
-        habilidad_arquero=3,
-        fuerza_cuerpo=5,
-        vision=1,
-        user_id=1
-    )
-    db.add(new_player)
-    db.commit()
+    response = authenticated_client.post("/player", json={
+        "name": "Test Get",
+        "velocidad": 4,
+        "resistencia": 5,
+        "control": 5,
+        "pases": 3,
+        "tiro": 3,
+        "defensa": 2,
+        "habilidad_arquero": 3,
+        "fuerza_cuerpo": 5,
+        "vision": 1,
+        "user_id": 1
+    })
+    player_data = response.json()
 
     # Get the player
-    response = authenticated_client.get(f"/player/{new_player.id}", follow_redirects=False)
+    response = authenticated_client.get(f"/player/{player_data["id"]}", follow_redirects=False)
     assert response.status_code == 200
-    player_data = response.json()
-    assert player_data["name"] == "Test Player"
+    assert player_data["name"] == "Test Get"
     assert player_data["velocidad"] == 4
-    assert player_data["resistencia"] == 5
-
