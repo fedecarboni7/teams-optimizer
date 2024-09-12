@@ -47,7 +47,7 @@ def get_player(
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
 
     if player is None:
-        raise HTTPException(status_code=404, detail="Player not found")
+        return HTMLResponse("Player not found", status_code=404)
     return player
 
 

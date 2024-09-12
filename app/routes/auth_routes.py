@@ -39,7 +39,7 @@ async def signup(
 
         user = execute_with_retries(query_user, db, username)
         if user:
-            raise ValueError("Usuario ya registrado")
+            raise HTTPException(status_code=409, detail="Usuario ya registrado")
         
         validate_password(password)
     except ValueError as e:

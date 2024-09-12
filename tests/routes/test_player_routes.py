@@ -6,7 +6,7 @@ from app.db.models import Player, User
 from app.main import app
 from app.db.database import get_db
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def client(db):
     def override_get_db():
         try:
@@ -19,6 +19,16 @@ def client(db):
         yield client
     app.dependency_overrides.clear()
 
+@pytest.fixture
+def authenticated_client(client):
+    # Registra e inicia sesión un usuario para la prueba
+    response = client.post("/signup", data={"username": "loginuser", "password": "Loginpassword123"}, follow_redirects=False)
+    if response.status_code == 409:
+        response = client.post("/login", data={"username": "loginuser", "password": "Loginpassword123"}, follow_redirects=False)
+    assert response.status_code == 302
+    assert response.headers["location"] == "/"
+    return client
+
 
 # Test the reset endpoint
 
@@ -28,22 +38,9 @@ def test_reset_unauthenticated(client):
     assert response.status_code == 401
     assert response.text == "No hay un usuario autenticado"
 
-def test_create_and_authenticate_user(client, db):
-    # Empty the database
-    db.query(User).delete()
-    db.commit()
-
-    # Authenticate the user
-    response = client.post("/signup", data={"username": "loginuser", "password": "Loginpassword123"}, follow_redirects=False)
-    assert response.status_code == 302
-    assert response.headers["location"] == "/"
-
-def test_create_player(client, db):
-    # Authenticate the user
-    client.post("/login", data={"username": "loginuser", "password": "Loginpassword123"}, follow_redirects=False)
-
+def test_create_player(authenticated_client, db):
     # Create a player
-    response = client.post("/player", json={
+    response = authenticated_client.post("/player", json={
         "name": "Test Reset",
         "velocidad": 4,
         "resistencia": 5,
@@ -63,12 +60,9 @@ def test_create_player(client, db):
     assert db_player.name == "Test Reset"
     assert db_player.velocidad == 4
 
-def test_player_deleted_after_reset(client, db):
-    # Authenticate the user
-    client.post("/login", data={"username": "loginuser", "password": "Loginpassword123"}, follow_redirects=False)
-
+def test_player_deleted_after_reset(authenticated_client, db):
     # Reset players
-    client.get("/reset", follow_redirects=False)
+    authenticated_client.get("/reset", follow_redirects=False)
 
     # Test that the player has been deleted
     db_player = db.query(Player).filter(Player.name == "Test Reset").first()
@@ -83,19 +77,13 @@ def test_get_player_unauthenticated(client):
     assert response.status_code == 401
     assert response.text == "No hay un usuario autenticado"
 
-def test_get_nonexistent_player(client, db):
-    # Authenticate the user
-    client.post("/login", data={"username": "loginuser", "password": "Loginpassword123"}, follow_redirects=False)
-
+def test_get_nonexistent_player(authenticated_client):
     # Try to get a player that does not exist
-    response = client.get("/player/999", follow_redirects=False)
-    assert response.status_code == 307
-    assert response.json() == {"detail": "Player not found"}
+    response = authenticated_client.get("/player/999", follow_redirects=False)
+    assert response.status_code == 404
+    assert response.text == "Player not found"
 
-def test_get_player(client, db):
-    # Authenticate the user
-    client.post("/login", data={"username": "loginuser", "password": "Loginpassword123"}, follow_redirects=False)
-
+def test_get_player(authenticated_client, db):
     # Create a player
     new_player = Player(
         name="Test Player",
@@ -114,7 +102,7 @@ def test_get_player(client, db):
     db.commit()
 
     # Get the player
-    response = client.get(f"/player/{new_player.id}", follow_redirects=False)
+    response = authenticated_client.get(f"/player/{new_player.id}", follow_redirects=False)
     assert response.status_code == 200
     player_data = response.json()
     assert player_data["name"] == "Test Player"

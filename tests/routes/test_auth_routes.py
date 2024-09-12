@@ -40,9 +40,8 @@ def test_post_signup(client, db):
 
     # Test that the user cannot be created again
     response = client.post("/signup", data={"username": username, "password": password}, follow_redirects=False)
-    assert response.status_code == 200
-    assert response.template.name == "signup.html"
-    assert "Usuario ya registrado" in response.text
+    assert response.status_code == 409
+    assert response.json()["detail"] == "Usuario ya registrado" 
 
 
 # Test the login endpoints
@@ -107,28 +106,28 @@ def test_create_user_and_generate_token(client, db):
     assert response.json()["access_token"]
     assert response.json()["token_type"] == "bearer"
 
-def test_login_with_wrong_password(client):
+def test_token_with_wrong_password(client):
     response = client.post("/token", data={"username": "tokenuser", "password": "wrongpassword"}, follow_redirects=False)
     assert response.status_code == 401
     assert response.json()["detail"] == "Incorrect username or password"
 
-def test_login_with_wrong_username(client):
+def test_token_with_wrong_username(client):
     response = client.post("/token", data={"username": "wronguser", "password": "tokenpassword"}, follow_redirects=False)
     assert response.status_code == 401
     assert response.json()["detail"] == "Incorrect username or password"
 
-def test_login_with_empty_credentials(client):
+def test_token_with_empty_credentials(client):
     response = client.post("/token", data={"username": "", "password": ""}, follow_redirects=False)
     assert response.status_code == 422
     assert response.json()["detail"][0]["msg"] == "Field required"
     assert response.json()["detail"][1]["msg"] == "Field required"
 
-def test_login_with_empty_username(client):
+def test_token_with_empty_username(client):
     response = client.post("/token", data={"username": "", "password": "tokenpassword"}, follow_redirects=False)
     assert response.status_code == 422
     assert response.json()["detail"][0]["msg"] == "Field required"
 
-def test_login_with_empty_password(client):
+def test_token_with_empty_password(client):
     response = client.post("/token", data={"username": "tokenuser", "password": ""}, follow_redirects=False)
     assert response.status_code == 422
     assert response.json()["detail"][0]["msg"] == "Field required"
