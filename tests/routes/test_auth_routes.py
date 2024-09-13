@@ -2,9 +2,9 @@ import pytest
 
 from fastapi.testclient import TestClient
 
+from app.db.database import get_db
 from app.db.models import User
 from app.main import app
-from app.db.database import get_db
 
 @pytest.fixture(scope="module")
 def client(db):
@@ -41,7 +41,7 @@ def test_post_signup(client, db):
     # Test that the user cannot be created again
     response = client.post("/signup", data={"username": username, "password": password}, follow_redirects=False)
     assert response.status_code == 409
-    assert response.json()["detail"] == "Usuario ya registrado" 
+    assert response.context["error"] == "Usuario ya registrado" 
 
 
 # Test the login endpoints

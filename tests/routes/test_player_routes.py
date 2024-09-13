@@ -2,9 +2,9 @@ import pytest
 
 from fastapi.testclient import TestClient
 
+from app.db.database import get_db
 from app.db.models import Player
 from app.main import app
-from app.db.database import get_db
 
 @pytest.fixture(scope="function")
 def client(db):

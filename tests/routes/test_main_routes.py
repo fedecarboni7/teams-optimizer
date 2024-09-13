@@ -2,9 +2,9 @@ import pytest
 
 from fastapi.testclient import TestClient
 
+from app.db.database import get_db
 from app.db.models import User
 from app.main import app
-from app.db.database import get_db
 from app.utils.auth import get_current_user
 from app.utils.team_optimizer import find_best_combination
 
