@@ -117,17 +117,17 @@ def test_token_with_wrong_username(client):
     assert response.json()["detail"] == "Incorrect username or password"
 
 def test_token_with_empty_credentials(client):
-    response = client.post("/token", data={"username": "", "password": ""}, follow_redirects=False)
+    response = client.post("/token", follow_redirects=False)
     assert response.status_code == 422
     assert response.json()["detail"][0]["msg"] == "Field required"
     assert response.json()["detail"][1]["msg"] == "Field required"
 
 def test_token_with_empty_username(client):
-    response = client.post("/token", data={"username": "", "password": "tokenpassword"}, follow_redirects=False)
+    response = client.post("/token", data={"password": "tokenpassword"}, follow_redirects=False)
     assert response.status_code == 422
     assert response.json()["detail"][0]["msg"] == "Field required"
 
 def test_token_with_empty_password(client):
-    response = client.post("/token", data={"username": "tokenuser", "password": ""}, follow_redirects=False)
+    response = client.post("/token", data={"username": "tokenuser"}, follow_redirects=False)
     assert response.status_code == 422
     assert response.json()["detail"][0]["msg"] == "Field required"
