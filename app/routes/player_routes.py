@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.db.database_utils import execute_with_retries, execute_write_with_retries, query_player, query_players
 from app.db.models import Player, User
-from app.db.schemas import PlayerCreate
+from app.db.schemas import PlayerCreate, PlayerResponse
 from app.utils.auth import get_current_user
 
 router = APIRouter()
@@ -47,7 +47,7 @@ def get_player(
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
 
     if player is None:
-        raise HTTPException(status_code=404, detail="Player not found")
+        return HTMLResponse("Player not found", status_code=404)
     return player
 
 
@@ -123,3 +123,17 @@ def get_players(
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
     
     return players
+
+@router.post("/player", response_model=PlayerResponse)
+def create_player(
+        player: PlayerCreate,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+    ) -> PlayerResponse:
+    if not current_user:
+        return HTMLResponse("No hay un usuario autenticado", status_code=401)
+    db_player = Player(**player.model_dump(), user_id=current_user.id)
+    db.add(db_player)
+    db.commit()
+    db.refresh(db_player)
+    return db_player
