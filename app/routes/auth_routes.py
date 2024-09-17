@@ -39,7 +39,7 @@ async def signup(
 
         user = execute_with_retries(query_user, db, username)
         if user:
-            raise ValueError("Usuario ya registrado")
+            return templates.TemplateResponse(request=request, name="signup.html", context={"error": "Usuario ya registrado"}, status_code=409)
         
         validate_password(password)
     except ValueError as e:
@@ -82,7 +82,7 @@ async def login(
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
     
     if not user or not user.verify_password(password):
-        return templates.TemplateResponse(request=request, name="login.html", context={"error": "Usuario o contraseña incorrectos"})
+        return templates.TemplateResponse(request=request, name="login.html", context={"error": "Usuario o contraseña incorrectos"}, status_code=401)
 
     request.session["user_id"] = user.id
     return RedirectResponse(url="/", status_code=302)

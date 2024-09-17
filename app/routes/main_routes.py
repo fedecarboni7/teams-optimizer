@@ -83,8 +83,7 @@ async def submit_form(
             defensa=int(list_players[i+7][1]),
             habilidad_arquero=int(list_players[i+8][1]),
             fuerza_cuerpo=int(list_players[i+9][1]),
-            vision=int(list_players[i+10][1]),
-            user_id=current_user_id
+            vision=int(list_players[i+10][1])
         )
         player_data.append(player)
 
@@ -103,7 +102,7 @@ async def submit_form(
             for key, value in player.model_dump().items():
                 setattr(db_player, key, value)
         else:
-            players_to_add.append(Player(**player.model_dump()))
+            players_to_add.append(Player(**player.model_dump(), user_id=current_user_id))
 
     if players_to_add:
         db.add_all(players_to_add)

@@ -1,15 +1,13 @@
 import os
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import sessionmaker
 
 from app.config.logging_config import logger
+from app.db.models import Base
+
 
 LOCAL_DB = os.getenv("LOCAL_DB", "").lower() == "true"
-
-class Base(DeclarativeBase):
-    pass
 
 if LOCAL_DB:
     logger.info("Using local database")
