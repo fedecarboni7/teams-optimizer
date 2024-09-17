@@ -430,6 +430,11 @@ function applyHoverEffect(container) {
 // Eliminar jugador
 function deletePlayer(playerId) {
     if (confirm("¿Estás seguro de que querés eliminar este jugador?")) {
+        const deleteBtn = document.getElementById('deleteBtn' + playerId);
+
+        // Deshabilitar el botón para prevenir múltiples envíos
+        deleteBtn.disabled = true;
+
         fetch(`/player/${playerId}`, { method: 'DELETE' })
             .then(response => response.text())
             .then(() => {
@@ -450,6 +455,14 @@ function updateToggleButtonText() {
 // Botón para borrar la información de todos los jugadores
 function reset() {
     if (confirm("Estás a punto de borrar la información de todos los jugadores. ¿Estás seguro de que querés continuar?")) {
+        const resetBtn = document.getElementById('resetBtn');
+        const spinner = document.createElement('span');
+        spinner.className = 'spinner';
+        resetBtn.appendChild(spinner);
+
+        // Deshabilitar el botón para prevenir múltiples envíos
+        resetBtn.disabled = true;
+
         fetch('/reset')
             .then(response => response.text())
             .then(() => {
