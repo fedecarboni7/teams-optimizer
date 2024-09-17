@@ -125,7 +125,7 @@ function validateForm(event) {
     
     // Validar que hay al menos tres jugadores
     if (playerEntries.length < 3) {
-        alert('Debes agregar al menos tres jugadores.');
+        alert('Debes crear al menos tres jugadores.');
         event.preventDefault();
         return false;
     }
