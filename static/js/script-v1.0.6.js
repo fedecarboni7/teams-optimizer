@@ -431,11 +431,9 @@ function applyHoverEffect(container) {
 function deletePlayer(playerId) {
     if (confirm("¿Estás seguro de que querés eliminar este jugador?")) {
         fetch(`/player/${playerId}`, { method: 'DELETE' })
-            .then(response => response.json())
-            .then(data => {
-                if (data.ok) {
-                    window.location.href = '/';
-                }
+            .then(response => response.text())
+            .then(() => {
+                window.location.href = '/';
             });
     }
     updateSelectedCount();
@@ -453,11 +451,9 @@ function updateToggleButtonText() {
 function reset() {
     if (confirm("Estás a punto de borrar la información de todos los jugadores. ¿Estás seguro de que querés continuar?")) {
         fetch('/reset')
-            .then(response => response.json())
-            .then(data => {
-                if (data.ok) {
-                    window.location.href = '/';
-                }
+            .then(response => response.text())
+            .then(() => {
+                window.location.href = '/';
             });
     }
 }
