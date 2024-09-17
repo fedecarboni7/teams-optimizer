@@ -19,6 +19,16 @@ def client(db):
         yield client
     app.dependency_overrides.clear()
 
+@pytest.fixture
+def authenticated_client(client):
+    # Registra e inicia sesión un usuario para la prueba
+    response = client.post("/login", data={"username": "loginuser", "password": "loginpassword"}, follow_redirects=False)
+    if response.status_code == 401:
+        response = client.post("/signup", data={"username": "loginuser", "password": "loginpassword"}, follow_redirects=False)
+    assert response.status_code == 302
+    assert response.headers["location"] == "/"
+    return client
+
 
 # Test the signup endpoints
 
@@ -41,7 +51,7 @@ def test_post_signup(client, db):
     # Test that the user cannot be created again
     response = client.post("/signup", data={"username": username, "password": password}, follow_redirects=False)
     assert response.status_code == 409
-    assert response.context["error"] == "Usuario ya registrado" 
+    assert response.context["error"] == "Usuario ya registrado"
 
 
 # Test the login endpoints
@@ -70,13 +80,13 @@ def test_post_login(client, db):
 
     # Test that the user cannot login with wrong password
     response = client.post("/login", data={"username": "loginuser", "password": "wrongpassword"}, follow_redirects=False)
-    assert response.status_code == 200
+    assert response.status_code == 401
     assert response.template.name == "login.html"
     assert "Usuario o contraseña incorrectos" in response.text
 
     # Test that the user cannot login with wrong username
     response = client.post("/login", data={"username": "wronguser", "password": "loginpassword"}, follow_redirects=False)
-    assert response.status_code == 200
+    assert response.status_code == 401
     assert response.template.name == "login.html"
     assert "Usuario o contraseña incorrectos" in response.text
 
@@ -91,17 +101,8 @@ def test_logout(client):
 
 # Test the token endpoint
 
-def test_create_user_and_generate_token(client, db):
-    # Empty the database
-    db.query(User).delete()
-    db.commit()
-
-    user = User(username="tokenuser")
-    user.set_password("tokenpassword")
-    db.add(user)
-    db.commit()
-
-    response = client.post("/token", data={"username": "tokenuser", "password": "tokenpassword"}, follow_redirects=False)
+def test_create_user_and_generate_token(authenticated_client):
+    response = authenticated_client.post("/token", data={"username": "loginuser", "password": "loginpassword"}, follow_redirects=False)
     assert response.status_code == 200
     assert response.json()["access_token"]
     assert response.json()["token_type"] == "bearer"

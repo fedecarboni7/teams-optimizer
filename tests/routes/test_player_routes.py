@@ -22,9 +22,9 @@ def client(db):
 @pytest.fixture
 def authenticated_client(client):
     # Registra e inicia sesión un usuario para la prueba
-    response = client.post("/signup", data={"username": "loginuser", "password": "Loginpassword123"}, follow_redirects=False)
-    if response.status_code == 409:
-        response = client.post("/login", data={"username": "loginuser", "password": "Loginpassword123"}, follow_redirects=False)
+    response = client.post("/login", data={"username": "loginuser", "password": "loginpassword"}, follow_redirects=False)
+    if response.status_code == 401:
+        response = client.post("/signup", data={"username": "loginuser", "password": "loginpassword"}, follow_redirects=False)
     assert response.status_code == 302
     assert response.headers["location"] == "/"
     return client
