@@ -2,6 +2,7 @@ function positionPlayers(formationData) {
     const field = document.querySelector('.soccer-field');
     const goalArea = document.querySelector('.goal-area');
     const penaltyArea = document.querySelector('.penalty-area');
+    const penaltySemiCircle = document.querySelector('.penalty-semicircle');
     const centerCircle = document.querySelector('.center-circle');
     const centerLine = document.querySelector('.center-line');
     field.innerHTML = ''; // Limpiar el campo
@@ -82,6 +83,7 @@ function positionPlayers(formationData) {
       field.appendChild(penaltyArea);
       field.appendChild(centerCircle);
       field.appendChild(centerLine);
+      field.appendChild(penaltySemiCircle);
     });
   }
   

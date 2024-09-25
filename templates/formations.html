@@ -6,13 +6,16 @@
   <title>Formación de Jugadores</title>
   <style>
     .soccer-field {
-        position: relative; /* Añade esta línea */
+        position: relative;
         display: flex;
         flex-wrap: wrap;
         width: 300px;
-        height: 400px; /* Ajusta la altura según sea necesario */
-        border: 1px solid #000;
-        background-color: green; /* Color de fondo para el campo */
+        height: 450px;
+        border: 2px solid white;
+        background-color: #007f00;
+        border-radius: 5px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
     }
     
     /* Área de arco */
@@ -23,7 +26,6 @@
         width: 120px;
         height: 60px;
         border: 2px solid white;
-        border-top: none;
         transform: translateX(-50%);
     }
     
@@ -37,14 +39,27 @@
         border: 2px solid white;
         transform: translateX(-50%);
     }
+
+    /* Semicírculo sobre el área */
+    .penalty-semicircle {
+        position: absolute;
+        bottom: 122px;
+        left: 33%;
+        width: 100px;
+        height: 50px;
+        border: 2px solid white;
+        border-top: none;
+        border-radius: 0 0 100px 100px;
+        rotate: 180deg;
+    }
     
     /* Círculo central */
     .center-circle {
         position: absolute;
-        top: 50px;
+        top: 45px;
         left: 50%;
-        width: 80px;
-        height: 80px;
+        width: 100px;
+        height: 100px;
         border: 2px solid white;
         border-radius: 50%;
         transform: translateX(-50%);
@@ -53,30 +68,37 @@
     /* Línea central */
     .center-line {
         position: absolute;
-        top: -60px;
+        top: -129px;
         left: 50%;
         width: 2px;
-        height: 304px;
+        height: 450px;
         background-color: white;
         rotate: 90deg;
     }
     
+    /* Estilo de los jugadores */
     .player {
         position: absolute;
         text-align: center;
         transform: translate(-50%, -50%);
+        z-index: 1;
     }
+    
     .jersey {
-        width: 30px;
-        height: 30px;
-        background-color: white;
+        width: 35px;
+        height: 35px;
+        background-color: #f8f9fa;
+        color: black;
         border-radius: 50%;
         display: flex;
         justify-content: center;
         align-items: center;
         margin: 0 auto;
-        border: 2px solid black;
-    }  
+        border: 2px solid #333;
+        font-weight: bold;
+        font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+    }
+    
     .name {
         font-size: 12px;
         color: white;
@@ -89,7 +111,7 @@
     <div class="soccer-field" id="field">
         <div class="goal-area"></div>
         <div class="penalty-area"></div>
-        <div class="penalty-spot"></div>
+        <div class="penalty-semicircle"></div>
         <div class="center-circle"></div>
         <div class="center-line"></div>
     </div>
