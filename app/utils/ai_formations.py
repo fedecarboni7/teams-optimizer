@@ -41,8 +41,8 @@ chain = prompt_template | llm | JsonOutputParser()
 def get_formation(players):
     # Convertir la lista de jugadores a un formato adecuado para el prompt
     player_data = [
-        f"{player['name']}: Defensa {player['defensa']}, Centrocampo {player['centrocampo']}, Ataque {player['ataque']}, Pase {player['pase']}, Velocidad {player['velocidad']}, Habilidad Arquero {player['habilidad_arquero']}"
-        for player in players
+        f"{name}: Control {skills['control']}, Defensa {skills['defensa']}, Fuerza Cuerpo {skills['fuerza_cuerpo']}, Habilidad Arquero {skills['habilidad_arquero']}, Pases {skills['pases']}, Resistencia {skills['resistencia']}, Tiro {skills['tiro']}, Velocidad {skills['velocidad']}, Visión {skills['vision']}"
+        for name, skills in players.items()
     ]
     team_data = ", ".join(player_data)
 
@@ -52,13 +52,13 @@ def get_formation(players):
     return response
 
 # Ejemplo de uso
-players = [
-    {"name": "Marcos", "defensa": 4, "centrocampo": 3, "ataque": 2, "pase": 2, "velocidad": 2, "habilidad_arquero": 5},
-    {"name": "Santiago", "defensa": 2, "centrocampo": 5, "ataque": 3, "pase": 4, "velocidad": 4, "habilidad_arquero": 2},
-    {"name": "Juan", "defensa": 2, "centrocampo": 3, "ataque": 4, "pase": 5, "velocidad": 3, "habilidad_arquero": 3},
-    {"name": "María", "defensa": 5, "centrocampo": 2, "ataque": 3, "pase": 4, "velocidad": 4, "habilidad_arquero": 1},
-    {"name": "Carlos", "defensa": 1, "centrocampo": 4, "ataque": 5, "pase": 3, "velocidad": 5, "habilidad_arquero": 2}
-]
+players = {
+    "Marcos": {"control": 4, "defensa": 3, "fuerza_cuerpo": 4, "habilidad_arquero": 3, "pases": 4, "resistencia": 4, "tiro": 2, "velocidad": 3, "vision": 4},
+    "Santiago": {"control": 4, "defensa": 3, "fuerza_cuerpo": 4, "habilidad_arquero": 3, "pases": 4, "resistencia": 4, "tiro": 2, "velocidad": 3, "vision": 4},
+    "Juan": {"control": 4, "defensa": 3, "fuerza_cuerpo": 4, "habilidad_arquero": 3, "pases": 4, "resistencia": 4, "tiro": 2, "velocidad": 3, "vision": 4},
+    "María": {"control": 4, "defensa": 3, "fuerza_cuerpo": 4, "habilidad_arquero": 3, "pases": 4, "resistencia": 4, "tiro": 2, "velocidad": 3, "vision": 4},
+    "Carlos": {"control": 4, "defensa": 3, "fuerza_cuerpo": 4, "habilidad_arquero": 3, "pases": 4, "resistencia": 4, "tiro": 2, "velocidad": 3, "vision": 4}
+}
 
 formation = get_formation(players)
 print(formation)
