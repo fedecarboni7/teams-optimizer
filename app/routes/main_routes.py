@@ -191,3 +191,7 @@ async def submit_form(
     }
 
     return RedirectResponse(url="/", status_code=303)
+
+@router.get("/formations", response_class=HTMLResponse, include_in_schema=False)
+async def get_formations(request: Request):
+    return templates.TemplateResponse(request=request, name="formations.html")

@@ -4,119 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Formación de Jugadores</title>
-  <style>
-    .soccer-field {
-        position: relative;
-        display: flex;
-        flex-wrap: wrap;
-        width: 300px;
-        height: 450px;
-        border: 2px solid white;
-        background-color: #007f00;
-        border-radius: 5px;
-        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
-        overflow: hidden;
-    }
-    
-    /* Área de arco */
-    .goal-area {
-        position: absolute;
-        bottom: 0;
-        left: 50%;
-        width: 120px;
-        height: 60px;
-        border: 2px solid white;
-        border-bottom: none;
-        transform: translateX(-50%);
-    }
-    
-    /* Área grande */
-    .penalty-area {
-        position: absolute;
-        bottom: 0;
-        left: 50%;
-        width: 200px;
-        height: 120px;
-        border: 2px solid white;
-        border-bottom: none;
-        transform: translateX(-50%);
-    }
-
-    /* Semicírculo sobre el área */
-    .penalty-semicircle {
-        position: absolute;
-        bottom: 120px;
-        left: 33%;
-        width: 100px;
-        height: 50px;
-        border: 2px solid white;
-        border-top: none;
-        border-radius: 0 0 100px 100px;
-        rotate: 180deg;
-    }
-    
-    /* Círculo central */
-    .center-circle {
-        position: absolute;
-        top: 23px;
-        left: 50%;
-        width: 100px;
-        height: 100px;
-        border: 2px solid white;
-        border-radius: 50%;
-        transform: translateX(-50%);
-    }
-    
-    /* Línea central */
-    .center-line {
-        position: absolute;
-        top: -150px;
-        left: 50%;
-        width: 2px;
-        height: 450px;
-        background-color: white;
-        rotate: 90deg;
-    }
-    
-    /* Estilo de los jugadores */
-    .player {
-        position: absolute;
-        text-align: center;
-        transform: translate(-50%, -50%);
-        z-index: 1;
-    }
-    
-    .jersey {
-        width: 35px;
-        height: 35px;
-        background-color: #f8f9fa;
-        color: black;
-        border-radius: 50%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin: 0 auto;
-        border: 2px solid #333;
-        font-weight: bold;
-        font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
-    }
-    
-    .name {
-        font-size: 12px;
-        color: white;
-        margin-top: 5px;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-  </style>
+  <link rel="stylesheet" href="/static/css/formations.css">
 </head>
 <body>
-    <div class="soccer-field" id="field">
-        <div class="goal-area"></div>
-        <div class="penalty-area"></div>
-        <div class="penalty-semicircle"></div>
+    <div id="soccer-field" class="soccer-field">
+        <div class="goal-area top"></div>
+        <div class="penalty-area top"></div>
+        <div class="penalty-semicircle top"></div>
         <div class="center-circle"></div>
         <div class="center-line"></div>
+        <div class="penalty-semicircle bottom"></div>
+        <div class="penalty-area bottom"></div>
+        <div class="goal-area bottom"></div>
     </div>
-    <script src="formations.js"></script>
+    <script src="static/js/formations.js"></script>
 </body>
 </html>
