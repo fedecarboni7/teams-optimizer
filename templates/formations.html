@@ -19,4 +19,10 @@
     </div>
     <script src="static/js/formations.js"></script>
 </body>
+{% if formations %}
+    <script>
+        var formations = '{{ formations | tojson | safe }}';
+        formations = JSON.parse(formations);
+    </script>
+{% endif %}
 </html>

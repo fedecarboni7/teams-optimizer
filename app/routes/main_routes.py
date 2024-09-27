@@ -10,6 +10,7 @@ from app.db.database import get_db
 from app.db.database_utils import execute_with_retries, query_players
 from app.db.models import Player, User
 from app.db.schemas import PlayerCreate
+from app.utils.ai_formations import create_formations
 from app.utils.auth import get_current_user
 from app.utils.team_optimizer import find_best_combination
 
@@ -193,5 +194,22 @@ async def submit_form(
     return RedirectResponse(url="/", status_code=303)
 
 @router.get("/formations", response_class=HTMLResponse, include_in_schema=False)
-async def get_formations(request: Request):
-    return templates.TemplateResponse(request=request, name="formations.html")
+async def show_formations(
+        request: Request,
+        current_user: User = Depends(get_current_user)
+    ):
+    if not current_user:
+        request.session.clear()
+        return RedirectResponse("/landing-page", status_code=302)
+    
+    current_user_id = current_user.id
+
+    if current_user_id in calculated_results:
+        player_data_dict = calculated_results[current_user_id].get("playerDataDict", {})
+        teams = calculated_results[current_user_id].get("teams", [])
+    else:
+        return RedirectResponse("/", status_code=302)
+    
+    formations = create_formations(player_data_dict, teams)
+
+    return templates.TemplateResponse(request=request, name="formations.html", context={"formations": formations})

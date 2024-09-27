@@ -1,9 +1,8 @@
-import json
-from langchain_google_genai import GoogleGenerativeAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.prompts import PromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 
-llm = GoogleGenerativeAI(model="gemini-1.5-flash")
+llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash")
 
 # Define el template del prompt
 prompt_template = PromptTemplate(
@@ -38,28 +37,25 @@ prompt_template = PromptTemplate(
 # Crea la cadena LLM
 chain = prompt_template | llm | JsonOutputParser()
 
-def get_formation(players):
-    # Convertir la lista de jugadores a un formato adecuado para el prompt
-    player_data = [
-        f"{name}: Control {skills['control']}, Defensa {skills['defensa']}, Fuerza Cuerpo {skills['fuerza_cuerpo']}, Habilidad Arquero {skills['habilidad_arquero']}, Pases {skills['pases']}, Resistencia {skills['resistencia']}, Tiro {skills['tiro']}, Velocidad {skills['velocidad']}, Visión {skills['vision']}"
-        for name, skills in players.items()
-    ]
-    team_data = ", ".join(player_data)
+def create_formations(players, teams):
+    """
+    Calcula la formación óptima y asigna posiciones a los jugadores.
 
-    # Ejecutar la cadena de procesamiento
-    response = chain.invoke({"team_data": team_data, "num_players": len(players)})
+    Args:
+        players (dict): Un diccionario con los datos de los jugadores.
+        teams (list): Una lista de listas con los nombres de los jugadores en cada equipo.
 
-    return response
-
-# Ejemplo de uso
-players = {
-    "Marcos": {"control": 4, "defensa": 3, "fuerza_cuerpo": 4, "habilidad_arquero": 3, "pases": 4, "resistencia": 4, "tiro": 2, "velocidad": 3, "vision": 4},
-    "Santiago": {"control": 4, "defensa": 3, "fuerza_cuerpo": 4, "habilidad_arquero": 3, "pases": 4, "resistencia": 4, "tiro": 2, "velocidad": 3, "vision": 4},
-    "Juan": {"control": 4, "defensa": 3, "fuerza_cuerpo": 4, "habilidad_arquero": 3, "pases": 4, "resistencia": 4, "tiro": 2, "velocidad": 3, "vision": 4},
-    "María": {"control": 4, "defensa": 3, "fuerza_cuerpo": 4, "habilidad_arquero": 3, "pases": 4, "resistencia": 4, "tiro": 2, "velocidad": 3, "vision": 4},
-    "Carlos": {"control": 4, "defensa": 3, "fuerza_cuerpo": 4, "habilidad_arquero": 3, "pases": 4, "resistencia": 4, "tiro": 2, "velocidad": 3, "vision": 4}
-}
-
-formation = get_formation(players)
-print(formation)
-print(json.dumps(formation, indent=4))
+    Returns:
+        formations (list): Una lista de formaciones sugeridas para cada equipo.
+    """
+    # Ejecutar la cadena de procesamiento por cada equipo
+    # dividir players en equipos y ejecutar la cadena por cada equipo
+    formations = {'team1': {}, 'team2': {}}
+    i = 1
+    for team in teams:
+        players_by_team = {k: players[k] for k in team[0]}
+        formation = chain.invoke({"team_data": players_by_team, "num_players": len(players_by_team)})
+        formations[f'team{i}'] = formation
+        i += 1
+    
+    return formations
