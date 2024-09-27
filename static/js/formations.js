@@ -53,15 +53,18 @@ document.addEventListener('DOMContentLoaded', function () {
         field.innerHTML = ''; // Limpiar el campo
     
         function positionTeam(teamData, isTopTeam) {
+            // Creamos una copia del objeto de posiciones para evitar modificar el original
+            const teamPositions = JSON.parse(JSON.stringify(positions[teamData.formation]));
             teamData.players.forEach(player => {
-                const position = positions[teamData.formation][player.position];
+                const position = teamPositions[player.position];
                 let top, left;
         
-                if (Array.isArray(position)) {
-                    const pos = position.shift();
+                if (Array.isArray(position) && position.length > 0) {  // Aseguramos que el array no esté vacío
+                    const pos = {...position[0]};  // Hacemos una copia del primer elemento sin modificar el array original
                     top = pos.top;
                     left = pos.left;
-                } else {
+                    position.shift();  // Eliminamos el primer elemento del array solo si es necesario
+                } else if (position && position.top !== undefined && position.left !== undefined) {  // Verificamos que 'position' no sea undefined y tenga las propiedades 'top' y 'left'
                     top = position.top;
                     left = position.left;
                 }
