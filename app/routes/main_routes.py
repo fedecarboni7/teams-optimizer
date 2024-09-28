@@ -7,7 +7,7 @@ from requests import Session
 
 from app.config.config import templates
 from app.db.database import get_db
-from app.db.database_utils import execute_with_retries, query_players
+from app.db.database_utils import execute_with_retries, query_calculated_results, query_players, save_calculated_result
 from app.db.models import Player, User
 from app.db.schemas import PlayerCreate
 from app.utils.ai_formations import create_formations
@@ -21,7 +21,6 @@ router = APIRouter()
 async def landing_page(request: Request):
     return templates.TemplateResponse(request=request, name="landing-page.html")
 
-calculated_results: Dict[str, dict] = {}
 
 @router.get("/", response_class=HTMLResponse, include_in_schema=False)
 async def get_form(
@@ -41,13 +40,16 @@ async def get_form(
 
     context = {"players": players}
 
-    if current_user_id in calculated_results:
-        context.update(calculated_results[current_user_id])
+    calculated_results = query_calculated_results(db, current_user_id)
+
+    if calculated_results:
         context.update({
-            "len_teams": len(context["teams"]),
+            "teams": calculated_results.teams,
+            "min_difference_total": str(calculated_results.min_difference_total),
+            "player_data_dict": calculated_results.player_data_dict,
+            "len_teams": len(calculated_results.teams),
             "skills": {"velocidad": "Velocidad", "resistencia": "Resistencia", "control": "Control", "pases": "Pases", "fuerza_cuerpo": "Fuerza cuerpo", "habilidad_arquero": "Hab. Arquero", "defensa": "Defensa", "tiro": "Tiro", "vision": "Visión"}
         })
-        del calculated_results[current_user_id]
 
     return templates.TemplateResponse(request=request, name="index.html", context=context)
 
@@ -185,17 +187,15 @@ async def submit_form(
         for _, player in player_data_dict.items()
     }
 
-    calculated_results[current_user_id] = {
-        "teams": teams,
-        "min_difference_total": str(min_difference_total),
-        "playerDataDict": player_data_dict
-    }
+    # Guarda los datos en la base de datos
+    save_calculated_result(db, current_user_id, teams, min_difference_total, player_data_dict)
 
     return RedirectResponse(url="/", status_code=303)
 
 @router.get("/formations", response_class=HTMLResponse, include_in_schema=False)
 async def show_formations(
         request: Request,
+        db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
     ):
     if not current_user:
@@ -204,11 +204,13 @@ async def show_formations(
     
     current_user_id = current_user.id
 
-    if current_user_id in calculated_results:
-        player_data_dict = calculated_results[current_user_id].get("playerDataDict", {})
-        teams = calculated_results[current_user_id].get("teams", [])
-    else:
+    calculated_results = query_calculated_results(db, current_user_id)
+
+    if not calculated_results:
         return RedirectResponse("/", status_code=302)
+    
+    player_data_dict = calculated_results.player_data_dict
+    teams = calculated_results.teams
     
     formations = create_formations(player_data_dict, teams)
 
