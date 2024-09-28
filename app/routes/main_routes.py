@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import List
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -48,6 +48,7 @@ async def get_form(
             "min_difference_total": str(calculated_results.min_difference_total),
             "player_data_dict": calculated_results.player_data_dict,
             "len_teams": len(calculated_results.teams),
+            "formations": calculated_results.formations,
             "skills": {"velocidad": "Velocidad", "resistencia": "Resistencia", "control": "Control", "pases": "Pases", "fuerza_cuerpo": "Fuerza cuerpo", "habilidad_arquero": "Hab. Arquero", "defensa": "Defensa", "tiro": "Tiro", "vision": "Visión"}
         })
 
@@ -214,4 +215,6 @@ async def show_formations(
     
     formations = create_formations(player_data_dict, teams)
 
-    return templates.TemplateResponse(request=request, name="formations.html", context={"formations": formations})
+    save_calculated_result(db, current_user_id, teams, calculated_results.min_difference_total, player_data_dict, formations)
+
+    return RedirectResponse(url="/", status_code=303)

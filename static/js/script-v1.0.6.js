@@ -100,6 +100,38 @@ document.addEventListener('DOMContentLoaded', function () {
             localStorage.setItem('hasSeenPopup', 'true');
         });
     }
+
+    // Generar formaciones
+    const generateFormationsButtons = document.getElementById('generate-formations-btn');
+    
+    if (generateFormationsButtons !== null) {
+        generateFormationsButtons.addEventListener('click', function() {
+            generateFormationsButtons.disabled = true; // Deshabilitar el botón para prevenir múltiples envíos
+
+            const spinner = document.createElement('span');
+            spinner.className = 'spinner';
+            generateFormationsButtons.appendChild(spinner);
+            
+            // Call the /formations endpoint
+            fetch('/formations')
+            .then(response => response.text())
+            .catch(error => {
+                console.error('Error fetching formations:', error);
+                formationsContainer.innerHTML = 'Error loading formations.';
+            });
+
+            // Show the formations container
+            const teamContainer = this.closest('.team-container');
+            const formationsContainer = teamContainer.querySelector('.formations-container');
+            formationsContainer.style.display = 'block';
+
+            // Remove the spinner and re-enable the button after 5 seconds
+            setTimeout(function() {
+                generateFormationsButtons.removeChild(spinner);
+                generateFormationsButtons.disabled = false;
+            }, 5000);
+        });
+    }
 });
 
 
@@ -552,7 +584,7 @@ function compartirEquipos(button) {
         }
         textoCompartir += '\n'; // Agrega una línea en blanco entre equipos
     }
-    textoCompartir += 'Generado con: https://armar-equipos.up.railway.app'; // Agrega el enlace al sitio web
+    textoCompartir += 'Generado con: https://bit.ly/ArmarEquipos'; // Agrega el enlace al sitio web
     const shareData = {
         title: 'Resultados de los Equipos - Opción ' + (parseInt(indice)),
         text: textoCompartir

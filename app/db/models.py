@@ -47,6 +47,7 @@ class CalculatedResult(Base):
     teams = Column(JSON)
     min_difference_total = Column(Integer)
     player_data_dict = Column(JSON)
+    formations = Column(JSON)
     updated_at = Column(DateTime, default=datetime.now)
     user_id = Column(Integer, ForeignKey("users.id"))
     user = relationship("User", back_populates="calculated_results")

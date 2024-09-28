@@ -10,7 +10,9 @@
     <link rel="manifest" href="../static/favicon-v1.0/site.webmanifest">
     <link rel="stylesheet" type="text/css" href="/static/css/styles-v1.0.3.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/formations.css">
     <script src="/static/js/script-v1.0.6.js"></script>
+    <script src="/static/js/formations.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -202,6 +204,7 @@
                         <button type="button" id="shareButton{{ i // 2 + 1 }}" onclick="compartirEquipos(this)">
                             <i class="fas fa-share" style="padding-right: 5px;"></i> Enviar equipos
                         </button>
+                        <button id="generate-formations-btn">Generar formaciones</button>
                     </div>
                     <div class="content-container" id="content-container{{ i // 2 + 1 }}" style="display: none;">
                         <div class="table-container">
@@ -231,6 +234,18 @@
                         </div>
                         <div class="chart-container">
                             <canvas></canvas>
+                        </div>
+                        <div class="formations-container" style="display: none;">
+                            <div id="soccer-field" class="soccer-field">
+                                <div class="goal-area top"></div>
+                                <div class="penalty-area top"></div>
+                                <div class="penalty-semicircle top"></div>
+                                <div class="center-circle"></div>
+                                <div class="center-line"></div>
+                                <div class="penalty-semicircle bottom"></div>
+                                <div class="penalty-area bottom"></div>
+                                <div class="goal-area bottom"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -262,10 +277,16 @@
         </div>
     </footer>
 </body>
-{% if playerDataDict %}
+{% if player_data_dict %}
     <script>
-        var playerDataDict = '{{ playerDataDict | tojson | safe }}';
+        var playerDataDict = '{{ player_data_dict | tojson | safe }}';
         playerDataDict = JSON.parse(playerDataDict);
+    </script>
+{% endif %}
+{% if formations %}
+    <script>
+        var formations = '{{ formations | tojson | safe }}';
+        formations = JSON.parse(formations);
     </script>
 {% endif %}
 </html>

@@ -101,5 +101,7 @@ document.addEventListener('DOMContentLoaded', function () {
             field.appendChild(element);
         });
     }
-    positionPlayers(formations);
+    if (typeof formations !== 'undefined'){
+        positionPlayers(formations);
+    }
 });
