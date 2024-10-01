@@ -101,37 +101,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Generar formaciones
-    const generateFormationsButtons = document.getElementById('generate-formations-btn');
-    
-    if (generateFormationsButtons !== null) {
-        generateFormationsButtons.addEventListener('click', function() {
-            generateFormationsButtons.disabled = true; // Deshabilitar el botón para prevenir múltiples envíos
-
-            const spinner = document.createElement('span');
-            spinner.className = 'spinner';
-            generateFormationsButtons.appendChild(spinner);
-            
-            // Call the /formations endpoint
-            fetch('/formations')
-            .then(response => response.text())
-            .catch(error => {
-                console.error('Error fetching formations:', error);
-                formationsContainer.innerHTML = 'Error loading formations.';
-            });
-
-            // Show the formations container
-            const teamContainer = this.closest('.team-container');
-            const formationsContainer = teamContainer.querySelector('.formations-container');
-            formationsContainer.style.display = 'block';
-
-            // Remove the spinner and re-enable the button after 5 seconds
-            setTimeout(function() {
-                generateFormationsButtons.removeChild(spinner);
-                generateFormationsButtons.disabled = false;
-            }, 5000);
-        });
-    }
 });
 
 
@@ -205,7 +174,35 @@ function validateForm(event) {
     // Deshabilitar el botón para prevenir múltiples envíos
     submitBtn.disabled = true;
 
-    return true;
+    // Crear el objeto FormData para enviar los datos del formulario
+    let formData = new FormData(event.target);
+
+    // definir una variable global para almacenar los datos de los jugadores
+    window.playerDataDict = {};
+    window.teams = {};
+
+    // Enviar la solicitud usando fetch
+    fetch('/submit', {
+        method: 'POST',
+        body: formData,
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.querySelector('#teams-container').innerHTML = data.html;
+        playerDataDict = data.player_data_dict;
+        teams = data.teams;
+    })
+    .catch(error => {
+        alert('Hubo un error al enviar los datos.');
+        console.error('Error:', error);
+    })
+    .finally(() => {
+        // Habilitar el botón nuevamente y remover el spinner
+        submitBtn.disabled = false;
+        submitBtn.removeChild(spinner);
+    });
+
+    return false;
 }
 
 // Agregar jugador
@@ -842,4 +839,45 @@ function createRadarChart(contentContainer) {
             }
         }
     });
+}
+
+
+// Generar formaciones
+function generarFormaciones(button) {
+    button.disabled = true; // Deshabilitar el botón para prevenir múltiples envíos
+
+    const spinner = document.createElement('span');
+    spinner.className = 'spinner';
+    button.appendChild(spinner);
+    
+    // Preparar los datos a enviar al backend
+    const payload = {
+        player_data_dict: playerDataDict,  // Enviar el objeto directamente
+        teams: teams
+    };
+
+    // Enviar la solicitud usando fetch
+    fetch('/formations', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',  // Enviar como JSON
+        },
+        body: JSON.stringify(payload),  // Serializar el objeto completo como JSON
+    })
+    .then(response => response.json())  // Cambiar a .json() si el backend responde con JSON
+    .then(data => {
+        positionPlayers(data);  // Procesar los datos de las formaciones
+    })
+    .catch(error => {
+        console.error('Error fetching formations:', error);
+        formationsContainer.innerHTML = 'Error loading formations.';  // Manejar el error
+    });
+    
+    // Show the formations container
+    const teamContainer = document.getElementsByClassName('team-container')[0];
+    const formationsContainer = teamContainer.querySelector('.formations-container');
+    formationsContainer.style.display = 'block';
+
+    // Remove the spinner 
+    button.removeChild(spinner);
 }

@@ -1,13 +1,13 @@
 from typing import List
 
 from fastapi import APIRouter, Depends, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from sqlite3 import OperationalError
 from requests import Session
 
 from app.config.config import templates
 from app.db.database import get_db
-from app.db.database_utils import execute_with_retries, query_calculated_results, query_players, save_calculated_result
+from app.db.database_utils import execute_with_retries, query_players
 from app.db.models import Player, User
 from app.db.schemas import PlayerCreate
 from app.utils.ai_formations import create_formations
@@ -39,18 +39,6 @@ async def get_form(
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
 
     context = {"players": players}
-
-    calculated_results = query_calculated_results(db, current_user_id)
-
-    if calculated_results:
-        context.update({
-            "teams": calculated_results.teams,
-            "min_difference_total": str(calculated_results.min_difference_total),
-            "player_data_dict": calculated_results.player_data_dict,
-            "len_teams": len(calculated_results.teams),
-            "formations": calculated_results.formations,
-            "skills": {"velocidad": "Velocidad", "resistencia": "Resistencia", "control": "Control", "pases": "Pases", "fuerza_cuerpo": "Fuerza cuerpo", "habilidad_arquero": "Hab. Arquero", "defensa": "Defensa", "tiro": "Tiro", "vision": "Visión"}
-        })
 
     return templates.TemplateResponse(request=request, name="index.html", context=context)
 
@@ -188,33 +176,34 @@ async def submit_form(
         for _, player in player_data_dict.items()
     }
 
-    # Guarda los datos en la base de datos
-    save_calculated_result(db, current_user_id, teams, min_difference_total, player_data_dict)
+    # Renderizar solo el bloque de HTML que contiene los equipos
+    rendered_html = templates.get_template("results.html").render(
+        teams=teams,
+        skills={"velocidad": "Velocidad", "resistencia": "Resistencia", "control": "Control", "pases": "Pases", "fuerza_cuerpo": "Fuerza cuerpo", "habilidad_arquero": "Hab. Arquero", "defensa": "Defensa", "tiro": "Tiro", "vision": "Visión"},
+        min_difference_total=min_difference_total,
+        len_teams=len(teams)
+    )
 
-    return RedirectResponse(url="/", status_code=303)
+    return JSONResponse(content={"html": rendered_html, "player_data_dict": player_data_dict, "teams": teams})
 
-@router.get("/formations", response_class=HTMLResponse, include_in_schema=False)
+@router.post("/formations", include_in_schema=False, response_class=JSONResponse)
 async def show_formations(
         request: Request,
-        db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
     ):
     if not current_user:
         request.session.clear()
         return RedirectResponse("/landing-page", status_code=302)
     
-    current_user_id = current_user.id
-
-    calculated_results = query_calculated_results(db, current_user_id)
-
-    if not calculated_results:
-        return RedirectResponse("/", status_code=302)
+    # Recibir los datos del frontend
+    data = await request.json()
     
-    player_data_dict = calculated_results.player_data_dict
-    teams = calculated_results.teams
+    # Extraer los valores del diccionario JSON recibido
+    player_data_dict = data.get('player_data_dict')
+    teams = data.get('teams')
     
+    # Generar las formaciones
     formations = create_formations(player_data_dict, teams)
 
-    save_calculated_result(db, current_user_id, teams, calculated_results.min_difference_total, player_data_dict, formations)
-
-    return RedirectResponse(url="/", status_code=303)
+    # Retornar las formaciones como respuesta JSON
+    return JSONResponse(content=formations)

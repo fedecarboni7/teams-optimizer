@@ -101,7 +101,6 @@ document.addEventListener('DOMContentLoaded', function () {
             field.appendChild(element);
         });
     }
-    if (typeof formations !== 'undefined'){
-        positionPlayers(formations);
-    }
+
+    window.positionPlayers = positionPlayers;
 });

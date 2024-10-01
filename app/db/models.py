@@ -1,6 +1,5 @@
-from datetime import datetime
 from passlib.hash import pbkdf2_sha256
-from sqlalchemy import JSON, Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import DeclarativeBase, relationship
 
 
@@ -14,7 +13,6 @@ class User(Base):
     username = Column(String, unique=True, index=True)
     password = Column(String)
     players = relationship("Player", back_populates="user")
-    calculated_results = relationship("CalculatedResult", back_populates="user")
 
     def set_password(self, password):
         self.password = pbkdf2_sha256.hash(password)
@@ -39,15 +37,3 @@ class Player(Base):
     vision = Column(Integer)
     user_id = Column(Integer, ForeignKey("users.id"))
     user = relationship("User", back_populates="players")
-
-class CalculatedResult(Base):
-    __tablename__ = "calculated_results"
-
-    id = Column(Integer, primary_key=True, index=True)
-    teams = Column(JSON)
-    min_difference_total = Column(Integer)
-    player_data_dict = Column(JSON)
-    formations = Column(JSON)
-    updated_at = Column(DateTime, default=datetime.now)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    user = relationship("User", back_populates="calculated_results")
