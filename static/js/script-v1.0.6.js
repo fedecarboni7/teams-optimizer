@@ -843,12 +843,16 @@ function createRadarChart(contentContainer) {
 
 
 // Generar formaciones
-function generarFormaciones(button) {
-    button.disabled = true; // Deshabilitar el botón para prevenir múltiples envíos
+function generarFormaciones() {
+    const button = document.getElementById('generarFormaciones');
 
+    // Crear el spinner y agregarlo al botón
     const spinner = document.createElement('span');
     spinner.className = 'spinner';
     button.appendChild(spinner);
+
+    // Deshabilitar el botón para prevenir múltiples clics
+    button.disabled = true; 
     
     // Preparar los datos a enviar al backend
     const payload = {
@@ -867,17 +871,19 @@ function generarFormaciones(button) {
     .then(response => response.json())  // Cambiar a .json() si el backend responde con JSON
     .then(data => {
         positionPlayers(data);  // Procesar los datos de las formaciones
+        
+        // Mostrar el contenedor de formaciones
+        const teamContainer = document.getElementsByClassName('team-container')[0];
+        const formationsContainer = teamContainer.querySelector('.formations-container');
+        formationsContainer.style.display = 'block';
     })
     .catch(error => {
         console.error('Error fetching formations:', error);
         formationsContainer.innerHTML = 'Error loading formations.';  // Manejar el error
+    })
+    .finally(() => {
+        // Eliminar el spinner y habilitar el botón, independientemente del resultado
+        button.removeChild(spinner);
+        button.disabled = false;
     });
-    
-    // Show the formations container
-    const teamContainer = document.getElementsByClassName('team-container')[0];
-    const formationsContainer = teamContainer.querySelector('.formations-container');
-    formationsContainer.style.display = 'block';
-
-    // Remove the spinner 
-    button.removeChild(spinner);
 }
