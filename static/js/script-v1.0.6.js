@@ -100,6 +100,7 @@ document.addEventListener('DOMContentLoaded', function () {
             localStorage.setItem('hasSeenPopup', 'true');
         });
     }
+
 });
 
 
@@ -173,7 +174,35 @@ function validateForm(event) {
     // Deshabilitar el botón para prevenir múltiples envíos
     submitBtn.disabled = true;
 
-    return true;
+    // Crear el objeto FormData para enviar los datos del formulario
+    let formData = new FormData(event.target);
+
+    // definir una variable global para almacenar los datos de los jugadores
+    window.playerDataDict = {};
+    window.teams = {};
+
+    // Enviar la solicitud usando fetch
+    fetch('/submit', {
+        method: 'POST',
+        body: formData,
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.querySelector('#teams-container').innerHTML = data.html;
+        playerDataDict = data.player_data_dict;
+        teams = data.teams;
+    })
+    .catch(error => {
+        alert('Hubo un error al enviar los datos.');
+        console.error('Error:', error);
+    })
+    .finally(() => {
+        // Habilitar el botón nuevamente y remover el spinner
+        submitBtn.disabled = false;
+        submitBtn.removeChild(spinner);
+    });
+
+    return false;
 }
 
 // Agregar jugador
@@ -552,7 +581,7 @@ function compartirEquipos(button) {
         }
         textoCompartir += '\n'; // Agrega una línea en blanco entre equipos
     }
-    textoCompartir += 'Generado con: https://armar-equipos.up.railway.app'; // Agrega el enlace al sitio web
+    textoCompartir += 'Generado con: https://bit.ly/ArmarEquipos'; // Agrega el enlace al sitio web
     const shareData = {
         title: 'Resultados de los Equipos - Opción ' + (parseInt(indice)),
         text: textoCompartir
@@ -809,5 +838,52 @@ function createRadarChart(contentContainer) {
                 }
             }
         }
+    });
+}
+
+
+// Generar formaciones
+function generarFormaciones() {
+    const button = document.getElementById('generarFormaciones');
+
+    // Crear el spinner y agregarlo al botón
+    const spinner = document.createElement('span');
+    spinner.className = 'spinner';
+    button.appendChild(spinner);
+
+    // Deshabilitar el botón para prevenir múltiples clics
+    button.disabled = true; 
+    
+    // Preparar los datos a enviar al backend
+    const payload = {
+        player_data_dict: playerDataDict,  // Enviar el objeto directamente
+        teams: teams
+    };
+
+    // Enviar la solicitud usando fetch
+    fetch('/formations', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',  // Enviar como JSON
+        },
+        body: JSON.stringify(payload),  // Serializar el objeto completo como JSON
+    })
+    .then(response => response.json())  // Cambiar a .json() si el backend responde con JSON
+    .then(data => {
+        positionPlayers(data);  // Procesar los datos de las formaciones
+        
+        // Mostrar el contenedor de formaciones
+        const teamContainer = document.getElementsByClassName('team-container')[0];
+        const formationsContainer = teamContainer.querySelector('.formations-container');
+        formationsContainer.style.display = 'block';
+    })
+    .catch(error => {
+        console.error('Error fetching formations:', error);
+        formationsContainer.innerHTML = 'Error loading formations.';  // Manejar el error
+    })
+    .finally(() => {
+        // Eliminar el spinner y habilitar el botón, independientemente del resultado
+        button.removeChild(spinner);
+        button.disabled = false;
     });
 }

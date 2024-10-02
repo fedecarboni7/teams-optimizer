@@ -188,5 +188,6 @@ document.addEventListener('DOMContentLoaded', function () {
             field.appendChild(element);
         });
     }
-    positionPlayers(formations);
+
+    window.positionPlayers = positionPlayers;
 });
