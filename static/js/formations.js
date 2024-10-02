@@ -46,6 +46,93 @@ document.addEventListener('DOMContentLoaded', function () {
                 "CM": [{top: 45, left: 30}, {top: 45, left: 70}],
                 "LM": {top: 45, left: 85},
                 "ST": [{top: 20, left: 30}, {top: 20, left: 70}]
+            },
+            "4-3-3": {
+                "GK": {top: 90, left: 50},
+                "RB": {top: 70, left: 15},
+                "CB": [{top: 70, left: 30}, {top: 70, left: 70}],
+                "LB": {top: 70, left: 85},
+                "CM": [{top: 45, left: 15}, {top: 45, left: 50}, {top: 45, left: 85}],
+                "RW": {top: 20, left: 30},
+                "ST": {top: 20, left: 50},
+                "LW": {top: 20, left: 70}
+            },
+            "3-4-3": {
+                "GK": {top: 90, left: 50},
+                "CB": [{top: 70, left: 30}, {top: 70, left: 50}, {top: 70, left: 70}],
+                "RM": {top: 45, left: 15},
+                "CM": [{top: 45, left: 30}, {top: 45, left: 50}, {top: 45, left: 70}],
+                "LM": {top: 20, left: 30},
+                "RW": {top: 20, left: 50},
+                "ST": {top: 20, left: 70},
+                "LW": {top: 20, left: 85}
+            },
+            "4-2-3-1": {
+                "GK": {top: 90, left: 50},
+                "RB": {top: 70, left: 15},
+                "CB": [{top: 70, left: 30}, {top: 70, left: 70}],
+                "LB": {top: 70, left: 85},
+                "CDM": [{top: 45, left: 30}, {top: 45, left: 70}],
+                "RM": {top: 20, left: 15},
+                "CAM": {top: 20, left: 50},
+                "LM": {top: 20, left: 85},
+                "ST": {top: 20, left: 50}
+            },
+            "5-4-1": {
+                "GK": {top: 90, left: 50},
+                "RB": {top: 70, left: 15},
+                "CB": [{top: 70, left: 30}, {top: 70, left: 50}, {top: 70, left: 70}, {top: 70, left: 85}],
+                "LB": {top: 70, left: 15},
+                "RM": {top: 45, left: 30},
+                "CM": [{top: 45, left: 50}, {top: 45, left: 70}],
+                "LM": {top: 20, left: 30},
+                "ST": {top: 20, left: 50}
+            },
+            "4-5-1": {
+                "GK": {top: 90, left: 50},
+                "RB": {top: 70, left: 15},
+                "CB": [{top: 70, left: 30}, {top: 70, left: 70}],
+                "LB": {top: 70, left: 85},
+                "RM": {top: 45, left: 15},
+                "CM": [{top: 45, left: 30}, {top: 45, left: 50}, {top: 45, left: 70}, {top: 45, left: 85}],
+                "LM": {top: 20, left: 50},
+                "ST": {top: 20, left: 70}
+            },
+            "3-5-2": {
+                "GK": {top: 90, left: 50},
+                "CB": [{top: 70, left: 30}, {top: 70, left: 50}, {top: 70, left: 70}],
+                "RM": {top: 45, left: 15},
+                "CM": [{top: 45, left: 30}, {top: 45, left: 50}, {top: 45, left: 70}, {top: 45, left: 85}],
+                "LM": {top: 20, left: 30},
+                "ST": [{top: 20, left: 50}, {top: 20, left: 70}]
+            },
+            "5-3-2": {
+                "GK": {top: 90, left: 50},
+                "CB": [{top: 70, left: 30}, {top: 70, left: 50}, {top: 70, left: 70}, {top: 70, left: 85}],
+                "RM": {top: 45, left: 15},
+                "CM": [{top: 45, left: 30}, {top: 45, left: 50}, {top: 45, left: 70}],
+                "LM": {top: 20, left: 15},
+                "ST": [{top: 20, left: 50}, {top: 20, left: 70}]
+            },
+            "4-1-4-1": {
+                "GK": {top: 90, left: 50},
+                "RB": {top: 70, left: 15},
+                "CB": [{top: 70, left: 30}, {top: 70, left: 50}, {top: 70, left: 70}, {top: 70, left: 85}],
+                "LB": {top: 70, left: 15},
+                "CDM": {top: 45, left: 50},
+                "RM": {top: 20, left: 30},
+                "CM": [{top: 20, left: 50}, {top: 20, left: 70}, {top: 20, left: 85}],
+                "LM": {top: 20, left: 50},
+                "ST": {top: 20, left: 50}
+            },
+            "3-4-2-1":{
+                "GK": {top: 90, left: 50},
+                "CB": [{top: 70, left: 30}, {top: 70, left: 50}, {top: 70, left: 70}, {top: 70, left: 85}],
+                "LB": {top: 70, left: 15},
+                "RM": {top: 45, left: 30},
+                "CM": [{top: 45, left: 50}, {top: 45, left: 70}],
+                "AM": [{top: 25, left: 30}, {top: 25, left: 70}],
+                "ST": {top: 20, left: 50}
             }
         };
     
