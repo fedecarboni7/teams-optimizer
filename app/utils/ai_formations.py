@@ -1,3 +1,4 @@
+import asyncio
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.prompts import PromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
@@ -65,28 +66,35 @@ allowed_formations = {
     }
 }
 
-def create_formations(players, teams, allowed_formations=allowed_formations):
+async def create_formations(players, teams, allowed_formations=allowed_formations):
     """
     Calcula la formación óptima y asigna posiciones a los jugadores.
 
     Args:
         players (dict): Un diccionario con los datos de los jugadores.
         teams (list): Una lista de listas con los nombres de los jugadores en cada equipo.
+        allowed_formations (Dict[int, List[str]]): Un diccionario con las formaciones permitidas por número de jugadores.
 
     Returns:
-        formations (list): Una lista de formaciones sugeridas para cada equipo.
+        formations (Dict): Un diccionario con las formaciones sugeridas para cada equipo.
     """
-    # Ejecutar la cadena de procesamiento por cada equipo
-    # dividir players en equipos y ejecutar la cadena por cada equipo
+    
     formations = {'team1': {}, 'team2': {}}
-    i = 1
-    for team in teams:
+
+    # Función auxiliar para invocar chain.ainvoke asíncronamente
+    async def get_formation_for_team(team, team_number):
         players_by_team = {k: players[k] for k in team[0]}
         num_players = len(players_by_team)
-        formation = chain.invoke({"team_data": players_by_team,
-                                  "num_players": num_players,
-                                  "allowed_formations": allowed_formations[num_players]})
-        formations[f'team{i}'] = formation
-        i += 1
-    
+        return await chain.ainvoke({"team_data": players_by_team,
+                                   "num_players": num_players,
+                                   "allowed_formations": allowed_formations[num_players]})
+
+    # Ejecutar todas las invocaciones de forma simultánea
+    tasks = [get_formation_for_team(team, i+1) for i, team in enumerate(teams)]
+    results = await asyncio.gather(*tasks)
+
+    # Asignar los resultados a sus respectivos equipos
+    for i, formation in enumerate(results):
+        formations[f'team{i+1}'] = formation
+
     return formations

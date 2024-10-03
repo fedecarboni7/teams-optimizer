@@ -203,7 +203,7 @@ async def show_formations(
     teams = data.get('teams')
     
     # Generar las formaciones
-    formations = create_formations(player_data_dict, teams)
+    formations = await create_formations(player_data_dict, teams)
 
     # Retornar las formaciones como respuesta JSON
     return JSONResponse(content=formations)
