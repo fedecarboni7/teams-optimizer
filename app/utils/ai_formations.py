@@ -42,12 +42,27 @@ prompt_template = PromptTemplate(
 chain = prompt_template | llm | JsonOutputParser()
 
 allowed_formations = {
-    "2-1-1": ["GK", "CB", "CB", "CM", "ST"],
-    "3-0-1": ["GK", "CB", "CB", "CB", "ST"],
-    "2-0-2": ["GK", "CB", "CB", "ST", "ST"],
-    "1-2-1": ["GK", "CB", "CM", "CM", "ST"],
-    "1-1-2": ["GK", "CB", "CM", "ST", "ST"],
-    "1-0-3": ["GK", "CB", "ST", "ST", "ST"]
+    5: {
+        '2-1-1': ['GK', 'CB', 'CB', 'CM', 'ST'],
+        '3-0-1': ['GK', 'CB', 'CB', 'CB', 'ST'],
+        '2-0-2': ['GK', 'CB', 'CB', 'ST', 'ST'],
+        '1-2-1': ['GK', 'CB', 'CM', 'CM', 'ST'],
+        '1-1-2': ['GK', 'CB', 'CM', 'ST', 'ST'],
+        '1-0-3': ['GK', 'CB', 'ST', 'ST', 'ST']
+    },
+    11: 
+    {
+        '4-4-2': ['GK', 'LB', 'CB', 'CB', 'RB', 'LM', 'CM', 'CM', 'RM', 'ST', 'ST'],
+        '4-3-3': ['GK', 'LB', 'CB', 'CB', 'RB', 'CM', 'CM', 'CM', 'LW', 'ST', 'RW'],
+        '3-4-3': ['GK', 'CB', 'CB', 'CB', 'LM', 'CM', 'CM', 'RM', 'LW', 'ST', 'RW'],
+        '4-2-3-1': ['GK', 'LB', 'CB', 'CB', 'RB', 'CDM', 'CDM', 'LM', 'CAM', 'RM', 'ST'],
+        '5-4-1': ['GK', 'LB', 'CB', 'CB', 'CB', 'RB', 'CM', 'CM', 'LM', 'ST', 'RM'],
+        '4-5-1': ['GK', 'LB', 'CB', 'CB', 'RB', 'LM', 'CM', 'CM', 'CM', 'RM', 'ST'],
+        '3-5-2': ['GK', 'CB', 'CB', 'CB', 'LM', 'CM', 'CM', 'CM', 'RM', 'ST', 'ST'],
+        '5-3-2': ['GK', 'LB', 'CB', 'CB', 'CB', 'RB', 'LM', 'CM', 'CM', 'CM', 'RM', 'ST', 'ST'],
+        '4-1-4-1': ['GK', 'LB', 'CB', 'CB', 'RB', 'CDM', 'LM', 'CM', 'CM', 'RM', 'ST'],
+        '3-4-2-1': ['GK', 'CB', 'CB', 'CB', 'CB', 'RM', 'CM', 'CM', 'AM', 'AM', 'ST']
+    }
 }
 
 def create_formations(players, teams, allowed_formations=allowed_formations):
@@ -67,7 +82,10 @@ def create_formations(players, teams, allowed_formations=allowed_formations):
     i = 1
     for team in teams:
         players_by_team = {k: players[k] for k in team[0]}
-        formation = chain.invoke({"team_data": players_by_team, "num_players": len(players_by_team), "allowed_formations": allowed_formations})
+        num_players = len(players_by_team)
+        formation = chain.invoke({"team_data": players_by_team,
+                                  "num_players": num_players,
+                                  "allowed_formations": allowed_formations[num_players]})
         formations[f'team{i}'] = formation
         i += 1
     

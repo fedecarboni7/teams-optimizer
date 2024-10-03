@@ -1,142 +1,143 @@
 // Ejecutar el código cuando el DOM esté completamente cargado
 document.addEventListener('DOMContentLoaded', function () {
-    function positionPlayers(teamsData) {
+    function positionPlayers(teamsData, field_number) {
         const positions = {
             // Fútbol 5
             "2-1-1": {
                 "GK": {top: 92, left: 50},
                 "CB": [{top: 80, left: 30}, {top: 80, left: 70}],
                 "CM": {top: 68, left: 50},
-                "ST": {top: 55, left: 50}
+                "ST": {top: 54, left: 50}
             },
             "3-0-1": {
                 "GK": {top: 92, left: 50},
                 "CB": [{top: 75, left: 20}, {top: 80, left: 50}, {top: 75, left: 80}],
-                "ST": {top: 55, left: 50}
+                "ST": {top: 54, left: 50}
             },
             "2-0-2": {
                 "GK": {top: 92, left: 50},
                 "CB": [{top: 75, left: 30}, {top: 75, left: 70}],
-                "ST": [{top: 55, left: 30}, {top: 55, left: 70}]
+                "ST": [{top: 54, left: 30}, {top: 54, left: 70}]
             },
             "1-2-1": {
                 "GK": {top: 92, left: 50},
                 "CB": {top: 80, left: 50},
                 "CM": [{top: 68, left: 30}, {top: 68, left: 70}],
-                "ST": {top: 55, left: 50}
+                "ST": {top: 54, left: 50}
             },
             "1-1-2": {
                 "GK": {top: 92, left: 50},
                 "CB": {top: 80, left: 50},
                 "CM": {top: 68, left: 50},
-                "ST": [{top: 55, left: 30}, {top: 55, left: 70}]
+                "ST": [{top: 54, left: 30}, {top: 54, left: 70}]
             },
             "1-0-3": {
                 "GK": {top: 92, left: 50},
                 "CB": {top: 80, left: 50},
-                "ST": [{top: 55, left: 20}, {top: 60, left: 50}, {top: 55, left: 80}]
+                "ST": [{top: 54, left: 20}, {top: 60, left: 50}, {top: 54, left: 80}]
             },
             // Fútbol 11
             "4-4-2": {
-                "GK": {top: 90, left: 50},
-                "RB": {top: 70, left: 15},
-                "CB": [{top: 70, left: 30}, {top: 70, left: 70}],
-                "LB": {top: 70, left: 85},
-                "RM": {top: 45, left: 15},
-                "CM": [{top: 45, left: 30}, {top: 45, left: 70}],
-                "LM": {top: 45, left: 85},
-                "ST": [{top: 20, left: 30}, {top: 20, left: 70}]
+                "GK": {top: 92, left: 50},
+                "LB": {top: 82, left: 85},
+                "CB": [{top: 82, left: 37}, {top: 82, left: 62}],
+                "RB": {top: 82, left: 15},
+                "LM": {top: 67, left: 85},
+                "CM": [{top: 67, left: 30}, {top: 67, left: 70}],
+                "RM": {top: 67, left: 15},
+                "ST": [{top: 54, left: 30}, {top: 54, left: 70}]
             },
             "4-3-3": {
-                "GK": {top: 90, left: 50},
-                "RB": {top: 70, left: 15},
-                "CB": [{top: 70, left: 30}, {top: 70, left: 70}],
-                "LB": {top: 70, left: 85},
-                "CM": [{top: 45, left: 15}, {top: 45, left: 50}, {top: 45, left: 85}],
-                "RW": {top: 20, left: 30},
-                "ST": {top: 20, left: 50},
-                "LW": {top: 20, left: 70}
+                "GK": {top: 92, left: 50},
+                "LB": {top: 82, left: 85},
+                "CB": [{top: 82, left: 37}, {top: 82, left: 62}],
+                "RB": {top: 82, left: 15},
+                "CM": [{top: 67, left: 30}, {top: 70, left: 50}, {top: 67, left: 70}],
+                "LW": {top: 56, left: 80},
+                "ST": {top: 54, left: 50},
+                "RW": {top: 56, left: 20}
             },
             "3-4-3": {
-                "GK": {top: 90, left: 50},
-                "CB": [{top: 70, left: 30}, {top: 70, left: 50}, {top: 70, left: 70}],
-                "RM": {top: 45, left: 15},
-                "CM": [{top: 45, left: 30}, {top: 45, left: 50}, {top: 45, left: 70}],
-                "LM": {top: 20, left: 30},
-                "RW": {top: 20, left: 50},
-                "ST": {top: 20, left: 70},
-                "LW": {top: 20, left: 85}
+                "GK": {top: 92, left: 50},
+                "CB": [{top: 82, left: 30}, {top: 82, left: 50}, {top: 82, left: 70}],
+                "LM": {top: 67, left: 15},
+                "CM": [{top: 67, left: 30}, {top: 67, left: 60}],
+                "RM": {top: 67, left: 85},
+                "LW": {top: 57, left: 30},
+                "ST": {top: 54, left: 50},
+                "RW": {top: 57, left: 70}
             },
             "4-2-3-1": {
-                "GK": {top: 90, left: 50},
-                "RB": {top: 70, left: 15},
-                "CB": [{top: 70, left: 30}, {top: 70, left: 70}],
-                "LB": {top: 70, left: 85},
-                "CDM": [{top: 45, left: 30}, {top: 45, left: 70}],
-                "RM": {top: 20, left: 15},
-                "CAM": {top: 20, left: 50},
-                "LM": {top: 20, left: 85},
-                "ST": {top: 20, left: 50}
+                "GK": {top: 92, left: 50},
+                "LB": {top: 82, left: 85},
+                "CB": [{top: 82, left: 37}, {top: 82, left: 62}],
+                "RB": {top: 82, left: 15},
+                "CDM": [{top: 67, left: 30}, {top: 67, left: 70}],
+                "LM": {top: 50, left: 30},
+                "CAM": {top: 50, left: 50},
+                "RM": {top: 50, left: 70},
+                "ST": {top: 54, left: 50}
             },
             "5-4-1": {
-                "GK": {top: 90, left: 50},
-                "RB": {top: 70, left: 15},
-                "CB": [{top: 70, left: 30}, {top: 70, left: 50}, {top: 70, left: 70}, {top: 70, left: 85}],
-                "LB": {top: 70, left: 15},
-                "RM": {top: 45, left: 30},
-                "CM": [{top: 45, left: 50}, {top: 45, left: 70}],
-                "LM": {top: 20, left: 30},
-                "ST": {top: 20, left: 50}
+                "GK": {top: 92, left: 50},
+                "LB": {top: 77, left: 15},
+                "CB": [{top: 82, left: 30}, {top: 82, left: 50}, {top: 82, left: 70}],
+                "RB": {top: 77, left: 15},
+                "CM": [{top: 67, left: 50}, {top: 67, left: 70}],
+                "LM": {top: 67, left: 30},
+                "ST": {top: 54, left: 50},
+                "RM": {top: 67, left: 85}
             },
             "4-5-1": {
-                "GK": {top: 90, left: 50},
-                "RB": {top: 70, left: 15},
-                "CB": [{top: 70, left: 30}, {top: 70, left: 70}],
-                "LB": {top: 70, left: 85},
-                "RM": {top: 45, left: 15},
-                "CM": [{top: 45, left: 30}, {top: 45, left: 50}, {top: 45, left: 70}, {top: 45, left: 85}],
-                "LM": {top: 20, left: 50},
-                "ST": {top: 20, left: 70}
+                "GK": {top: 92, left: 50},
+                "LB": {top: 82, left: 85},
+                "CB": [{top: 82, left: 37}, {top: 82, left: 62}],
+                "RB": {top: 82, left: 15},
+                "LM": {top: 67, left: 15},
+                "CM": [{top: 67, left: 30}, {top: 67, left: 50}, {top: 67, left: 70}],
+                "RM": {top: 67, left: 85},
+                "ST": {top: 54, left: 70}
             },
             "3-5-2": {
-                "GK": {top: 90, left: 50},
-                "CB": [{top: 70, left: 30}, {top: 70, left: 50}, {top: 70, left: 70}],
-                "RM": {top: 45, left: 15},
-                "CM": [{top: 45, left: 30}, {top: 45, left: 50}, {top: 45, left: 70}, {top: 45, left: 85}],
-                "LM": {top: 20, left: 30},
-                "ST": [{top: 20, left: 50}, {top: 20, left: 70}]
+                "GK": {top: 92, left: 50},
+                "CB": [{top: 82, left: 30}, {top: 82, left: 50}, {top: 82, left: 70}],
+                "LM": {top: 67, left: 15},
+                "CM": [{top: 67, left: 30}, {top: 67, left: 50}, {top: 67, left: 70}],
+                "RM": {top: 67, left: 85},
+                "ST": [{top: 54, left: 50}, {top: 54, left: 70}]
             },
             "5-3-2": {
-                "GK": {top: 90, left: 50},
-                "CB": [{top: 70, left: 30}, {top: 70, left: 50}, {top: 70, left: 70}, {top: 70, left: 85}],
-                "RM": {top: 45, left: 15},
-                "CM": [{top: 45, left: 30}, {top: 45, left: 50}, {top: 45, left: 70}],
-                "LM": {top: 20, left: 15},
-                "ST": [{top: 20, left: 50}, {top: 20, left: 70}]
+                "GK": {top: 92, left: 50},
+                "LB": {top: 77, left: 15},
+                "CB": [{top: 82, left: 30}, {top: 82, left: 50}, {top: 82, left: 70}],
+                "RB": {top: 77, left: 85},
+                "LM": {top: 67, left: 15},
+                "CM": [{top: 67, left: 30}, {top: 67, left: 50}, {top: 67, left: 70}],
+                "RM": {top: 67, left: 85},
+                "ST": [{top: 54, left: 50}, {top: 54, left: 70}]
             },
             "4-1-4-1": {
-                "GK": {top: 90, left: 50},
-                "RB": {top: 70, left: 15},
-                "CB": [{top: 70, left: 30}, {top: 70, left: 50}, {top: 70, left: 70}, {top: 70, left: 85}],
-                "LB": {top: 70, left: 15},
-                "CDM": {top: 45, left: 50},
-                "RM": {top: 20, left: 30},
-                "CM": [{top: 20, left: 50}, {top: 20, left: 70}, {top: 20, left: 85}],
-                "LM": {top: 20, left: 50},
-                "ST": {top: 20, left: 50}
+                "GK": {top: 92, left: 50},
+                "LB": {top: 82, left: 85},
+                "CB": [{top: 82, left: 37}, {top: 82, left: 62}],
+                "RB": {top: 82, left: 15},
+                "CDM": {top: 70, left: 50},
+                "LM": {top: 67, left: 15},
+                "CM": [{top: 67, left: 40}, {top: 67, left: 70}],
+                "RM": {top: 67, left: 85},
+                "ST": {top: 54, left: 50}
             },
             "3-4-2-1":{
-                "GK": {top: 90, left: 50},
-                "CB": [{top: 70, left: 30}, {top: 70, left: 50}, {top: 70, left: 70}, {top: 70, left: 85}],
-                "LB": {top: 70, left: 15},
-                "RM": {top: 45, left: 30},
-                "CM": [{top: 45, left: 50}, {top: 45, left: 70}],
+                "GK": {top: 92, left: 50},
+                "CB": [{top: 82, left: 15}, {top: 82, left: 37}, {top: 82, left: 67}, {top: 82, left: 85}],
+                "RM": {top: 67, left: 30},
+                "CM": [{top: 67, left: 50}, {top: 67, left: 70}],
                 "AM": [{top: 25, left: 30}, {top: 25, left: 70}],
-                "ST": {top: 20, left: 50}
+                "ST": {top: 54, left: 50}
             }
         };
-    
-        const field = document.querySelector('#soccer-field');
+        
+        const field = document.getElementById('soccer-field' + field_number);
         field.innerHTML = ''; // Limpiar el campo
     
         function positionTeam(teamData, isTopTeam) {

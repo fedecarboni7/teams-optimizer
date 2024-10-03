@@ -46,7 +46,7 @@
                 <button type="button" id="shareButton{{ i // 2 + 1 }}" onclick="compartirEquipos(this)">
                     <i class="fas fa-share" style="padding-right: 5px;"></i> Enviar equipos
                 </button>
-                <button type="button" id="generarFormaciones" onclick="generarFormaciones(this)">
+                <button type="button" id="generarFormaciones{{ i // 2 + 1 }}" onclick="generarFormaciones(this)">
                     <i class="fa-solid fa-wand-magic-sparkles" style="padding-right: 5px;"></i>
                     Generar formaciones
                 </button>
@@ -80,8 +80,8 @@
                 <div class="chart-container">
                     <canvas></canvas>
                 </div>
-                <div class="formations-container" style="display: none;">
-                    <div id="soccer-field" class="soccer-field">
+                <div class="formations-container" id="formations-container{{ i // 2 + 1 }}" style="display: none;">
+                    <div id="soccer-field{{ i // 2 + 1 }}" class="soccer-field">
                         <div class="goal-area top"></div>
                         <div class="penalty-area top"></div>
                         <div class="penalty-semicircle top"></div>

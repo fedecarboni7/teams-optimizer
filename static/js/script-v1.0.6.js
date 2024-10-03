@@ -843,8 +843,14 @@ function createRadarChart(contentContainer) {
 
 
 // Generar formaciones
-function generarFormaciones() {
-    const button = document.getElementById('generarFormaciones');
+function generarFormaciones(button) {
+    const indice = button.id.replace('generarFormaciones', ''); // Obtiene el índice del botón
+
+    // Obtener los índices de los equipos
+    const team1 = indice * 2 - 2;
+    const team2 = indice * 2 - 1;
+    // Hacer una lista de las listas de teams
+    const teamsList = [teams[team1], teams[team2]];
 
     // Crear el spinner y agregarlo al botón
     const spinner = document.createElement('span');
@@ -857,7 +863,7 @@ function generarFormaciones() {
     // Preparar los datos a enviar al backend
     const payload = {
         player_data_dict: playerDataDict,  // Enviar el objeto directamente
-        teams: teams
+        teams: teamsList
     };
 
     // Enviar la solicitud usando fetch
@@ -870,11 +876,10 @@ function generarFormaciones() {
     })
     .then(response => response.json())  // Cambiar a .json() si el backend responde con JSON
     .then(data => {
-        positionPlayers(data);  // Procesar los datos de las formaciones
+        positionPlayers(data, indice);  // Procesar los datos de las formaciones
         
         // Mostrar el contenedor de formaciones
-        const teamContainer = document.getElementsByClassName('team-container')[0];
-        const formationsContainer = teamContainer.querySelector('.formations-container');
+        const formationsContainer = document.getElementById('formations-container' + indice);
         formationsContainer.style.display = 'block';
     })
     .catch(error => {
