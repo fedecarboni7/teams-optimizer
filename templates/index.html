@@ -35,7 +35,7 @@
                     <button class="toggle-details" type="button" onclick="toggleDetails(this)">
                         <i class="fa-solid fa-angle-down toggle-icon"></i>
                     </button>
-                    <button class="delete-button" type="button" onclick="deletePlayer('{{ player.id }}')">
+                    <button class="delete-button" id="deleteBtn{{ player.id }}" type="button" onclick="deletePlayer('{{ player.id }}')">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>
@@ -146,10 +146,10 @@
             {% endfor %}
         </div>
         <button type="submit" id="submitBtn">Armar Equipos</button>
-        <button type="button" onclick="addPlayer()">Agregar jugador</button>
+        <button type="button" onclick="addPlayer()">Crear jugador</button>
         <button type="button" id="toggle-select-button">Seleccionar a todos</button>
     </form>
-    <button class="reset-button" type="button" onclick="reset()">Borrar a todos</button>
+    <button class="reset-button" id="resetBtn" type="button" onclick="reset()">Borrar a todos</button>
     <br>
     <a href="/logout" class="logout-link">
         <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
