@@ -134,9 +134,10 @@ function validateForm(event) {
     // Validar que todos los campos estén completos
     for (let entry of playerEntries) {
         let inputs = entry.getElementsByTagName('input');
+        let nameInput = entry.querySelector('input[name="names"]');
         for (let input of inputs) {
             if (input.type !== 'checkbox' && input.value.trim() === '') {
-                alert('Por favor, completa todos los campos.');
+                alert('Por favor, completá todos los campos. Para el jugador: ' + nameInput.value + ',' + ' el campo: ' + input.name + '.');
                 event.preventDefault();
                 return false;
             }
@@ -151,6 +152,13 @@ function validateForm(event) {
         return false;
     }
 
+    // Validar que haya un máximo de 22 jugadores seleccionados
+    if (selectedPlayers.length > 22) {
+        alert('El máximo de jugadores seleccionados es 22.');
+        event.preventDefault();
+        return false;
+    }
+
     // Validar que todos los nombres sean distintos
     let names = new Set();
     for (let entry of playerEntries) {
@@ -158,7 +166,7 @@ function validateForm(event) {
         if (nameInput) {
             let playerName = nameInput.value.trim();
             if (names.has(playerName)) {
-                alert('Los nombres de los jugadores deben ser distintos.');
+                alert('Los nombres de los jugadores deben ser distintos. Nombre duplicado: ' + playerName);
                 event.preventDefault();
                 return false;
             }
@@ -851,6 +859,16 @@ function generarFormaciones(button) {
     const team2 = indice * 2 - 1;
     // Hacer una lista de las listas de teams
     const teamsList = [teams[team1], teams[team2]];
+
+    // Validar que la cantidad de jugadores por equipo sea de 11 o 5 (para fútbol o futsal)
+    if (teamsList[0][0].length !== 11 && teamsList[0][0].length !== 5) {
+        alert('La cantidad de jugadores por equipo debe ser de 11 o 5.');
+        return;
+    }
+    if (teamsList[1][0].length !== 11 && teamsList[1][0].length !== 5) {
+        alert('La cantidad de jugadores por equipo debe ser de 11 o 5.');
+        return;
+    }
 
     // Crear el spinner y agregarlo al botón
     const spinner = document.createElement('span');
