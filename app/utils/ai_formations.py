@@ -1,0 +1,100 @@
+import asyncio
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.prompts import PromptTemplate
+from langchain_core.output_parsers import JsonOutputParser
+
+llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash")
+
+# Define el template del prompt
+prompt_template = PromptTemplate(
+    input_variables=["num_players", "team_data", "allowed_formations"],
+    template="""
+    Eres un entrenador experto especializado en equipos de fútbol de {num_players} jugadores.
+    Basándote en la habilidades de los jugadores listadas a continuación y en las formaciones permitidas con sus posiciones correspondientes, 
+    asigna una formación táctica óptima y posiciones a los jugadores.
+
+    Formaciones permitidas:
+    {allowed_formations}
+    
+    Habilidades de los jugadores:
+    {team_data}
+
+    Asigna una formación que maximice las fortalezas del equipo, en el siguiente formato JSON:
+    {{
+      "formation": "X-X-X",
+      "players": [
+        {{"position": "XX", "number": N, "name": "Nombre del Jugador"}},
+        ...
+      ]
+    }}
+
+    Donde:
+    - "formation" es la formación asignada.
+    - "players" es una lista de jugadores con su número de camiseta y posición asignada.
+    - "position" es la abreviatura de la posición asignada al jugador.
+    - "number" es un número de camiseta único del 1 al {num_players}
+    - "name" es el nombre del jugador
+
+    Asegúrate de que la formación y las posiciones asignadas sean consistentes con las habilidades de los jugadores.
+    """
+)
+
+# Crea la cadena LLM
+chain = prompt_template | llm | JsonOutputParser()
+
+allowed_formations = {
+    5: {
+        '2-1-1': ['GK', 'CB', 'CB', 'CM', 'ST'],
+        '3-0-1': ['GK', 'CB', 'CB', 'CB', 'ST'],
+        '2-0-2': ['GK', 'CB', 'CB', 'ST', 'ST'],
+        '1-2-1': ['GK', 'CB', 'CM', 'CM', 'ST'],
+        '1-1-2': ['GK', 'CB', 'CM', 'ST', 'ST'],
+        '1-0-3': ['GK', 'CB', 'ST', 'ST', 'ST']
+    },
+    11: 
+    {
+        '4-4-2': ['GK', 'LB', 'CB', 'CB', 'RB', 'LM', 'CM', 'CM', 'RM', 'ST', 'ST'],
+        '4-3-3': ['GK', 'LB', 'CB', 'CB', 'RB', 'CM', 'CM', 'CM', 'LW', 'ST', 'RW'],
+        '3-4-3': ['GK', 'CB', 'CB', 'CB', 'LM', 'CM', 'CM', 'RM', 'LW', 'ST', 'RW'],
+        '4-2-3-1': ['GK', 'LB', 'CB', 'CB', 'RB', 'CDM', 'CDM', 'LW', 'CAM', 'RW', 'ST'],
+        '5-4-1': ['GK', 'LB', 'CB', 'CB', 'CB', 'RB', 'LM', 'CM', 'CM', 'RM', 'ST'],
+        '4-5-1': ['GK', 'LB', 'CB', 'CB', 'RB', 'LM', 'CM', 'CM', 'CM', 'RM', 'ST'],
+        '3-5-2': ['GK', 'CB', 'CB', 'CB', 'LM', 'CM', 'CM', 'CM', 'RM', 'ST', 'ST'],
+        '5-3-2': ['GK', 'LB', 'CB', 'CB', 'CB', 'RB', 'LM', 'CM', 'RM', 'ST', 'ST'],
+        '4-1-4-1': ['GK', 'LB', 'CB', 'CB', 'RB', 'CDM', 'LM', 'CM', 'CM', 'RM', 'ST'],
+        '3-4-2-1': ['GK', 'CB', 'CB', 'CB', 'LM', 'CM', 'CM', 'RM', 'AM', 'AM', 'ST']
+    }
+}
+
+async def create_formations(players, teams, allowed_formations=allowed_formations):
+    """
+    Calcula la formación óptima y asigna posiciones a los jugadores.
+
+    Args:
+        players (dict): Un diccionario con los datos de los jugadores.
+        teams (list): Una lista de listas con los nombres de los jugadores en cada equipo.
+        allowed_formations (Dict[int, List[str]]): Un diccionario con las formaciones permitidas por número de jugadores.
+
+    Returns:
+        formations (Dict): Un diccionario con las formaciones sugeridas para cada equipo.
+    """
+    
+    formations = {'team1': {}, 'team2': {}}
+
+    # Función auxiliar para invocar chain.ainvoke asíncronamente
+    async def get_formation_for_team(team, team_number):
+        players_by_team = {k: players[k] for k in team[0]}
+        num_players = len(players_by_team)
+        return await chain.ainvoke({"team_data": players_by_team,
+                                   "num_players": num_players,
+                                   "allowed_formations": allowed_formations[num_players]})
+
+    # Ejecutar todas las invocaciones de forma simultánea
+    tasks = [get_formation_for_team(team, i+1) for i, team in enumerate(teams)]
+    results = await asyncio.gather(*tasks)
+
+    # Asignar los resultados a sus respectivos equipos
+    for i, formation in enumerate(results):
+        formations[f'team{i+1}'] = formation
+
+    return formations

@@ -1,0 +1,99 @@
+<p>Diferencia mínima entre equipos: {{ min_difference_total }}</p>
+<p>Mejores combinaciones posibles: {{ len_teams // 2 }}</p>
+<hr>
+{% for i in range(0, len_teams - 1, 2) %}
+{% if len_teams > 2 %}
+    <p>Opción {{ i // 2 + 1 }}</p>
+{% endif %}
+    <div id="popup" class="popup">
+        <div class="popup-content">
+        <button type="button" class="swap-button"><i class="fa-solid fa-right-left"></i></button>
+        <p>Ahora podés intercambiar jugadores entre equipos usando este botón y ver las nuevas estadísticas de cada equipo. Para restaurar la disposición óptima de los equipos, volvé a tocar el botón "Armar Equipos".</p>
+        <button id="closeButton">Cerrar</button>
+        </div>
+    </div>
+    <div class="team-container" id="resultados-equipos{{ i // 2 + 1 }}">
+        <div class="team">
+            <h2>Equipo 1</h2>
+            <ul class="team-list" data-index="{{ i }}">
+                {% for player in teams[i][0] %}
+                <li class="player-item">
+                    <span class="player-name">{{ player }}</span>
+                    <button type="button" class="swap-button" onclick="swapPlayer('{{ player }}', '{{ i }}', '{{ i + 1 }}')"><i class="fa-solid fa-right-left"></i></button>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    
+        <div class="team">
+            <h2>Equipo 2</h2>
+            <ul class="team-list" data-index="{{ i + 1 }}">
+                {% for player in teams[i + 1][0] %}
+                <li class="player-item">
+                    <span class="player-name">{{ player }}</span>
+                    <button type="button" class="swap-button" onclick="swapPlayer('{{ player }}', '{{ i + 1 }}', '{{ i }}')"><i class="fa-solid fa-right-left"></i></button>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="stats-container">
+            <div class="button-container">
+                <button type="button" onclick="toggleStats(this)">
+                    <i class="fas fa-chart-bar" style="padding-right: 5px;"></i>
+                    <span>Mostrar detalles</span>
+                </button>
+                <button type="button" id="shareButton{{ i // 2 + 1 }}" onclick="compartirEquipos(this)">
+                    <i class="fas fa-share" style="padding-right: 5px;"></i> Enviar equipos
+                </button>
+                <button type="button" id="generarFormaciones{{ i // 2 + 1 }}" onclick="generarFormaciones(this)">
+                    <i class="fa-solid fa-wand-magic-sparkles" style="padding-right: 5px;"></i>
+                    Generar formaciones
+                </button>
+            </div>
+            <div class="content-container" id="content-container{{ i // 2 + 1 }}" style="display: none;">
+                <div class="table-container">
+                    <table id="skills-table{{ i // 2 + 1 }}">
+                        <thead>
+                            <tr>
+                                <th>Habilidad</th>
+                                <th>Equipo 1</th>
+                                <th>Equipo 2</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for key, value in skills.items() %}
+                            <tr>
+                                <td>{{ value }}</td>
+                                <td>{{ teams[i][1][0][key]["total"] }}</td>
+                                <td>{{ teams[i + 1][1][0][key]["total"] }}</td>
+                            </tr>
+                            {% endfor %}
+                            <tr>
+                                <td>Total</td>
+                                <td>{{ teams[i][1][1] }}</td>
+                                <td>{{ teams[i + 1][1][1] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="chart-container">
+                    <canvas></canvas>
+                </div>
+                <div class="formations-container" id="formations-container{{ i // 2 + 1 }}" style="display: none;">
+                    <div id="soccer-field{{ i // 2 + 1 }}" class="soccer-field">
+                        <div class="goal-area top"></div>
+                        <div class="penalty-area top"></div>
+                        <div class="penalty-semicircle top"></div>
+                        <div class="center-circle"></div>
+                        <div class="center-line"></div>
+                        <div class="penalty-semicircle bottom"></div>
+                        <div class="penalty-area bottom"></div>
+                        <div class="goal-area bottom"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr>
+{% endfor %}
