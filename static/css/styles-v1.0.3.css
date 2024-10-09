@@ -334,8 +334,7 @@ tr:last-child {
     font-weight: 600;
 }
 
-.chart-container {
-    width: 48%;
+.chart-container, .bar-chart-container {
     height: 400px;
     background-color: #333333;
     border-radius: 8px;
@@ -347,7 +346,7 @@ tr:last-child {
         flex-direction: column;
     }
 
-    .table-container, .chart-container {
+    .bar-chart-container, .chart-container, .swiper {
         width: 95%;
         margin-bottom: 20px;
     }
