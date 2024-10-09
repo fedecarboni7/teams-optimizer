@@ -628,6 +628,8 @@ function toggleStats(button) {
         contentContainer.style.display = "flex";
         textSpan.textContent = "Ocultar detalles";
         createRadarChart(contentContainer);
+        createBarChart(contentContainer);
+        createSwiper();
     } else {
         contentContainer.style.display = "none";
         textSpan.textContent = "Mostrar detalles";
@@ -689,6 +691,7 @@ function swapPlayer(player, fromTeamIndex, toTeamIndex) {
     var containerNumber = Math.floor(team1Index / 2) + 1;
     var contentContainer = document.getElementById('content-container' + containerNumber);
     createRadarChart(contentContainer);
+    createBarChart(contentContainer);
 }
 
 function updateSkillsTable(team1Index, team2Index) {
@@ -858,6 +861,113 @@ function createRadarChart(contentContainer) {
     });
 }
 
+let barCharts = {}; // Objeto global para almacenar gráficos por número de contenedor
+
+// Crear gráfico de barras horizontales
+function createBarChart(contentContainer) {
+    const tableContainer = contentContainer.querySelector('.table-container');
+    const chartContainer = contentContainer.querySelector('.bar-chart-container');
+    const canvas = chartContainer.querySelector('canvas');
+    const containerNumber = parseInt(contentContainer.id.replace('content-container', ''));
+    const ctx = canvas.getContext('2d');
+    
+    // Obtén los datos de la tabla
+    const skills = Array.from(tableContainer.querySelectorAll('tbody tr td:first-child')).map(td => td.textContent);
+    const team1Data = Array.from(tableContainer.querySelectorAll('tbody tr td:nth-child(2)')).map(td => parseInt(td.textContent));
+    const team2Data = Array.from(tableContainer.querySelectorAll('tbody tr td:nth-child(3)')).map(td => parseInt(td.textContent));
+
+    // Elimina la última fila (Total)
+    skills.pop();
+    team1Data.pop();
+    team2Data.pop();
+
+    // Destruir el gráfico existente si ya existe
+    if (barCharts[containerNumber]) {
+        barCharts[containerNumber].destroy();
+    }
+
+    // Crear el nuevo gráfico de barras
+    barCharts[containerNumber] = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: skills,
+            datasets: [{
+                label: 'Equipo 1',
+                data: team1Data,
+                backgroundColor: 'rgba(54, 162, 235, 0.5)', // Azul
+                borderColor: 'rgb(54, 162, 235)',
+                borderWidth: 1
+            }, {
+                label: 'Equipo 2',
+                data: team2Data,
+                backgroundColor: 'rgba(255, 99, 132, 0.5)', // Rojo
+                borderColor: 'rgb(255, 99, 132)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y', // Cambia la orientación a barras horizontales
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.2)',
+                        lineWidth: 1
+                    },
+                    ticks: {
+                        color: '#e0e0e0'
+                    }
+                },
+                y: {
+                    grid: {
+                        display: false // Oculta las líneas de la grilla en el eje Y
+                    },
+                    ticks: {
+                        color: '#e0e0e0',
+                        font: {
+                            size: 14,
+                            family:'Segoe UI'
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#e0e0e0',
+                        font: {
+                            size: 16,
+                            family:'Segoe UI',
+                            weight: 600
+                        }
+                    }
+                }
+            },
+            layout: {
+                padding: {
+                    left: 20,
+                    right: 20,
+                    top: 20,
+                    bottom: 20
+                }
+            }
+        }
+    });
+}
+
+function createSwiper() {
+    const swiper = new Swiper('.swiper', {
+        loop: true,
+      
+        // Navigation arrows
+        navigation: {
+          nextEl: '.swiper-button-next',
+          prevEl: '.swiper-button-prev',
+        }
+      });
+}
 
 // Generar formaciones
 function generarFormaciones(button) {
