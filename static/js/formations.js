@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function () {
     
         // Volver a añadir los elementos del campo
         ['goal-area top', 'penalty-area top', 'penalty-semicircle top', 'center-circle', 'center-line', 
-        'penalty-semicircle bottom', 'penalty-area bottom', 'goal-area bottom'].forEach(className => {
+        'penalty-semicircle bottom', 'penalty-area bottom', 'goal-area bottom', 'center-circle-point'].forEach(className => {
             const element = document.createElement('div');
             element.className = className;
             field.appendChild(element);
