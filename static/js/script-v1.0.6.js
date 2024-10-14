@@ -976,7 +976,7 @@ function generarFormaciones(button) {
     // Obtener los índices de los equipos
     const team1 = indice * 2 - 2;
     const team2 = indice * 2 - 1;
-    // Hacer una lista de las listas de teams
+    // Hacer una lista de las listas de equipos
     const teamsList = [teams[team1], teams[team2]];
 
     // Validar que la cantidad de jugadores por equipo sea de 11 o 5 (para fútbol o futsal)
@@ -995,7 +995,7 @@ function generarFormaciones(button) {
     button.appendChild(spinner);
 
     // Deshabilitar el botón para prevenir múltiples clics
-    button.disabled = true; 
+    button.disabled = true;
     
     // Preparar los datos a enviar al backend
     const payload = {
@@ -1018,14 +1018,25 @@ function generarFormaciones(button) {
         // Mostrar el contenedor de formaciones
         const formationsContainer = document.getElementById('formations-container' + indice);
         formationsContainer.style.display = 'block';
+        
+        // Cambiar el estilo del botón para indicar que ya no está activo
+        button.style.backgroundColor = "#777";
+        button.style.cursor = "not-allowed";
+        button.innerText = "Formación generada";
     })
     .catch(error => {
         console.error('Error fetching formations:', error);
         formationsContainer.innerHTML = 'Error loading formations.';  // Manejar el error
     })
     .finally(() => {
-        // Eliminar el spinner y habilitar el botón, independientemente del resultado
-        button.removeChild(spinner);
-        button.disabled = false;
+        // Si no se están mostrando los detalles llamar a toggleStats
+        // Obtener el botón de "Mostrar detalles" correspondiente por su id
+        const detallesButton = document.getElementById('mostrarDetalles' + indice);
+
+        // Verificar si los detalles están ocultos
+        if (detallesButton.innerText.includes('Mostrar detalles')) {
+            // Llamar a toggleStats para mostrar los detalles
+            toggleStats(detallesButton);
+        }
     });
 }
