@@ -36,6 +36,7 @@ Listado de rutas de carpetas
 |   |   |   __init__.py
 |   |           
 |   +---utils
+|   |   |   ai_formations.py
 |   |   |   auth.py
 |   |   |   security.py
 |   |   |   team_optimizer.py
@@ -45,8 +46,9 @@ Listado de rutas de carpetas
 +---static
 |   +---css
 |   |       daisyui.min.css
+|   |       formations.css
 |   |       style.css
-|   |       styles-v1.0.3.css
+|   |       styles-v1.0.4.css
 |   |       
 |   +---favicon-v1.0
 |   |       android-chrome-192x192.png
@@ -74,14 +76,16 @@ Listado de rutas de carpetas
 |   |       iphone-hero.png
 |   |       
 |   +---js
+|           formations.js
 |           main.min.js
-|           script-v1.0.6.js
+|           script-v1.0.7.js
 |           
 +---templates
 |       500.html
 |       index.html
 |       landing-page.html
 |       login.html
+|       results.html
 |       signup.html
 |       
 +---tests

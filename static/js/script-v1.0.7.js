@@ -100,6 +100,7 @@ document.addEventListener('DOMContentLoaded', function () {
             localStorage.setItem('hasSeenPopup', 'true');
         });
     }
+
 });
 
 
@@ -133,9 +134,10 @@ function validateForm(event) {
     // Validar que todos los campos estén completos
     for (let entry of playerEntries) {
         let inputs = entry.getElementsByTagName('input');
+        let nameInput = entry.querySelector('input[name="names"]');
         for (let input of inputs) {
             if (input.type !== 'checkbox' && input.value.trim() === '') {
-                alert('Por favor, completa todos los campos.');
+                alert('Por favor, completá todos los campos. Para el jugador: ' + nameInput.value + ',' + ' el campo: ' + input.name + '.');
                 event.preventDefault();
                 return false;
             }
@@ -150,6 +152,13 @@ function validateForm(event) {
         return false;
     }
 
+    // Validar que haya un máximo de 22 jugadores seleccionados
+    if (selectedPlayers.length > 22) {
+        alert('El máximo de jugadores seleccionados es 22.');
+        event.preventDefault();
+        return false;
+    }
+
     // Validar que todos los nombres sean distintos
     let names = new Set();
     for (let entry of playerEntries) {
@@ -157,7 +166,7 @@ function validateForm(event) {
         if (nameInput) {
             let playerName = nameInput.value.trim();
             if (names.has(playerName)) {
-                alert('Los nombres de los jugadores deben ser distintos.');
+                alert('Los nombres de los jugadores deben ser distintos. Nombre repetido: ' + playerName);
                 event.preventDefault();
                 return false;
             }
@@ -173,7 +182,46 @@ function validateForm(event) {
     // Deshabilitar el botón para prevenir múltiples envíos
     submitBtn.disabled = true;
 
-    return true;
+    // Crear el objeto FormData para enviar los datos del formulario
+    let formData = new FormData(event.target);
+
+    // definir una variable global para almacenar los datos de los jugadores
+    window.playerDataDict = {};
+    window.teams = {};
+
+    // Enviar la solicitud usando fetch
+    fetch('/submit', {
+        method: 'POST',
+        body: formData,
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.querySelector('#teams-container').innerHTML = data.html;
+        playerDataDict = data.player_data_dict;
+        teams = data.teams;
+
+        // Hacer que los inputs se vuelvan readonly
+        document.querySelectorAll('input[name="names"]').forEach(input => {
+            input.readOnly = true;
+        });
+
+        // Hacer scroll hasta el div de los resultados
+        const resultsContainer = document.querySelector('#teams-container');
+        if (resultsContainer) {
+            resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    })
+    .catch(error => {
+        alert('Hubo un error al enviar los datos.');
+        console.error('Error:', error);
+    })
+    .finally(() => {
+        // Habilitar el botón nuevamente y remover el spinner
+        submitBtn.disabled = false;
+        submitBtn.removeChild(spinner);
+    });
+
+    return false;
 }
 
 // Agregar jugador
@@ -561,7 +609,7 @@ function compartirEquipos(button) {
         }
         textoCompartir += '\n'; // Agrega una línea en blanco entre equipos
     }
-    textoCompartir += 'Generado con: https://armar-equipos.up.railway.app'; // Agrega el enlace al sitio web
+    textoCompartir += 'Generado con: https://bit.ly/ArmarEquipos'; // Agrega el enlace al sitio web
     const shareData = {
         title: 'Resultados de los Equipos - Opción ' + (parseInt(indice)),
         text: textoCompartir
@@ -591,6 +639,8 @@ function toggleStats(button) {
         contentContainer.style.display = "flex";
         textSpan.textContent = "Ocultar detalles";
         createRadarChart(contentContainer);
+        createBarChart(contentContainer);
+        createSwiper();
     } else {
         contentContainer.style.display = "none";
         textSpan.textContent = "Mostrar detalles";
@@ -652,6 +702,7 @@ function swapPlayer(player, fromTeamIndex, toTeamIndex) {
     var containerNumber = Math.floor(team1Index / 2) + 1;
     var contentContainer = document.getElementById('content-container' + containerNumber);
     createRadarChart(contentContainer);
+    createBarChart(contentContainer);
 }
 
 function updateSkillsTable(team1Index, team2Index) {
@@ -817,6 +868,187 @@ function createRadarChart(contentContainer) {
                     }
                 }
             }
+        }
+    });
+}
+
+let barCharts = {}; // Objeto global para almacenar gráficos por número de contenedor
+
+// Crear gráfico de barras horizontales
+function createBarChart(contentContainer) {
+    const tableContainer = contentContainer.querySelector('.table-container');
+    const chartContainer = contentContainer.querySelector('.bar-chart-container');
+    const canvas = chartContainer.querySelector('canvas');
+    const containerNumber = parseInt(contentContainer.id.replace('content-container', ''));
+    const ctx = canvas.getContext('2d');
+    
+    // Obtén los datos de la tabla
+    const skills = Array.from(tableContainer.querySelectorAll('tbody tr td:first-child')).map(td => td.textContent);
+    const team1Data = Array.from(tableContainer.querySelectorAll('tbody tr td:nth-child(2)')).map(td => parseInt(td.textContent));
+    const team2Data = Array.from(tableContainer.querySelectorAll('tbody tr td:nth-child(3)')).map(td => parseInt(td.textContent));
+
+    // Elimina la última fila (Total)
+    skills.pop();
+    team1Data.pop();
+    team2Data.pop();
+
+    // Destruir el gráfico existente si ya existe
+    if (barCharts[containerNumber]) {
+        barCharts[containerNumber].destroy();
+    }
+
+    // Crear el nuevo gráfico de barras
+    barCharts[containerNumber] = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: skills,
+            datasets: [{
+                label: 'Equipo 1',
+                data: team1Data,
+                backgroundColor: 'rgba(54, 162, 235, 0.2)', // Azul
+                borderColor: 'rgb(54, 162, 235)',
+                borderWidth: 3,
+                pointBackgroundColor: 'rgb(54, 162, 235)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgb(54, 162, 235)'
+            }, {
+                label: 'Equipo 2',
+                data: team2Data,
+                backgroundColor: 'rgba(255, 99, 132, 0.2)', // Rojo
+                borderColor: 'rgb(255, 99, 132)',
+                borderWidth: 3,
+                pointBackgroundColor: 'rgb(255, 99, 132)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgb(255, 99, 132)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y', // Cambia la orientación a barras horizontales
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.4)',
+                        lineWidth: 1
+                    },
+                    ticks: {
+                        color: '#e0e0e0'
+                    }
+                },
+                y: {
+                    grid: {
+                        display: false // Oculta las líneas de la grilla en el eje Y
+                    },
+                    ticks: {
+                        color: '#e0e0e0',
+                        font: {
+                            size: 14,
+                            weight: 500,
+                            family:'Segoe UI'
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#e0e0e0',
+                        font: {
+                            size: 16,
+                            family:'Segoe UI',
+                            weight: 600
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function createSwiper() {
+    const swiper = new Swiper('.swiper', {
+        loop: true,
+      
+        // Navigation arrows
+        navigation: {
+          nextEl: '.swiper-button-next',
+          prevEl: '.swiper-button-prev',
+        }
+      });
+}
+
+// Generar formaciones
+function generarFormaciones(button) {
+    const indice = button.id.replace('generarFormaciones', ''); // Obtiene el índice del botón
+
+    // Obtener los índices de los equipos
+    const team1 = indice * 2 - 2;
+    const team2 = indice * 2 - 1;
+    // Hacer una lista de las listas de equipos
+    const teamsList = [teams[team1], teams[team2]];
+
+    // Validar que la cantidad de jugadores por equipo sea de 11 o 5 (para fútbol o futsal)
+    if (teamsList[0][0].length !== 11 && teamsList[0][0].length !== 5) {
+        alert('La cantidad de jugadores por equipo debe ser de 11 o 5.');
+        return;
+    }
+    if (teamsList[1][0].length !== 11 && teamsList[1][0].length !== 5) {
+        alert('La cantidad de jugadores por equipo debe ser de 11 o 5.');
+        return;
+    }
+
+    // Crear el spinner y agregarlo al botón
+    const spinner = document.createElement('span');
+    spinner.className = 'spinner';
+    button.appendChild(spinner);
+
+    // Deshabilitar el botón para prevenir múltiples clics
+    button.disabled = true;
+    
+    // Preparar los datos a enviar al backend
+    const payload = {
+        player_data_dict: playerDataDict,  // Enviar el objeto directamente
+        teams: teamsList
+    };
+
+    // Enviar la solicitud usando fetch
+    fetch('/formations', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',  // Enviar como JSON
+        },
+        body: JSON.stringify(payload),  // Serializar el objeto completo como JSON
+    })
+    .then(response => response.json())  // Cambiar a .json() si el backend responde con JSON
+    .then(data => {
+        positionPlayers(data, indice);  // Procesar los datos de las formaciones
+        
+        // Mostrar el contenedor de formaciones
+        const formationsContainer = document.getElementById('formations-container' + indice);
+        formationsContainer.style.display = 'block';
+        
+        // Cambiar el estilo del botón para indicar que ya no está activo
+        button.style.backgroundColor = "#777";
+        button.style.cursor = "not-allowed";
+        button.innerText = "Formación generada";
+    })
+    .catch(error => {
+        console.error('Error fetching formations:', error);
+        formationsContainer.innerHTML = 'Error loading formations.';  // Manejar el error
+    })
+    .finally(() => {
+        // Si no se están mostrando los detalles llamar a toggleStats
+        // Obtener el botón de "Mostrar detalles" correspondiente por su id
+        const detallesButton = document.getElementById('mostrarDetalles' + indice);
+
+        // Verificar si los detalles están ocultos
+        if (detallesButton.innerText.includes('Mostrar detalles')) {
+            // Llamar a toggleStats para mostrar los detalles
+            toggleStats(detallesButton);
         }
     });
 }

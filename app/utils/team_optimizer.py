@@ -18,9 +18,12 @@ def find_best_combination(scores):
     min_difference = float("inf")
     min_difference_total = float("inf")
     mejores_equipos = list()
+    number_of_combinations = len(all_combinations) // 2
+    if len(all_combinations) % 2 == 1:
+        number_of_combinations += 1
 
-    for combination in all_combinations:
-        team1_indices = combination
+    for i in range(number_of_combinations):
+        team1_indices = all_combinations[i]
         team2_indices = [i for i in range(len(scores)) if i not in team1_indices]
 
         team1_score = calculate_team_score(team1_indices, scores)

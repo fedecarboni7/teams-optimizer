@@ -12,3 +12,5 @@ pyjwt[crypto]
 httpx
 uvicorn
 python-multipart
+langchain
+langchain-google-genai
