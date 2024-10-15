@@ -46,7 +46,7 @@ Listado de rutas de carpetas
 |   +---css
 |   |       daisyui.min.css
 |   |       style.css
-|   |       styles-v1.0.3.css
+|   |       styles-v1.0.4.css
 |   |       
 |   +---favicon-v1.0
 |   |       android-chrome-192x192.png
@@ -75,7 +75,7 @@ Listado de rutas de carpetas
 |   |       
 |   +---js
 |           main.min.js
-|           script-v1.0.6.js
+|           script-v1.0.7.js
 |           
 +---templates
 |       500.html
