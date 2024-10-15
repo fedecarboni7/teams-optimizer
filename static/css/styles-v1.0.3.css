@@ -558,3 +558,10 @@ tr:last-child {
 .popup-content {
     position: relative;
 }
+
+/* Ajustar el tamaño de las flechas del Swiper */
+.swiper-button-prev, .swiper-button-next {
+    --swiper-navigation-size: 30px;
+    --swiper-navigation-sides-offset: 2px;
+    --swiper-navigation-color: #e0e0e0b5;
+}

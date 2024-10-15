@@ -905,15 +905,23 @@ function createBarChart(contentContainer) {
             datasets: [{
                 label: 'Equipo 1',
                 data: team1Data,
-                backgroundColor: 'rgba(54, 162, 235, 0.5)', // Azul
+                backgroundColor: 'rgba(54, 162, 235, 0.2)', // Azul
                 borderColor: 'rgb(54, 162, 235)',
-                borderWidth: 1
+                borderWidth: 3,
+                pointBackgroundColor: 'rgb(54, 162, 235)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgb(54, 162, 235)'
             }, {
                 label: 'Equipo 2',
                 data: team2Data,
-                backgroundColor: 'rgba(255, 99, 132, 0.5)', // Rojo
+                backgroundColor: 'rgba(255, 99, 132, 0.2)', // Rojo
                 borderColor: 'rgb(255, 99, 132)',
-                borderWidth: 1
+                borderWidth: 3,
+                pointBackgroundColor: 'rgb(255, 99, 132)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgb(255, 99, 132)'
             }]
         },
         options: {
@@ -924,7 +932,7 @@ function createBarChart(contentContainer) {
                 x: {
                     beginAtZero: true,
                     grid: {
-                        color: 'rgba(255, 255, 255, 0.2)',
+                        color: 'rgba(255, 255, 255, 0.4)',
                         lineWidth: 1
                     },
                     ticks: {
@@ -939,6 +947,7 @@ function createBarChart(contentContainer) {
                         color: '#e0e0e0',
                         font: {
                             size: 14,
+                            weight: 500,
                             family:'Segoe UI'
                         }
                     }
@@ -954,14 +963,6 @@ function createBarChart(contentContainer) {
                             weight: 600
                         }
                     }
-                }
-            },
-            layout: {
-                padding: {
-                    left: 20,
-                    right: 20,
-                    top: 20,
-                    bottom: 20
                 }
             }
         }
