@@ -166,7 +166,7 @@ function validateForm(event) {
         if (nameInput) {
             let playerName = nameInput.value.trim();
             if (names.has(playerName)) {
-                alert('Los nombres de los jugadores deben ser distintos. Nombre duplicado: ' + playerName);
+                alert('Los nombres de los jugadores deben ser distintos. Nombre repetido: ' + playerName);
                 event.preventDefault();
                 return false;
             }
@@ -199,6 +199,17 @@ function validateForm(event) {
         document.querySelector('#teams-container').innerHTML = data.html;
         playerDataDict = data.player_data_dict;
         teams = data.teams;
+
+        // Hacer que los inputs se vuelvan readonly
+        document.querySelectorAll('input[name="names"]').forEach(input => {
+            input.readOnly = true;
+        });
+
+        // Hacer scroll hasta el div de los resultados
+        const resultsContainer = document.querySelector('#teams-container');
+        if (resultsContainer) {
+            resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     })
     .catch(error => {
         alert('Hubo un error al enviar los datos.');
@@ -894,15 +905,23 @@ function createBarChart(contentContainer) {
             datasets: [{
                 label: 'Equipo 1',
                 data: team1Data,
-                backgroundColor: 'rgba(54, 162, 235, 0.5)', // Azul
+                backgroundColor: 'rgba(54, 162, 235, 0.2)', // Azul
                 borderColor: 'rgb(54, 162, 235)',
-                borderWidth: 1
+                borderWidth: 3,
+                pointBackgroundColor: 'rgb(54, 162, 235)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgb(54, 162, 235)'
             }, {
                 label: 'Equipo 2',
                 data: team2Data,
-                backgroundColor: 'rgba(255, 99, 132, 0.5)', // Rojo
+                backgroundColor: 'rgba(255, 99, 132, 0.2)', // Rojo
                 borderColor: 'rgb(255, 99, 132)',
-                borderWidth: 1
+                borderWidth: 3,
+                pointBackgroundColor: 'rgb(255, 99, 132)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgb(255, 99, 132)'
             }]
         },
         options: {
@@ -913,7 +932,7 @@ function createBarChart(contentContainer) {
                 x: {
                     beginAtZero: true,
                     grid: {
-                        color: 'rgba(255, 255, 255, 0.2)',
+                        color: 'rgba(255, 255, 255, 0.4)',
                         lineWidth: 1
                     },
                     ticks: {
@@ -928,6 +947,7 @@ function createBarChart(contentContainer) {
                         color: '#e0e0e0',
                         font: {
                             size: 14,
+                            weight: 500,
                             family:'Segoe UI'
                         }
                     }
@@ -943,14 +963,6 @@ function createBarChart(contentContainer) {
                             weight: 600
                         }
                     }
-                }
-            },
-            layout: {
-                padding: {
-                    left: 20,
-                    right: 20,
-                    top: 20,
-                    bottom: 20
                 }
             }
         }
