@@ -166,7 +166,7 @@ function validateForm(event) {
         if (nameInput) {
             let playerName = nameInput.value.trim();
             if (names.has(playerName)) {
-                alert('Los nombres de los jugadores deben ser distintos. Nombre duplicado: ' + playerName);
+                alert('Los nombres de los jugadores deben ser distintos. Nombre repetido: ' + playerName);
                 event.preventDefault();
                 return false;
             }
@@ -199,6 +199,17 @@ function validateForm(event) {
         document.querySelector('#teams-container').innerHTML = data.html;
         playerDataDict = data.player_data_dict;
         teams = data.teams;
+
+        // Hacer que los inputs se vuelvan readonly
+        document.querySelectorAll('input[name="names"]').forEach(input => {
+            input.readOnly = true;
+        });
+
+        // Hacer scroll hasta el div de los resultados
+        const resultsContainer = document.querySelector('#teams-container');
+        if (resultsContainer) {
+            resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     })
     .catch(error => {
         alert('Hubo un error al enviar los datos.');
