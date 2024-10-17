@@ -1052,3 +1052,24 @@ function generarFormaciones(button) {
         }
     });
 }
+
+function loadPlayersForGroup() {
+    const groupId = document.getElementById('group-select').value;
+    fetch(`/api/players/${groupId === 'my-players' ? 'my' : `group/${groupId}`}`)
+        .then(response => response.json())
+        .then(players => {
+            const container = document.getElementById('players-container');
+            container.innerHTML = ''; // Clear existing players
+            players.forEach((player, index) => {
+                // Create player entry HTML similar to your existing structure
+                const playerHtml = `
+                    <div class="player-entry">
+                        <!-- Player entry HTML structure -->
+                    </div>
+                `;
+                container.innerHTML += playerHtml;
+            });
+            // Re-initialize any necessary event listeners or functions
+        })
+        .catch(error => console.error('Error:', error));
+}

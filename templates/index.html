@@ -21,6 +21,16 @@
     <div class="content">
     <h1>Armar Equipos</h1>
 
+    <div class="group-selector">
+        <label for="group-select">Seleccionar grupo:</label>
+        <select id="group-select" onchange="loadPlayersForGroup()">
+            <option value="my-players">Mis jugadores</option>
+            {% for group in user_groups %}
+            <option value="{{ group.id }}">{{ group.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
     <div class="search-container">
         <input type="search" id="searchInput" placeholder="Buscar jugador..." oninput="filterPlayers()">
         <i class="fas fa-search search-icon"></i>
