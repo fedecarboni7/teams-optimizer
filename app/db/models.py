@@ -16,7 +16,7 @@ class User(Base):
 
     players = relationship("Player", back_populates="user")
     skill_votes = relationship("SkillVote", back_populates="voter")
-    club_memberships = relationship("ClubUser", back_populates="user")
+    club_users = relationship("ClubUser", back_populates="user")
 
     def set_password(self, password):
         self.password = pbkdf2_sha256.hash(password)
@@ -80,4 +80,4 @@ class ClubUser(Base):
     role = Column(String)
 
     club = relationship("Club", back_populates="members")
-    club_users = relationship("User", back_populates="club_memberships")
+    user = relationship("User", back_populates="club_users")

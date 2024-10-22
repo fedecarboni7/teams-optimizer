@@ -1,3 +1,5 @@
+from datetime import datetime
+from typing import Optional
 from pydantic import BaseModel
 
 
@@ -26,34 +28,54 @@ class PlayerResponse(BaseModel):
     fuerza_cuerpo: int
     vision: int
     user_id: int
+    club_id: Optional[int] = None
+    average_skill_ratings: Optional[dict] = None  # Diccionario con los promedios por habilidad
 
     class Config:
         from_attributes = True
 
-class ShareGroupBase(BaseModel):
+# Schemas para Club
+class ClubCreate(BaseModel):
     name: str
 
-class ShareGroupCreate(ShareGroupBase):
-    creator_id: int
-
-class ShareGroup(ShareGroupBase):
+class ClubResponse(BaseModel):
     id: int
+    name: str
     creator_id: int
+    creation_date: datetime
 
     class Config:
         from_attributes = True
 
-class SkillVoteBase(BaseModel):
+# Schemas para ClubUser
+class ClubUserCreate(BaseModel):
+    user_id: int
+    club_id: int
+    role: Optional[str] = "miembro"
+
+class ClubUserResponse(BaseModel):
+    id: int
+    user_id: int
+    club_id: int
+    role: str
+
+    class Config:
+        from_attributes = True
+
+# Schemas para SkillVote
+class SkillVoteCreate(BaseModel):
     player_id: int
     voter_id: int
     skill_name: str
     rating: int
 
-class SkillVoteCreate(SkillVoteBase):
-    pass
-
-class SkillVote(SkillVoteBase):
+class SkillVoteResponse(BaseModel):
     id: int
+    player_id: int
+    voter_id: int
+    skill_name: str
+    rating: int
+    vote_date: datetime
 
     class Config:
         from_attributes = True

@@ -1053,9 +1053,15 @@ function generarFormaciones(button) {
     });
 }
 
-function loadPlayersForGroup() {
-    const groupId = document.getElementById('group-select').value;
-    fetch(`/api/players/${groupId === 'my-players' ? 'my' : `group/${groupId}`}`)
+function loadPlayersForClub() {
+    const clubId = document.getElementById('club-select').value;
+    if (clubId === 'my-players') {
+        fetch('/')
+            .then(window.location.href = '/')
+        return;
+    }
+
+    fetch(`/clubs/${clubId}/players/`)
         .then(response => response.json())
         .then(players => {
             const container = document.getElementById('players-container');

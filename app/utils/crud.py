@@ -1,49 +1,72 @@
-from sqlalchemy import func
+from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.db import models, schemas
+from app.utils.auth import get_current_user
 
+def get_user_clubs(db: Session, current_user: models.User = Depends(get_current_user)):
+    clubs = db.query(models.Club).filter(models.Club.creator_id == current_user.id).all()
+    return clubs
 
-def get_players_by_user(db: Session, user_id: int):
-    return db.query(models.Player).filter(models.Player.user_id == user_id).all()
+def get_club_players(club_id: int, db: Session):
+    players = db.query(models.Player).filter(models.Player.club_id == club_id).all()
+    return players
 
-def get_groups_by_user(db: Session, user_id: int):
-    return db.query(models.ShareGroup).join(models.GroupMember).filter(models.GroupMember.user_id == user_id).all()
+def get_club_members(club_id: int, db: Session):
+    members = db.query(models.ClubUser).filter(models.ClubUser.club_id == club_id).all()
+    return members
 
-def get_shared_players(db: Session, group_id: int):
-    return db.query(models.Player).join(models.SharedPlayer).filter(models.SharedPlayer.group_id == group_id).all()
-
-def is_user_in_group(db: Session, user_id: int, group_id: int):
-    return db.query(models.GroupMember).filter(
-        models.GroupMember.user_id == user_id,
-        models.GroupMember.group_id == group_id
-    ).first() is not None
-
-def add_player_to_group(db: Session, group_id: int, player: schemas.PlayerCreate, user_id: int):
-    db_player = models.Player(**player.model_dump(), user_id=user_id)
-    db.add(db_player)
-    db.flush()
-    db_shared_player = models.SharedPlayer(group_id=group_id, player_id=db_player.id)
-    db.add(db_shared_player)
+def add_player_to_club(club_id: int, player_id: int, db: Session, current_user: models.User = Depends(get_current_user)):
+    player = db.query(models.Player).filter(models.Player.id == player_id, models.Player.user_id == current_user.id).first()
+    if not player:
+        raise HTTPException(status_code=404, detail="Player not found or does not belong to the current user")
+    
+    player.club_id = club_id
     db.commit()
-    db.refresh(db_player)
-    return db_player
+    db.refresh(player)
+    return player
 
-def can_user_vote_player(db: Session, user_id: int, player_id: int):
-    return db.query(models.SharedPlayer).join(models.GroupMember, models.SharedPlayer.group_id == models.GroupMember.group_id).filter(
-        models.SharedPlayer.player_id == player_id,
-        models.GroupMember.user_id == user_id
-    ).first() is not None
+def add_user_to_club(club_id: int, user_data: schemas.ClubUserCreate, db: Session, current_user: models.User = Depends(get_current_user)):
+    # Verificar que el club existe
+    club = db.query(models.Club).filter(models.Club.id == club_id).first()
+    if not club:
+        raise HTTPException(status_code=404, detail="Club not found")
 
-def create_skill_vote(db: Session, player_id: int, vote: schemas.SkillVoteCreate, voter_id: int):
-    db_vote = models.SkillVote(**vote.model_dump(), player_id=player_id, voter_id=voter_id)
-    db.add(db_vote)
+    # Crear la membresía en el club
+    club_user = models.ClubUser(club_id=club_id, user_id=user_data.user_id, role=user_data.role)
+    db.add(club_user)
     db.commit()
-    db.refresh(db_vote)
-    return db_vote
+    db.refresh(club_user)
+    return club_user
 
-def get_player_average_skills(db: Session, player_id: int):
-    return db.query(
-        models.SkillVote.skill_name,
-        func.avg(models.SkillVote.rating).label('average_rating')
-    ).filter(models.SkillVote.player_id == player_id).group_by(models.SkillVote.skill_name).all()
+def create_skill_vote(player_id: int, skill_vote: schemas.SkillVoteCreate, db: Session, current_user: models.User = Depends(get_current_user)):
+    # Verificar que el jugador existe
+    player = db.query(models.Player).filter(models.Player.id == player_id).first()
+    if not player:
+        raise HTTPException(status_code=404, detail="Player not found")
+
+    # Crear el voto
+    vote = models.SkillVote(player_id=player_id, voter_id=current_user.id, skill_name=skill_vote.skill_name, rating=skill_vote.rating)
+    db.add(vote)
+    db.commit()
+    db.refresh(vote)
+    return vote
+
+def get_skill_votes(player_id: int, db: Session):
+    votes = db.query(models.SkillVote).filter(models.SkillVote.player_id == player_id).all()
+    return votes
+
+def create_club(db: Session, club: schemas.ClubCreate, creator_id: int):
+    # Crear el nuevo club
+    new_club = models.Club(name=club.name, creator_id=creator_id)
+    db.add(new_club)
+    db.commit()
+    db.refresh(new_club)
+    
+    # Agregar al creador como miembro del club con rol de "admin"
+    club_user = models.ClubUser(club_id=new_club.id, user_id=creator_id, role="admin")
+    db.add(club_user)
+    db.commit()
+    db.refresh(club_user)
+
+    return new_club

@@ -21,12 +21,12 @@
     <div class="content">
     <h1>Armar Equipos</h1>
 
-    <div class="group-selector">
-        <label for="group-select">Seleccionar grupo:</label>
-        <select id="group-select" onchange="loadPlayersForGroup()">
+    <div class="club-selector">
+        <label for="club-select">Seleccionar grupo:</label>
+        <select id="club-select" onchange="loadPlayersForClub()">
             <option value="my-players">Mis jugadores</option>
-            {% for group in user_groups %}
-            <option value="{{ group.id }}">{{ group.name }}</option>
+            {% for club in user_clubs %}
+            <option value="{{ club.id }}">{{ club.name }}</option>
             {% endfor %}
         </select>
     </div>

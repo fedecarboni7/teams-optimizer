@@ -7,7 +7,7 @@ from requests import Session
 
 from app.config.config import templates
 from app.db.database import get_db
-from app.db.database_utils import execute_with_retries, query_players
+from app.db.database_utils import execute_with_retries, query_clubs, query_players
 from app.db.models import Player, User
 from app.db.schemas import PlayerCreate
 from app.utils.ai_formations import create_formations
@@ -37,8 +37,10 @@ async def get_form(
         players = execute_with_retries(query_players, db, current_user_id)
     except OperationalError:
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
+    
+    clubs = execute_with_retries(query_clubs, db, current_user_id)
 
-    context = {"players": players}
+    context = {"players": players, "user_clubs": clubs}
 
     return templates.TemplateResponse(request=request, name="index.html", context=context)
 
