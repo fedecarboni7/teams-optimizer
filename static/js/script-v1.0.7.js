@@ -484,7 +484,7 @@ function deletePlayer(playerId) {
         // Deshabilitar el botón para prevenir múltiples envíos
         deleteBtn.disabled = true;
 
-        if (clubId != 'None') {
+        if (clubId !== 'None') {
             fetch(`/clubs/${clubId}/players/${playerId}`, { method: 'DELETE' })
             .then(response => response.text())
             .then(() => {

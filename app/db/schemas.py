@@ -27,7 +27,7 @@ class PlayerResponse(BaseModel):
     habilidad_arquero: int
     fuerza_cuerpo: int
     vision: int
-    user_id: int
+    user_id: Optional[int] = None
     club_id: Optional[int] = None
     average_skill_ratings: Optional[dict] = None  # Diccionario con los promedios por habilidad
 
