@@ -484,13 +484,22 @@ function deletePlayer(playerId) {
         // Deshabilitar el botón para prevenir múltiples envíos
         deleteBtn.disabled = true;
 
-        fetch(`/player/${playerId}`, { method: 'DELETE' })
-        .then(response => response.text())
-        .then(() => {
-            window.location.href = '/';
-        });
-    }
+        if (clubId) {
+            fetch(`/clubs/${clubId}/players/${playerId}`, { method: 'DELETE' })
+            .then(response => response.text())
+            .then(() => {
+                window.location.href = `/?club_id=${clubId}`;
+            });
+        } else {
+            fetch(`/player/${playerId}`, { method: 'DELETE' })
+            .then(response => response.text())
+            .then(() => {
+                window.location.href = '/';
+            });
+        }
+
     updateSelectedCount();
+    }
 }
 
 // Actualizar el texto del botón de seleccionar/deseleccionar según el estado actual de los checkboxes

@@ -4,14 +4,6 @@ from sqlalchemy.orm import Session
 from app.db import models, schemas
 from app.utils.auth import get_current_user
 
-def get_user_clubs(db: Session, current_user: models.User = Depends(get_current_user)):
-    clubs = db.query(models.Club).filter(models.Club.creator_id == current_user.id).all()
-    return clubs
-
-def get_club_players(club_id: int, db: Session):
-    players = db.query(models.Player).filter(models.Player.club_id == club_id).all()
-    return players
-
 def get_club_members(club_id: int, db: Session):
     members = db.query(models.ClubUser).filter(models.ClubUser.club_id == club_id).all()
     return members
@@ -85,3 +77,23 @@ def delete_club(db: Session, club_id: int, current_user: models.User = Depends(g
     db.delete(club)
     db.commit()
     return club
+
+def remove_player_from_club(db: Session, club_id: int, player_id: int, current_user: models.User = Depends(get_current_user)):
+    # Verificar que el club existe
+    club = db.query(models.Club).filter(models.Club.id == club_id).first()
+    if not club:
+        raise HTTPException(status_code=404, detail="Club not found")
+    
+    # Verificar que el usuario actual es el creador del club
+    if club.creator_id != current_user.id:
+        raise HTTPException(status_code=403, detail="You are not the creator of this club")
+
+    # Verificar que el jugador existe
+    player = db.query(models.Player).filter(models.Player.id == player_id).first()
+    if not player:
+        raise HTTPException(status_code=404, detail="Player not found")
+    
+    # Eliminar el jugador del club
+    player.club_id = None
+    db.commit()
+    return player
