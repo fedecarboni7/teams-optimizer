@@ -70,3 +70,18 @@ def create_club(db: Session, club: schemas.ClubCreate, creator_id: int):
     db.refresh(club_user)
 
     return new_club
+
+def delete_club(db: Session, club_id: int, current_user: models.User = Depends(get_current_user)):
+    # Verificar que el club existe
+    club = db.query(models.Club).filter(models.Club.id == club_id).first()
+    if not club:
+        raise HTTPException(status_code=404, detail="Club not found")
+    
+    # Verificar que el usuario actual es el creador del club
+    if club.creator_id != current_user.id:
+        raise HTTPException(status_code=403, detail="You are not the creator of this club")
+
+    # Eliminar el club
+    db.delete(club)
+    db.commit()
+    return club

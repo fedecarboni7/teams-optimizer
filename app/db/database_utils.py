@@ -28,6 +28,8 @@ def query_players(db: Session, current_user_id: int):
 def query_player(db: Session, player_id: int, current_user_id: int):
     return db.query(Player).filter(Player.id == player_id, Player.user_id == current_user_id).first()
 
-# quiero devolver los clubs a los que pertenece un usuario
 def query_clubs(db: Session, current_user_id: int):
     return db.query(Club).join(ClubUser).filter(ClubUser.user_id == current_user_id).all()
+
+def query_club_players(db: Session, club_id: int):
+    return db.query(Player).filter(Player.club_id == club_id).all()
