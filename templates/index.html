@@ -22,13 +22,29 @@
     <h1>Armar Equipos</h1>
 
     <div class="club-selector">
-        <label for="club-select">Seleccionar grupo:</label>
+        <label for="club-select">Seleccionar club:</label>
         <select id="club-select" onchange="loadPlayersForClub()">
-            <option value="my-players">Mis jugadores</option>
+            <option value="my-players" {% if club_id is none %}selected{% endif %}>Mis jugadores</option>
             {% for club in user_clubs %}
-            <option value="{{ club.id }}">{{ club.name }}</option>
+            <option value="{{ club.id }}" {% if club.id == club_id %}selected{% endif %}>
+                {{ club.name }}
+            </option>
             {% endfor %}
+            <option value="new-club">Crear Club</option>
         </select>
+        {% for club in user_clubs %}
+        <button class="delete-club-button" onclick="deleteClub('{{ club.id }}')">x</button>
+        {% endfor %}
+    </div>
+
+    <!-- Modal para crear un nuevo club -->
+    <div id="create-club-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeCreateClubModal()">&times;</span>
+            <h2>Crear Club</h2>
+            <input type="text" id="new-club-name" placeholder="Nombre del club">
+            <button onclick="createNewClub()">Crear</button>
+        </div>
     </div>
 
     <div class="search-container">
@@ -37,6 +53,9 @@
     </div>
 
     <form action="/submit" method="post" onsubmit="return validateForm(event)">
+        {% if club_id is not none %}
+        <input type="hidden" name="club_id" value="{{ club_id }}">
+        {% endif %}
         <div id="players-container" class="player-container">
             {% for player in players %}
             <div class="player-entry">
@@ -47,7 +66,7 @@
                     <button class="toggle-details" type="button" onclick="toggleDetails(this)">
                         <i class="fa-solid fa-angle-down toggle-icon"></i>
                     </button>
-                    <button class="delete-button" id="deleteBtn{{ player.id }}" type="button" onclick="deletePlayer('{{ player.id }}')">
+                    <button class="delete-button" id="deleteBtn{{ player.id }}" type="button" onclick="deletePlayer('{{ player.id }}')" club-id="{{ club_id }}">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>

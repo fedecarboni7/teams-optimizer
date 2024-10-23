@@ -479,15 +479,16 @@ function applyHoverEffect(container) {
 function deletePlayer(playerId) {
     if (confirm("¿Estás seguro de que querés eliminar este jugador?")) {
         const deleteBtn = document.getElementById('deleteBtn' + playerId);
+        const clubId = deleteBtn.getAttribute('club-id');
 
         // Deshabilitar el botón para prevenir múltiples envíos
         deleteBtn.disabled = true;
 
         fetch(`/player/${playerId}`, { method: 'DELETE' })
-            .then(response => response.text())
-            .then(() => {
-                window.location.href = '/';
-            });
+        .then(response => response.text())
+        .then(() => {
+            window.location.href = '/';
+        });
     }
     updateSelectedCount();
 }
@@ -1056,26 +1057,80 @@ function generarFormaciones(button) {
 function loadPlayersForClub() {
     const clubId = document.getElementById('club-select').value;
     if (clubId === 'my-players') {
-        fetch('/')
-            .then(window.location.href = '/')
+        window.location.href = '/';
+        return;
+    }
+    if (clubId === 'new-club') {
+        openCreateClubModal();
+        return;
+    }
+    // ir a "/" pasandole el id del club
+    window.location.href = '/?club_id=' + clubId;
+}
+
+function openCreateClubModal() {
+    document.getElementById('create-club-modal').style.display = 'block';
+}
+
+function closeCreateClubModal() {
+    document.getElementById('create-club-modal').style.display = 'none';
+    document.getElementById('club-select').value = 'my-players'; // Volver al valor por defecto
+}
+
+// Crear el nuevo club
+function createNewClub() {
+    const clubName = document.getElementById('new-club-name').value;
+    if (!clubName) {
+        alert("Por favor, ingresá un nombre para el club.");
         return;
     }
 
-    fetch(`/clubs/${clubId}/players/`)
-        .then(response => response.json())
-        .then(players => {
-            const container = document.getElementById('players-container');
-            container.innerHTML = ''; // Clear existing players
-            players.forEach((player, index) => {
-                // Create player entry HTML similar to your existing structure
-                const playerHtml = `
-                    <div class="player-entry">
-                        <!-- Player entry HTML structure -->
-                    </div>
-                `;
-                container.innerHTML += playerHtml;
-            });
-            // Re-initialize any necessary event listeners or functions
-        })
-        .catch(error => console.error('Error:', error));
+    // Hacer la solicitud AJAX para crear el club
+    fetch('/clubs/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: clubName }),
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        }
+        throw new Error("Error al crear el club");
+    })
+    .then(data => {
+        // Redirigir a la página con el club recién creado seleccionado
+        window.location.href = '/?club_id=' + data.id;
+    })
+    .catch(error => {
+        alert(error.message);
+    })
+    .finally(() => {
+        closeCreateClubModal();
+    });
+}
+
+function deleteClub(clubId) {
+    if (!confirm("¿Estás seguro de que querés eliminar este club? Esta acción no se puede deshacer.")) {
+        return;
+    }
+
+    fetch('/clubs/' + clubId, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => {
+        if (response.ok) {
+            // Recargar la página para actualizar el selector
+            window.location.reload();
+        } else {
+            throw new Error("Error al eliminar el club");
+        }
+    })
+    .catch(error => {
+        alert(error.message);
+    });
 }
