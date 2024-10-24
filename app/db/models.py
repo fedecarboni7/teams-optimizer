@@ -1,4 +1,5 @@
 from datetime import datetime
+from enum import Enum
 from passlib.hash import pbkdf2_sha256
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import DeclarativeBase, relationship
@@ -86,3 +87,24 @@ class ClubUser(Base):
 
     club = relationship("Club", back_populates="members")
     user = relationship("User", back_populates="club_users")
+
+class InvitationStatus(Enum):
+    PENDING = "pending"
+    ACCEPTED = "accepted"
+    REJECTED = "rejected"
+    EXPIRED = "expired"
+
+class ClubInvitation(Base):
+    __tablename__ = "club_invitations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    club_id = Column(Integer, ForeignKey("clubs.id"))
+    invited_user_id = Column(Integer, ForeignKey("users.id"))
+    inviter_id = Column(Integer, ForeignKey("users.id"))
+    status = Column(String, default=InvitationStatus.PENDING.value)
+    creation_date = Column(DateTime, default=datetime.now)
+    expiration_date = Column(DateTime)
+    
+    club = relationship("Club", backref="invitations")
+    invited_user = relationship("User", foreign_keys=[invited_user_id])
+    inviter = relationship("User", foreign_keys=[inviter_id])

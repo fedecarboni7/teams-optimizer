@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -173,3 +173,92 @@ def remove_player_from_club(db: Session, club_id: int, player_id: int, current_u
     player.club_id = None
     db.commit()
     return player
+
+async def invite_user_to_club(
+    db: Session,
+    club_id: int,
+    inviter_id: int,
+    invited_username: str,
+    expiration_days: int = 7
+):
+    # Verificar que el invitador es miembro del club
+    club_user = db.query(models.ClubUser).filter(
+        models.ClubUser.club_id == club_id,
+        models.ClubUser.user_id == inviter_id,
+        models.ClubUser.role == "owner"
+    ).first()
+    if not club_user:
+        raise ValueError("No tienes permisos para invitar usuarios a este club")
+
+    # Buscar al usuario invitado por username
+    invited_user = db.query(models.User).filter(models.User.username == invited_username).first()
+    if not invited_user:
+        raise ValueError(f"Usuario {invited_username} no encontrado")
+
+    # Verificar si ya existe una invitación pendiente
+    existing_invitation = db.query(models.ClubInvitation).filter(
+        models.ClubInvitation.club_id == club_id,
+        models.ClubInvitation.invited_user_id == invited_user.id,
+        models.ClubInvitation.status == models.InvitationStatus.PENDING.value
+    ).first()
+    if existing_invitation:
+        raise ValueError(f"Ya existe una invitación pendiente para {invited_username}")
+
+    # Crear nueva invitación
+    invitation = models.ClubInvitation(
+        club_id=club_id,
+        invited_user_id=invited_user.id,
+        inviter_id=inviter_id,
+        expiration_date=datetime.now() + timedelta(days=expiration_days)
+    )
+    db.add(invitation)
+    db.commit()
+    return invitation
+
+async def accept_club_invitation(db: Session, invitation_id: int, user_id: int):
+    invitation = db.query(models.ClubInvitation).filter(
+        models.ClubInvitation.id == invitation_id,
+        models.ClubInvitation.invited_user_id == user_id,
+        models.ClubInvitation.status == models.InvitationStatus.PENDING.value
+    ).first()
+    
+    if not invitation:
+        raise ValueError("Invitación no encontrada o no válida")
+    
+    if invitation.expiration_date < datetime.now():
+        invitation.status = models.InvitationStatus.EXPIRED.value
+        db.commit()
+        raise ValueError("La invitación ha expirado")
+
+    # Crear nueva membresía en el club
+    club_user = models.ClubUser(
+        club_id=invitation.club_id,
+        user_id=user_id,
+        role="member"  # Rol por defecto para nuevos miembros
+    )
+    
+    invitation.status = models.InvitationStatus.ACCEPTED.value
+    db.add(club_user)
+    db.commit()
+    return club_user
+
+async def reject_club_invitation(db: Session, invitation_id: int, user_id: int):
+    invitation = db.query(models.ClubInvitation).filter(
+        models.ClubInvitation.id == invitation_id,
+        models.ClubInvitation.invited_user_id == user_id,
+        models.ClubInvitation.status == models.InvitationStatus.PENDING.value
+    ).first()
+    
+    if not invitation:
+        raise ValueError("Invitación no encontrada o no válida")
+    
+    invitation.status = models.InvitationStatus.REJECTED.value
+    db.commit()
+    return invitation
+
+async def get_user_pending_invitations(db: Session, user_id: int):
+    return db.query(models.ClubInvitation).filter(
+        models.ClubInvitation.invited_user_id == user_id,
+        models.ClubInvitation.status == models.InvitationStatus.PENDING.value,
+        models.ClubInvitation.expiration_date > datetime.now()
+    ).all()

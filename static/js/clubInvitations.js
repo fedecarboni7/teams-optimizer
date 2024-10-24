@@ -1,0 +1,181 @@
+// Variables globales
+let currentUser = null;
+let clubId = null;
+let pendingInvitations = [];
+let clubMembers = [];
+
+// Configuración de event listeners
+function setupEventListeners() {
+  // Botón de invitaciones
+  document.getElementById('invitationsBtn').addEventListener('click', toggleInvitationsPopover);
+  
+  // Cerrar popover al hacer click fuera
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#invitationsBtn') && !e.target.closest('#invitationsPopover')) {
+      document.getElementById('invitationsPopover').classList.remove('active');
+    }
+  });
+
+  // Botones de modales
+  document.getElementById('inviteBtn').addEventListener('click', () => openModal('inviteModal'));
+  document.getElementById('manageBtn').addEventListener('click', () => openModal('manageModal'));
+}
+
+// Funciones de UI
+function toggleInvitationsPopover() {
+  document.getElementById('invitationsPopover').classList.toggle('active');
+}
+
+function openModal(modalId) {
+  document.getElementById(modalId).classList.add('active');
+}
+
+function closeModal(modalId) {
+  document.getElementById(modalId).classList.remove('active');
+}
+
+// Funciones de carga de datos
+async function loadInvitations() {
+  try {
+    const response = await fetch('/invitations/pending');
+    pendingInvitations = await response.json();
+    updateInvitationsUI();
+  } catch (error) {
+    console.error('Error al cargar invitaciones:', error);
+  }
+}
+
+async function loadClubMembers() {
+  try {
+    const response = await fetch(`/clubs/${clubId}/members`);
+    clubMembers = await response.json();
+    updateMembersTableUI();
+  } catch (error) {
+    console.error('Error al cargar miembros:', error);
+  }
+}
+
+// Funciones de actualización de UI
+function updateInvitationsUI() {
+  const badge = document.getElementById('invitationsBadge');
+  const list = document.getElementById('invitationsList');
+  
+  badge.textContent = pendingInvitations.length;
+  badge.style.display = pendingInvitations.length > 0 ? 'flex' : 'none';
+  
+  list.innerHTML = pendingInvitations.length > 0 
+    ? pendingInvitations.map(inv => `
+      <div class="invitation-card">
+        <span>Unirse a ${inv.club.name}</span>
+        <div>
+          <button class="btn" onclick="respondToInvitation(${inv.id}, false)">Rechazar</button>
+          <button class="btn btn-primary" onclick="respondToInvitation(${inv.id}, true)">Aceptar</button>
+        </div>
+      </div>
+    `).join('')
+    : '<p>No tienes invitaciones pendientes</p>';
+}
+
+function updateMembersTableUI() {
+  const tbody = document.getElementById('membersTableBody');
+  tbody.innerHTML = clubMembers.map(member => `
+    <tr>
+      <td>${member.username}</td>
+      <td>
+        <select
+          ${member.user_id === currentUser.id ? 'disabled' : ''}
+          onchange="updateMemberRole(${member.user_id}, this.value)"
+        >
+          <option value="member" ${member.role === 'member' ? 'selected' : ''}>Miembro</option>
+          <option value="admin" ${member.role === 'admin' ? 'selected' : ''}>Admin</option>
+          <option value="owner" ${member.role === 'owner' ? 'selected' : ''}>Owner</option>
+        </select>
+      </td>
+      <td>
+        ${member.user_id !== currentUser.id 
+          ? `<button class="btn btn-danger" onclick="removeMember(${member.user_id})">Eliminar</button>`
+          : ''}
+      </td>
+    </tr>
+  `).join('');
+}
+
+// Funciones de acción
+async function sendInvitation() {
+  const username = document.getElementById('usernameInput').value;
+  try {
+    const response = await fetch(`/clubs/${clubId}/invite`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ invited_username: username })
+    });
+    
+    if (response.ok) {
+      alert('Invitación enviada con éxito');
+      closeModal('inviteModal');
+      document.getElementById('usernameInput').value = '';
+    } else {
+      alert('Error al enviar la invitación');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error al enviar la invitación');
+  }
+}
+
+async function respondToInvitation(invitationId, accept) {
+  try {
+    const response = await fetch(`/invitations/${invitationId}/${accept ? 'accept' : 'reject'}`, {
+      method: 'POST'
+    });
+    
+    if (response.ok) {
+      pendingInvitations = pendingInvitations.filter(inv => inv.id !== invitationId);
+      updateInvitationsUI();
+      if (accept) {
+        window.location.reload(); // Recargar para actualizar la UI con el nuevo club
+      }
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error al responder a la invitación');
+  }
+}
+
+async function updateMemberRole(userId, newRole) {
+  try {
+    const response = await fetch(`/clubs/${clubId}/members/${userId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role: newRole })
+    });
+    
+    if (response.ok) {
+      clubMembers = clubMembers.map(member =>
+        member.user_id === userId ? { ...member, role: newRole } : member
+      );
+      updateMembersTableUI();
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error al actualizar el rol');
+  }
+}
+
+async function removeMember(userId) {
+  if (!confirm('¿Estás seguro de que deseas eliminar a este miembro?')) return;
+  
+  try {
+    const response = await fetch(`/clubs/${clubId}/members/${userId}`, {
+      method: 'DELETE'
+    });
+    
+    if (response.ok) {
+      clubMembers = clubMembers.filter(member => member.user_id !== userId);
+      updateMembersTableUI();
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error al eliminar al miembro');
+  }
+}

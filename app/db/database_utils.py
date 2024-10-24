@@ -33,3 +33,6 @@ def query_clubs(db: Session, current_user_id: int):
 
 def query_club_players(db: Session, club_id: int):
     return db.query(Player).filter(Player.club_id == club_id).all()
+
+def query_club_members(db: Session, club_id: int):
+    return db.query(ClubUser, User).join(User, ClubUser.user_id == User.id).filter(ClubUser.club_id == club_id).all()

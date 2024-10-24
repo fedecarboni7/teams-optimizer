@@ -7,7 +7,7 @@ from requests import Session
 
 from app.config.config import templates
 from app.db.database import get_db
-from app.db.database_utils import execute_with_retries, query_club_players, query_clubs, query_players
+from app.db.database_utils import execute_with_retries, query_club_members, query_club_players, query_clubs, query_players
 from app.db.models import Player, User
 from app.db.schemas import PlayerCreate
 from app.utils.ai_formations import create_formations
@@ -36,17 +36,46 @@ async def get_form(
     current_user_id = current_user.id
     clubs = execute_with_retries(query_clubs, db, current_user_id)
     clubs_ids = [club.id for club in clubs]
+    
     try:
         if not club_id:
             players = execute_with_retries(query_players, db, current_user_id)
+            club_members = []
+            current_club_role = None
         elif club_id in clubs_ids:
             players = execute_with_retries(query_club_players, db, club_id)
+            # Obtener los miembros del club actual y sus roles
+            club_members = execute_with_retries(query_club_members, db, club_id)
+            # Convertir a diccionario para el template
+            club_members = [
+                {
+                    "user_id": member.User.id,
+                    "username": member.User.username,
+                    "role": member.ClubUser.role
+                }
+                for member in club_members
+            ]
+            # Obtener el rol del usuario actual en este club
+            current_club_role = next(
+                (member["role"] for member in club_members if member["user_id"] == current_user_id),
+                None
+            )
         else:
             return RedirectResponse("/", status_code=302)
     except OperationalError:
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
 
-    context = {"players": players, "user_clubs": clubs, "club_id": club_id}
+    context = {
+        "players": players,
+        "user_clubs": clubs,
+        "club_id": club_id,
+        "current_user": {
+            "user_id": current_user_id,
+            "username": current_user.username,
+            "club_role": current_club_role
+        },
+        "club_members": club_members if club_id else []
+    }
 
     return templates.TemplateResponse(request=request, name="index.html", context=context)
 

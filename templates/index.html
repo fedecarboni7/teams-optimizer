@@ -12,9 +12,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <script src="/static/js/script-v1.0.7.js"></script>
     <link rel="stylesheet" type="text/css" href="/static/css/formations.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/clubInvitations.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="/static/js/formations.js"></script>
+    <script src="/static/js/clubInvitations.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -46,6 +48,55 @@
             <button onclick="createNewClub()">Crear</button>
         </div>
     </div>
+
+    <div class="club-management">
+        <!-- Botón de Invitaciones -->
+        <div style="position: relative;">
+          <button id="invitationsBtn" class="icon-button">
+            🔔
+            <span id="invitationsBadge" class="notification-badge" style="display: none;">0</span>
+          </button>
+          <div id="invitationsPopover" class="popover">
+            <h3>Invitaciones pendientes</h3>
+            <div id="invitationsList"></div>
+          </div>
+        </div>
+        {% if club_id is not none %}
+        <!-- Botón de Invitar -->
+        <button id="inviteBtn" class="icon-button">👥</button>
+      
+        <!-- Botón de Administrar (solo visible para owners) -->
+        <button id="manageBtn" class="icon-button" style="display: none;">⚙️</button>
+        {% endif %}
+      </div>
+      
+      <!-- Modal de Invitar -->
+      <div id="inviteModal" class="modal">
+        <div class="modal-content">
+          <h2>Invitar usuario al club</h2>
+          <input type="text" id="usernameInput" placeholder="Nombre de usuario" style="width: 100%; padding: 8px; margin: 1rem 0;">
+          <button class="btn btn-primary" onclick="sendInvitation()">Enviar invitación</button>
+          <button class="btn" onclick="closeModal('inviteModal')">Cancelar</button>
+        </div>
+      </div>
+      
+      <!-- Modal de Gestión de Miembros -->
+      <div id="manageModal" class="modal">
+        <div class="modal-content">
+          <h2>Gestionar miembros</h2>
+          <table class="members-table">
+            <thead>
+              <tr>
+                <th>Usuario</th>
+                <th>Rol</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="membersTableBody"></tbody>
+          </table>
+          <button class="btn" onclick="closeModal('manageModal')">Cerrar</button>
+        </div>
+      </div>
 
     <div class="search-container">
         <input type="search" id="searchInput" placeholder="Buscar jugador..." oninput="filterPlayers()">
@@ -211,5 +262,30 @@
             <i class="fas fa-code"></i> with ❤️ by <a href="https://github.com/fedecarboni7/teams-optimizer" target="_blank" rel="noopener noreferrer">fedecarboni7</a>
         </div>
     </footer>
+    {% if club_id %}
+    <script>
+        // Pasar los datos del servidor al JavaScript
+        const currentUser = "{{ current_user | tojson }}";
+        const clubId = "{{ club_id }}";
+        const clubMembers = "{{ club_members | tojson }}";
+
+        // Inicializar la gestión del club
+        document.addEventListener('DOMContentLoaded', () => {
+            // Actualizar variables globales
+            window.currentUser = currentUser;
+            window.clubId = clubId;
+            window.clubMembers = clubMembers;
+            
+            // Solo mostrar el botón de gestión si es owner
+            if (currentUser.club_role === 'owner') {
+                document.getElementById('manageBtn').style.display = 'block';
+                updateMembersTableUI();
+            }
+
+            setupEventListeners();
+            loadInvitations();
+        });
+    </script>
+    {% endif %}
 </body>
 </html>
