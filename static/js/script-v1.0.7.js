@@ -364,11 +364,13 @@ function addPlayer() {
     deleteButton.appendChild(trashIcon);
 
     deleteButton.addEventListener("click", function() {
-        deletePlayer(this);
-        container.removeChild(playerDiv);
-        renumerarJugadores();
-        updateSelectedCount();
-        updateToggleButtonText();
+        response = deletePlayer(deleteButton);
+        if (response) {
+            container.removeChild(playerDiv);
+            renumerarJugadores();
+            updateSelectedCount();
+            updateToggleButtonText();
+        }
     });
     playerHeader.appendChild(deleteButton);
 
@@ -495,21 +497,23 @@ function deletePlayer(button) {
 
         if (clubId !== 'None') {
             fetch(`/clubs/${clubId}/players/${playerId}`, { method: 'DELETE' })
-            .then(response => response.text())
-            .then(() => {
-                container = document.getElementById("players-container");
-                container.removeChild(button.parentNode.parentNode);
+                .then(response => response.text())
+                .then(() => {
+                    container = document.getElementById("players-container");
+                    container.removeChild(button.parentNode.parentNode);
             });
         } else {
             fetch(`/player/${playerId}`, { method: 'DELETE' })
-            .then(response => response.text())
-            .then(() => {
-                container = document.getElementById("players-container");
-                container.removeChild(button.parentNode.parentNode);
-        });
+                .then(response => response.text())
+                .then(() => {
+                    container = document.getElementById("players-container");
+                    container.removeChild(button.parentNode.parentNode);
+            });
         }
         updateSelectedCount();
+        return true;
     }
+    return false;
 }
 
 // Actualizar el texto del botón de seleccionar/deseleccionar según el estado actual de los checkboxes
