@@ -66,7 +66,7 @@
                     <button class="toggle-details" type="button" onclick="toggleDetails(this)">
                         <i class="fa-solid fa-angle-down toggle-icon"></i>
                     </button>
-                    <button class="delete-button" id="deleteBtn{{ player.id }}" type="button" onclick="deletePlayer('{{ player.id }}')" club-id="{{ club_id }}">
+                    <button class="delete-button" id="{{ player.id }}" type="button" onclick="deletePlayer(this)" club-id="{{ club_id }}">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>

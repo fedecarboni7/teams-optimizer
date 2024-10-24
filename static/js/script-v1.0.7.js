@@ -205,6 +205,15 @@ function validateForm(event) {
             input.readOnly = true;
         });
 
+        // Hacer que los delete-button se les agregue el id="deleteBtn{{ player.id }}" leyendo los id en playerDataDict que tiene esta forma: {name: {id: id, ...}}
+        document.querySelectorAll('.delete-button').forEach(button => {
+            const playerName = button.parentNode.querySelector('input[name="names"]').value;
+            const playerId = playerDataDict[playerName];
+            if (playerId) {
+                button.id = `${playerId.id}`;
+            }
+        });
+
         // Hacer scroll hasta el div de los resultados
         const resultsContainer = document.querySelector('#teams-container');
         if (resultsContainer) {
@@ -355,6 +364,7 @@ function addPlayer() {
     deleteButton.appendChild(trashIcon);
 
     deleteButton.addEventListener("click", function() {
+        deletePlayer(this);
         container.removeChild(playerDiv);
         renumerarJugadores();
         updateSelectedCount();
@@ -476,29 +486,29 @@ function applyHoverEffect(container) {
 }
 
 // Eliminar jugador
-function deletePlayer(playerId) {
-    if (confirm("¿Estás seguro de que querés eliminar este jugador?")) {
-        const deleteBtn = document.getElementById('deleteBtn' + playerId);
-        const clubId = deleteBtn.getAttribute('club-id');
-
+function deletePlayer(button) {
+    playerId = button.getAttribute('id');
+    const clubId = button.getAttribute('club-id');
+    if (playerId && confirm("¿Estás seguro de que querés eliminar este jugador?")) {
         // Deshabilitar el botón para prevenir múltiples envíos
-        deleteBtn.disabled = true;
+        button.disabled = true;
 
         if (clubId !== 'None') {
             fetch(`/clubs/${clubId}/players/${playerId}`, { method: 'DELETE' })
             .then(response => response.text())
             .then(() => {
-                window.location.href = `/?club_id=${clubId}`;
+                container = document.getElementById("players-container");
+                container.removeChild(button.parentNode.parentNode);
             });
         } else {
             fetch(`/player/${playerId}`, { method: 'DELETE' })
             .then(response => response.text())
             .then(() => {
-                window.location.href = '/';
-            });
+                container = document.getElementById("players-container");
+                container.removeChild(button.parentNode.parentNode);
+        });
         }
-
-    updateSelectedCount();
+        updateSelectedCount();
     }
 }
 
@@ -762,6 +772,9 @@ function getTeamSkills(players) {
     players.forEach(function(player) {
         var playerSkills = playerDataDict[player];
         for (var skill in playerSkills) {
+            if (skill === "id") {
+                continue;
+            }
             skills[skill] += playerSkills[skill];
         }
     });

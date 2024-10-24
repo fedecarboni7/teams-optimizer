@@ -23,7 +23,7 @@ prompt_template = PromptTemplate(
     {{
       "formation": "X-X-X",
       "players": [
-        {{"position": "XX", "number": N, "name": "Nombre del Jugador"}},
+        {{"position": "XX", "name": "Nombre del Jugador"}},
         ...
       ]
     }}
@@ -32,7 +32,6 @@ prompt_template = PromptTemplate(
     - "formation" es la formación asignada.
     - "players" es una lista de jugadores con su número de camiseta y posición asignada.
     - "position" es la abreviatura de la posición asignada al jugador.
-    - "number" es un número de camiseta único del 1 al {num_players}
     - "name" es el nombre del jugador
 
     Asegúrate de que la formación y las posiciones asignadas sean consistentes con las habilidades de los jugadores.
@@ -66,6 +65,47 @@ allowed_formations = {
     }
 }
 
+def transformar_datos_jugadores(datos_originales):
+    """
+    Transforma el diccionario original en una lista de diccionarios con nombres más descriptivos.
+    
+    Args:
+        datos_originales (dict): Diccionario con la estructura original
+        
+    Returns:
+        list: Lista de diccionarios con la estructura mejorada y nombres más descriptivos
+    """
+    # Mapeo de nombres originales a nombres más descriptivos
+    mapeo_atributos = {
+        "velocidad": "sprint_speed",
+        "resistencia": "stamina",
+        "control": "ball_control",
+        "pases": "passing",
+        "fuerza_cuerpo": "aggressiveness",
+        "habilidad_arquero": "goalkeeping",
+        "defensa": "defensive_skills",
+        "tiro": "finishing",
+        "vision": "field_vision"
+    }
+    
+    jugadores_transformados = []
+    
+    for nombre, datos in datos_originales.items():
+        # Creamos un nuevo diccionario para las stats con los nombres actualizados
+        stats_nuevas = {}
+        for attr_original, valor in datos.items():
+            if attr_original in mapeo_atributos:
+                stats_nuevas[mapeo_atributos[attr_original]] = valor
+        
+        jugador = {
+            "player_name": nombre,
+            "player_id": datos["id"],
+            "attributes": stats_nuevas
+        }
+        jugadores_transformados.append(jugador)
+    
+    return jugadores_transformados
+
 async def create_formations(players, teams, allowed_formations=allowed_formations):
     """
     Calcula la formación óptima y asigna posiciones a los jugadores.
@@ -82,15 +122,16 @@ async def create_formations(players, teams, allowed_formations=allowed_formation
     formations = {'team1': {}, 'team2': {}}
 
     # Función auxiliar para invocar chain.ainvoke asíncronamente
-    async def get_formation_for_team(team, team_number):
+    async def get_formation_for_team(team):
         players_by_team = {k: players[k] for k in team[0]}
+        players_by_team = transformar_datos_jugadores(players_by_team)
         num_players = len(players_by_team)
         return await chain.ainvoke({"team_data": players_by_team,
                                    "num_players": num_players,
                                    "allowed_formations": allowed_formations[num_players]})
 
     # Ejecutar todas las invocaciones de forma simultánea
-    tasks = [get_formation_for_team(team, i+1) for i, team in enumerate(teams)]
+    tasks = [get_formation_for_team(team) for team in teams]
     results = await asyncio.gather(*tasks)
 
     # Asignar los resultados a sus respectivos equipos
