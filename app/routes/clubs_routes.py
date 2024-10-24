@@ -13,7 +13,7 @@ router = APIRouter()
 # Create a new club
 @router.post("/clubs/", response_model=schemas.ClubResponse)
 def create_club(club: schemas.ClubCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    return crud.create_club(db, club=club, creator_id=current_user.id)
+    return crud.create_club(db, club=club, user_id=current_user.id)
 
 # Delete a club
 @router.delete("/clubs/{club_id}", response_model=schemas.ClubResponse)

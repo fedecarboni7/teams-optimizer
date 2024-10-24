@@ -71,10 +71,8 @@ class Club(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
-    creator_id = Column(Integer, ForeignKey("users.id"))
     creation_date = Column(DateTime, default=datetime.now)
 
-    creator = relationship("User", foreign_keys=[creator_id]) 
     members = relationship("ClubUser", back_populates="club")
     players = relationship("Player", back_populates="club")
 

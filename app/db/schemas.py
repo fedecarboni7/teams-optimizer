@@ -41,7 +41,6 @@ class ClubCreate(BaseModel):
 class ClubResponse(BaseModel):
     id: int
     name: str
-    creator_id: int
     creation_date: datetime
 
     class Config:

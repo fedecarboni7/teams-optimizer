@@ -27,10 +27,10 @@ def add_user_to_club(club_id: int, user_data: schemas.ClubUserCreate, db: Sessio
     if not club:
         raise HTTPException(status_code=404, detail="Club not found")
 
-    # Verificar que el usuario actual tiene rol de "admin"
+    # Verificar que el usuario actual tiene rol de "owner"
     club_user = db.query(models.ClubUser).filter(models.ClubUser.club_id == club_id, models.ClubUser.user_id == current_user.id).first()
-    if not club_user or club_user.role != "admin":
-        raise HTTPException(status_code=403, detail="You are not an admin of this club")
+    if not club_user or club_user.role != "owner":
+        raise HTTPException(status_code=403, detail="You don't have permission to add users to this club")
     
     # Verificar que el usuario existe
     user = db.query(models.User).filter(models.User.id == user_data.user_id).first()
@@ -50,10 +50,10 @@ def remove_user_from_club(club_id: int, user_id: int, db: Session, current_user:
     if not club:
         raise HTTPException(status_code=404, detail="Club not found")
     
-    # Verificar que el usuario actual tiene rol de "admin"
+    # Verificar que el usuario actual tiene rol de "owner"
     club_user = db.query(models.ClubUser).filter(models.ClubUser.club_id == club_id, models.ClubUser.user_id == current_user.id).first()
-    if not club_user or club_user.role != "admin":
-        raise HTTPException(status_code=403, detail="You are not an admin of this club")
+    if not club_user or club_user.role != "owner":
+        raise HTTPException(status_code=403, detail="You don't have permission to remove users from this club")
     
     # Verificar que el usuario a eliminar existe
     user_to_remove = db.query(models.ClubUser).filter(models.ClubUser.club_id == club_id, models.ClubUser.user_id == user_id).first()
@@ -99,15 +99,15 @@ def create_skill_vote(player_id: int, skill_vote: schemas.PlayerSkillsVote, db: 
     db.refresh(vote)
     return vote
 
-def create_club(db: Session, club: schemas.ClubCreate, creator_id: int):
+def create_club(db: Session, club: schemas.ClubCreate, user_id: int):
     # Crear el nuevo club
-    new_club = models.Club(name=club.name, creator_id=creator_id)
+    new_club = models.Club(name=club.name)
     db.add(new_club)
     db.commit()
     db.refresh(new_club)
     
-    # Agregar al creador como miembro del club con rol de "admin"
-    club_user = models.ClubUser(club_id=new_club.id, user_id=creator_id, role="admin")
+    # Agregar al creador como miembro del club con rol de "owner"
+    club_user = models.ClubUser(club_id=new_club.id, user_id=user_id, role="owner")
     db.add(club_user)
     db.commit()
     db.refresh(club_user)
@@ -120,10 +120,19 @@ def delete_club(db: Session, club_id: int, current_user: models.User = Depends(g
     if not club:
         raise HTTPException(status_code=404, detail="Club not found")
     
-    # Verificar que el usuario actual es el creador del club
-    if club.creator_id != current_user.id:
-        raise HTTPException(status_code=403, detail="You are not the creator of this club")
+    # Verificar que el usuario actual tiene rol de "owner"
+    club_user = db.query(models.ClubUser).filter(models.ClubUser.club_id == club_id, models.ClubUser.user_id == current_user.id).first()
+    if not club_user or club_user.role != "owner":
+        raise HTTPException(status_code=403, detail="You don't have permission to delete this club")
 
+    # Eliminar los miembros
+    db.query(models.ClubUser).filter(models.ClubUser.club_id == club_id).delete()
+    # Eliminar los votos
+    skill_votes = db.query(models.SkillVote).join(models.Player).filter(models.Player.club_id == club_id).all()
+    for vote in skill_votes:
+        db.delete(vote)
+    # Eliminar los jugadores
+    db.query(models.Player).filter(models.Player.club_id == club_id).delete()
     # Eliminar el club
     db.delete(club)
     db.commit()
@@ -150,10 +159,10 @@ def remove_player_from_club(db: Session, club_id: int, player_id: int, current_u
     if not club:
         raise HTTPException(status_code=404, detail="Club not found")
     
-    # Verificar que el usuario actual tiene rol de "admin"
+    # Verificar que el usuario actual tiene rol de "owner" o "admin"
     club_user = db.query(models.ClubUser).filter(models.ClubUser.club_id == club_id, models.ClubUser.user_id == current_user.id).first()
-    if not club_user or club_user.role != "admin":
-        raise HTTPException(status_code=403, detail="You are not an admin of this club")
+    if not club_user or club_user.role not in ["admin", "owner"]:
+        raise HTTPException(status_code=403, detail="You don't have permission to remove players from this club")
 
     # Verificar que el jugador existe
     player = db.query(models.Player).filter(models.Player.id == player_id).first()
