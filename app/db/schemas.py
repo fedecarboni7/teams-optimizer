@@ -50,7 +50,6 @@ class ClubResponse(BaseModel):
 # Schemas para ClubUser
 class ClubUserCreate(BaseModel):
     user_id: int
-    club_id: int
     role: Optional[str] = "miembro"
 
 class ClubUserResponse(BaseModel):
@@ -63,18 +62,30 @@ class ClubUserResponse(BaseModel):
         from_attributes = True
 
 # Schemas para SkillVote
-class SkillVoteCreate(BaseModel):
-    player_id: int
-    voter_id: int
-    skill_name: str
-    rating: int
+class PlayerSkillsVote(BaseModel):
+    velocidad: int
+    resistencia: int
+    control: int
+    pases: int
+    tiro: int
+    defensa: int
+    habilidad_arquero: int
+    fuerza_cuerpo: int
+    vision: int
 
 class SkillVoteResponse(BaseModel):
     id: int
     player_id: int
     voter_id: int
-    skill_name: str
-    rating: int
+    velocidad: int
+    resistencia: int
+    control: int
+    pases: int
+    tiro: int
+    defensa: int
+    habilidad_arquero: int
+    fuerza_cuerpo: int
+    vision: int
     vote_date: datetime
 
     class Config:

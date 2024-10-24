@@ -1,22 +1,25 @@
+from datetime import datetime
 from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.db import models, schemas
 from app.utils.auth import get_current_user
 
-def get_club_members(club_id: int, db: Session):
+
+def get_club_members(club_id: int, db: Session, current_user: models.User = Depends(get_current_user)):
+    # Verificar que el club existe
+    club = db.query(models.Club).filter(models.Club.id == club_id).first()
+    if not club:
+        raise HTTPException(status_code=404, detail="Club not found")
+    
+    # Verificar que el usuario actual es miembro del club
+    club_user = db.query(models.ClubUser).filter(models.ClubUser.club_id == club_id, models.ClubUser.user_id == current_user.id).first()
+    if not club_user:
+        raise HTTPException(status_code=403, detail="You are not a member of this club")
+    
+    # Obtener los miembros del club
     members = db.query(models.ClubUser).filter(models.ClubUser.club_id == club_id).all()
     return members
-
-def add_player_to_club(club_id: int, player_id: int, db: Session, current_user: models.User = Depends(get_current_user)):
-    player = db.query(models.Player).filter(models.Player.id == player_id, models.Player.user_id == current_user.id).first()
-    if not player:
-        raise HTTPException(status_code=404, detail="Player not found or does not belong to the current user")
-    
-    player.club_id = club_id
-    db.commit()
-    db.refresh(player)
-    return player
 
 def add_user_to_club(club_id: int, user_data: schemas.ClubUserCreate, db: Session, current_user: models.User = Depends(get_current_user)):
     # Verificar que el club existe
@@ -24,6 +27,16 @@ def add_user_to_club(club_id: int, user_data: schemas.ClubUserCreate, db: Sessio
     if not club:
         raise HTTPException(status_code=404, detail="Club not found")
 
+    # Verificar que el usuario actual tiene rol de "admin"
+    club_user = db.query(models.ClubUser).filter(models.ClubUser.club_id == club_id, models.ClubUser.user_id == current_user.id).first()
+    if not club_user or club_user.role != "admin":
+        raise HTTPException(status_code=403, detail="You are not an admin of this club")
+    
+    # Verificar que el usuario existe
+    user = db.query(models.User).filter(models.User.id == user_data.user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
     # Crear la membresía en el club
     club_user = models.ClubUser(club_id=club_id, user_id=user_data.user_id, role=user_data.role)
     db.add(club_user)
@@ -31,22 +44,60 @@ def add_user_to_club(club_id: int, user_data: schemas.ClubUserCreate, db: Sessio
     db.refresh(club_user)
     return club_user
 
-def create_skill_vote(player_id: int, skill_vote: schemas.SkillVoteCreate, db: Session, current_user: models.User = Depends(get_current_user)):
+def remove_user_from_club(club_id: int, user_id: int, db: Session, current_user: models.User = Depends(get_current_user)):
+    # Verificar que el club existe
+    club = db.query(models.Club).filter(models.Club.id == club_id).first()
+    if not club:
+        raise HTTPException(status_code=404, detail="Club not found")
+    
+    # Verificar que el usuario actual tiene rol de "admin"
+    club_user = db.query(models.ClubUser).filter(models.ClubUser.club_id == club_id, models.ClubUser.user_id == current_user.id).first()
+    if not club_user or club_user.role != "admin":
+        raise HTTPException(status_code=403, detail="You are not an admin of this club")
+    
+    # Verificar que el usuario a eliminar existe
+    user_to_remove = db.query(models.ClubUser).filter(models.ClubUser.club_id == club_id, models.ClubUser.user_id == user_id).first()
+    if not user_to_remove:
+        raise HTTPException(status_code=404, detail="User not found in this club")
+    
+    # Eliminar al usuario del club
+    db.delete(user_to_remove)
+    db.commit()
+    return user_to_remove
+
+def create_skill_vote(player_id: int, skill_vote: schemas.PlayerSkillsVote, db: Session, current_user: models.User = Depends(get_current_user)):
     # Verificar que el jugador existe
     player = db.query(models.Player).filter(models.Player.id == player_id).first()
     if not player:
         raise HTTPException(status_code=404, detail="Player not found")
+    
+    # Verificar que el jugador y el usuario actual pertenecen al mismo club
+    club_user = db.query(models.ClubUser).filter(models.ClubUser.user_id == current_user.id, models.ClubUser.club_id == player.club_id).first()
+    if not club_user:
+        raise HTTPException(status_code=403, detail="You are not in the same club as this player")
 
-    # Crear el voto
-    vote = models.SkillVote(player_id=player_id, voter_id=current_user.id, skill_name=skill_vote.skill_name, rating=skill_vote.rating)
+    # Verificar si el usuario ya votó
+    old_vote = db.query(models.SkillVote).filter(models.SkillVote.player_id == player_id, models.SkillVote.voter_id == current_user.id).first()
+    if old_vote:
+        # Actualizar el voto existente
+        for attr, value in skill_vote.model_dump().items():
+            setattr(old_vote, attr, value)
+        old_vote.vote_date = datetime.now()
+        db.commit()
+        db.refresh(old_vote)
+        return old_vote
+
+    # Crear un nuevo voto
+    vote = models.SkillVote(
+        player_id=player_id,
+        voter_id=current_user.id,
+        **skill_vote.model_dump()
+    )
+
     db.add(vote)
     db.commit()
     db.refresh(vote)
     return vote
-
-def get_skill_votes(player_id: int, db: Session):
-    votes = db.query(models.SkillVote).filter(models.SkillVote.player_id == player_id).all()
-    return votes
 
 def create_club(db: Session, club: schemas.ClubCreate, creator_id: int):
     # Crear el nuevo club
@@ -78,15 +129,31 @@ def delete_club(db: Session, club_id: int, current_user: models.User = Depends(g
     db.commit()
     return club
 
+def get_club_players(db: Session, club_id: int, current_user: models.User = Depends(get_current_user)):
+    # Verificar que el club existe
+    club = db.query(models.Club).filter(models.Club.id == club_id).first()
+    if not club:
+        raise HTTPException(status_code=404, detail="Club not found")
+    
+    # Verificar que el usuario actual es miembro del club
+    club_user = db.query(models.ClubUser).filter(models.ClubUser.club_id == club_id, models.ClubUser.user_id == current_user.id).first()
+    if not club_user:
+        raise HTTPException(status_code=403, detail="You are not a member of this club")
+    
+    # Obtener los jugadores del club
+    players = db.query(models.Player).filter(models.Player.club_id == club_id).all()
+    return players
+
 def remove_player_from_club(db: Session, club_id: int, player_id: int, current_user: models.User = Depends(get_current_user)):
     # Verificar que el club existe
     club = db.query(models.Club).filter(models.Club.id == club_id).first()
     if not club:
         raise HTTPException(status_code=404, detail="Club not found")
     
-    # Verificar que el usuario actual es el creador del club
-    if club.creator_id != current_user.id:
-        raise HTTPException(status_code=403, detail="You are not the creator of this club")
+    # Verificar que el usuario actual tiene rol de "admin"
+    club_user = db.query(models.ClubUser).filter(models.ClubUser.club_id == club_id, models.ClubUser.user_id == current_user.id).first()
+    if not club_user or club_user.role != "admin":
+        raise HTTPException(status_code=403, detail="You are not an admin of this club")
 
     # Verificar que el jugador existe
     player = db.query(models.Player).filter(models.Player.id == player_id).first()
