@@ -37,10 +37,12 @@ async def get_form(
     clubs = execute_with_retries(query_clubs, db, current_user_id)
     clubs_ids = [club.id for club in clubs]
     try:
-        if club_id and club_id in clubs_ids:
+        if not club_id:
+            players = execute_with_retries(query_players, db, current_user_id)
+        elif club_id in clubs_ids:
             players = execute_with_retries(query_club_players, db, club_id)
         else:
-            players = execute_with_retries(query_players, db, current_user_id)
+            return RedirectResponse("/", status_code=302)
     except OperationalError:
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
 

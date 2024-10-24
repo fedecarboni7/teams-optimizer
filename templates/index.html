@@ -32,9 +32,9 @@
             {% endfor %}
             <option value="new-club">Crear Club</option>
         </select>
-        {% for club in user_clubs %}
-        <button class="delete-club-button" onclick="deleteClub('{{ club.id }}')">x</button>
-        {% endfor %}
+        {% if club_id is not none %}
+        <button class="delete-club-button" onclick="deleteClub('{{ club_id }}')">x</button>
+        {% endif %}
     </div>
 
     <!-- Modal para crear un nuevo club -->

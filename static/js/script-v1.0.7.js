@@ -1164,7 +1164,7 @@ function deleteClub(clubId) {
     .then(response => {
         if (response.ok) {
             // Recargar la página para actualizar el selector
-            window.location.reload();
+            window.location.href = '/';
         } else {
             throw new Error("Error al eliminar el club");
         }
