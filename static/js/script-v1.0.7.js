@@ -205,6 +205,15 @@ function validateForm(event) {
             input.readOnly = true;
         });
 
+        // Hacer que los delete-button se les agregue el id="deleteBtn{{ player.id }}" leyendo los id en playerDataDict que tiene esta forma: {name: {id: id, ...}}
+        document.querySelectorAll('.delete-button').forEach(button => {
+            const playerName = button.parentNode.querySelector('input[name="names"]').value;
+            const playerId = playerDataDict[playerName];
+            if (playerId) {
+                button.id = `${playerId.id}`;
+            }
+        });
+
         // Hacer scroll hasta el div de los resultados
         const resultsContainer = document.querySelector('#teams-container');
         if (resultsContainer) {
@@ -355,6 +364,7 @@ function addPlayer() {
     deleteButton.appendChild(trashIcon);
 
     deleteButton.addEventListener("click", function() {
+        deletePlayer(this);
         container.removeChild(playerDiv);
         renumerarJugadores();
         updateSelectedCount();
@@ -476,20 +486,22 @@ function applyHoverEffect(container) {
 }
 
 // Eliminar jugador
-function deletePlayer(playerId) {
-    if (confirm("¿Estás seguro de que querés eliminar este jugador?")) {
-        const deleteBtn = document.getElementById('deleteBtn' + playerId);
+function deletePlayer(button) {
+    playerId = button.getAttribute('id');
+
+    if (playerId && confirm("¿Estás seguro de que querés eliminar este jugador?")) {
 
         // Deshabilitar el botón para prevenir múltiples envíos
-        deleteBtn.disabled = true;
+        button.disabled = true;
 
         fetch(`/player/${playerId}`, { method: 'DELETE' })
             .then(response => response.text())
             .then(() => {
-                window.location.href = '/';
-            });
-    }
+                location.reload();
+        });
+
     updateSelectedCount();
+    }
 }
 
 // Actualizar el texto del botón de seleccionar/deseleccionar según el estado actual de los checkboxes
@@ -752,6 +764,9 @@ function getTeamSkills(players) {
     players.forEach(function(player) {
         var playerSkills = playerDataDict[player];
         for (var skill in playerSkills) {
+            if (skill === "id") {
+                continue;
+            }
             skills[skill] += playerSkills[skill];
         }
     });

@@ -163,6 +163,7 @@ async def submit_form(
 
     player_data_dict = {
         player.name: {
+            "id": player.id,
             "velocidad": player.velocidad,
             "resistencia": player.resistencia,
             "control": player.control,
