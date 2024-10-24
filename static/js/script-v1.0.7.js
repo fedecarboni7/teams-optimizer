@@ -492,9 +492,21 @@ function deletePlayer(button) {
     playerId = button.getAttribute('id');
 
     if (playerId && confirm("¿Estás seguro de que querés eliminar este jugador?")) {
-
         // Deshabilitar el botón para prevenir múltiples envíos
         button.disabled = true;
+
+        // Mostrar un spinner encima del botón
+        const spinner = document.createElement('span');
+        spinner.className = 'spinner';
+        spinner.style.marginRight = '0px';
+        
+        // Ocultar el icono del tacho de basura
+        const trashIcon = button.querySelector('i.fa-trash');
+        if (trashIcon) {
+            trashIcon.style.display = 'none';
+        }
+        
+        button.appendChild(spinner);
 
         fetch(`/player/${playerId}`, { method: 'DELETE' })
             .then(response => response.text())
