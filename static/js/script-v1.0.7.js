@@ -497,7 +497,8 @@ function deletePlayer(button) {
         fetch(`/player/${playerId}`, { method: 'DELETE' })
             .then(response => response.text())
             .then(() => {
-                location.reload();
+                container = document.getElementById("players-container");
+                container.removeChild(button.parentNode.parentNode);
         });
 
     updateSelectedCount();
