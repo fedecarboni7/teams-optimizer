@@ -364,11 +364,13 @@ function addPlayer() {
     deleteButton.appendChild(trashIcon);
 
     deleteButton.addEventListener("click", function() {
-        deletePlayer(this);
-        container.removeChild(playerDiv);
-        renumerarJugadores();
-        updateSelectedCount();
-        updateToggleButtonText();
+        response = deletePlayer(deleteButton);
+        if (response) {
+            container.removeChild(playerDiv);
+            renumerarJugadores();
+            updateSelectedCount();
+            updateToggleButtonText();
+        }
     });
     playerHeader.appendChild(deleteButton);
 
@@ -500,9 +502,10 @@ function deletePlayer(button) {
                 container = document.getElementById("players-container");
                 container.removeChild(button.parentNode.parentNode);
         });
-
-    updateSelectedCount();
+        updateSelectedCount();
+        return true;
     }
+    return false;
 }
 
 // Actualizar el texto del botón de seleccionar/deseleccionar según el estado actual de los checkboxes
