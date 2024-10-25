@@ -89,3 +89,6 @@ class SkillVoteResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class InviteRequest(BaseModel):
+    invited_username: str

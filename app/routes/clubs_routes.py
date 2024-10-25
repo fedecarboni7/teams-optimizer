@@ -51,15 +51,15 @@ def remove_player_from_club(club_id: int, player_id: int, db: Session = Depends(
     return crud.remove_player_from_club(db, club_id=club_id, player_id=player_id, current_user=current_user)
 
 @router.post("/clubs/{club_id}/invite")
-async def invite_to_club(
+def invite_to_club(
     club_id: int,
-    invited_username: str,
+    invite_request: schemas.InviteRequest,
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    return await crud.invite_user_to_club(db, club_id, current_user.id, invited_username)
+    return crud.invite_user_to_club(db, club_id, current_user.id, invite_request.invited_username)
 
-@router.post("/api/invitations/{invitation_id}/{action}")
+@router.post("/invitations/{invitation_id}/{action}")
 async def handle_invitation(
     invitation_id: int,
     action: str,
@@ -78,7 +78,8 @@ async def get_pending_invitations(
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    return await crud.get_user_pending_invitations(db, current_user.id)
+    invitations = crud.get_user_pending_invitations(db, current_user.id)
+    return invitations
 
 @router.patch("/clubs/{club_id}/members/{user_id}")
 async def update_member_role(

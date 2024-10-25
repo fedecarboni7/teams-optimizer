@@ -26,16 +26,16 @@
     <div class="club-selector">
         <label for="club-select">Seleccionar club:</label>
         <select id="club-select" onchange="loadPlayersForClub()">
-            <option value="my-players" {% if club_id is none %}selected{% endif %}>Mis jugadores</option>
-            {% for club in user_clubs %}
-            <option value="{{ club.id }}" {% if club.id == club_id %}selected{% endif %}>
+            <option value="my-players" {% if clubId is none %}selected{% endif %}>Mis jugadores</option>
+            {% for club in userClubs %}
+            <option value="{{ club.id }}" {% if club.id == clubId %}selected{% endif %}>
                 {{ club.name }}
             </option>
             {% endfor %}
             <option value="new-club">Crear Club</option>
         </select>
-        {% if club_id is not none %}
-        <button class="delete-club-button" onclick="deleteClub('{{ club_id }}')">x</button>
+        {% if clubId is not none %}
+        <button class="delete-club-button" onclick="deleteClub('{{ clubId }}')">x</button>
         {% endif %}
     </div>
 
@@ -61,12 +61,13 @@
             <div id="invitationsList"></div>
           </div>
         </div>
-        {% if club_id is not none %}
-        <!-- Botón de Invitar -->
-        <button id="inviteBtn" class="icon-button">👥</button>
-      
-        <!-- Botón de Administrar (solo visible para owners) -->
-        <button id="manageBtn" class="icon-button" style="display: none;">⚙️</button>
+        {% if clubId is not none %}
+            <!-- Botón de Invitar -->
+            <button id="inviteBtn" class="icon-button">👥</button>
+            {% if currentUser.clubRole == 'owner' %}
+                <!-- Botón de Administrar (solo visible para owners) -->
+                <button id="manageBtn" class="icon-button">⚙️</button>
+            {% endif %}
         {% endif %}
       </div>
       
@@ -104,8 +105,8 @@
     </div>
 
     <form action="/submit" method="post" onsubmit="return validateForm(event)">
-        {% if club_id is not none %}
-        <input type="hidden" name="club_id" value="{{ club_id }}">
+        {% if clubId is not none %}
+        <input type="hidden" name="clubId" value="{{ clubId }}">
         {% endif %}
         <div id="players-container" class="player-container">
             {% for player in players %}
@@ -117,7 +118,7 @@
                     <button class="toggle-details" type="button" onclick="toggleDetails(this)">
                         <i class="fa-solid fa-angle-down toggle-icon"></i>
                     </button>
-                    <button class="delete-button" id="{{ player.id }}" type="button" onclick="deletePlayer(this)" club-id="{{ club_id }}">
+                    <button class="delete-button" id="{{ player.id }}" type="button" onclick="deletePlayer(this)" club-id="{{ clubId }}">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>
@@ -262,30 +263,5 @@
             <i class="fas fa-code"></i> with ❤️ by <a href="https://github.com/fedecarboni7/teams-optimizer" target="_blank" rel="noopener noreferrer">fedecarboni7</a>
         </div>
     </footer>
-    {% if club_id %}
-    <script>
-        // Pasar los datos del servidor al JavaScript
-        const currentUser = "{{ current_user | tojson }}";
-        const clubId = "{{ club_id }}";
-        const clubMembers = "{{ club_members | tojson }}";
-
-        // Inicializar la gestión del club
-        document.addEventListener('DOMContentLoaded', () => {
-            // Actualizar variables globales
-            window.currentUser = currentUser;
-            window.clubId = clubId;
-            window.clubMembers = clubMembers;
-            
-            // Solo mostrar el botón de gestión si es owner
-            if (currentUser.club_role === 'owner') {
-                document.getElementById('manageBtn').style.display = 'block';
-                updateMembersTableUI();
-            }
-
-            setupEventListeners();
-            loadInvitations();
-        });
-    </script>
-    {% endif %}
 </body>
 </html>

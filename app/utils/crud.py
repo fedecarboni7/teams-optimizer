@@ -174,7 +174,7 @@ def remove_player_from_club(db: Session, club_id: int, player_id: int, current_u
     db.commit()
     return player
 
-async def invite_user_to_club(
+def invite_user_to_club(
     db: Session,
     club_id: int,
     inviter_id: int,
@@ -215,7 +215,7 @@ async def invite_user_to_club(
     db.commit()
     return invitation
 
-async def accept_club_invitation(db: Session, invitation_id: int, user_id: int):
+def accept_club_invitation(db: Session, invitation_id: int, user_id: int):
     invitation = db.query(models.ClubInvitation).filter(
         models.ClubInvitation.id == invitation_id,
         models.ClubInvitation.invited_user_id == user_id,
@@ -242,7 +242,7 @@ async def accept_club_invitation(db: Session, invitation_id: int, user_id: int):
     db.commit()
     return club_user
 
-async def reject_club_invitation(db: Session, invitation_id: int, user_id: int):
+def reject_club_invitation(db: Session, invitation_id: int, user_id: int):
     invitation = db.query(models.ClubInvitation).filter(
         models.ClubInvitation.id == invitation_id,
         models.ClubInvitation.invited_user_id == user_id,
@@ -256,7 +256,7 @@ async def reject_club_invitation(db: Session, invitation_id: int, user_id: int):
     db.commit()
     return invitation
 
-async def get_user_pending_invitations(db: Session, user_id: int):
+def get_user_pending_invitations(db: Session, user_id: int):
     return db.query(models.ClubInvitation).filter(
         models.ClubInvitation.invited_user_id == user_id,
         models.ClubInvitation.status == models.InvitationStatus.PENDING.value,

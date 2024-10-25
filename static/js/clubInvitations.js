@@ -1,11 +1,21 @@
 // Variables globales
 let currentUser = null;
 let clubId = null;
+document.addEventListener('DOMContentLoaded', () => {
+  clubId = document.getElementById('club-select').value;
+});
+
 let pendingInvitations = [];
 let clubMembers = [];
 
+// Inicialización
+document.addEventListener('DOMContentLoaded', () => {
+  setupEventListeners(clubId);
+  loadInvitations();
+});
+
 // Configuración de event listeners
-function setupEventListeners() {
+function setupEventListeners(clubId) {
   // Botón de invitaciones
   document.getElementById('invitationsBtn').addEventListener('click', toggleInvitationsPopover);
   
@@ -17,8 +27,10 @@ function setupEventListeners() {
   });
 
   // Botones de modales
+  if (clubId !== 'my-players') {
   document.getElementById('inviteBtn').addEventListener('click', () => openModal('inviteModal'));
   document.getElementById('manageBtn').addEventListener('click', () => openModal('manageModal'));
+  }
 }
 
 // Funciones de UI
@@ -35,14 +47,19 @@ function closeModal(modalId) {
 }
 
 // Funciones de carga de datos
-async function loadInvitations() {
-  try {
-    const response = await fetch('/invitations/pending');
-    pendingInvitations = await response.json();
+function loadInvitations() {
+  fetch('/invitations/pending', {
+    method: 'GET'
+  })
+  .then(response => response.json())
+  .then(response => {
+    pendingInvitations = response;
     updateInvitationsUI();
-  } catch (error) {
-    console.error('Error al cargar invitaciones:', error);
   }
+  )
+  .catch(error => {
+    console.error('Error al cargar invitaciones:', error);
+  });
 }
 
 async function loadClubMembers() {
@@ -101,26 +118,26 @@ function updateMembersTableUI() {
 }
 
 // Funciones de acción
-async function sendInvitation() {
+function sendInvitation() {
   const username = document.getElementById('usernameInput').value;
-  try {
-    const response = await fetch(`/clubs/${clubId}/invite`, {
+  fetch(`/clubs/${clubId}/invite`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ invited_username: username })
-    });
-    
-    if (response.ok) {
-      alert('Invitación enviada con éxito');
-      closeModal('inviteModal');
-      document.getElementById('usernameInput').value = '';
-    } else {
+    })
+    .then(response => {
+      if (response.ok) {
+        alert('Invitación enviada con éxito');
+        closeModal('inviteModal');
+        document.getElementById('usernameInput').value = '';
+      } else {
+        alert('Error al enviar la invitación');
+      }
+    })
+    .catch (error => {
+      console.error('Error:', error);
       alert('Error al enviar la invitación');
-    }
-  } catch (error) {
-    console.error('Error:', error);
-    alert('Error al enviar la invitación');
-  }
+    });
 }
 
 async function respondToInvitation(invitationId, accept) {

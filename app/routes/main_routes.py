@@ -36,12 +36,11 @@ async def get_form(
     current_user_id = current_user.id
     clubs = execute_with_retries(query_clubs, db, current_user_id)
     clubs_ids = [club.id for club in clubs]
+    current_club_role = []
     
     try:
         if not club_id:
             players = execute_with_retries(query_players, db, current_user_id)
-            club_members = []
-            current_club_role = None
         elif club_id in clubs_ids:
             players = execute_with_retries(query_club_players, db, club_id)
             # Obtener los miembros del club actual y sus roles
@@ -49,15 +48,15 @@ async def get_form(
             # Convertir a diccionario para el template
             club_members = [
                 {
-                    "user_id": member.User.id,
-                    "username": member.User.username,
-                    "role": member.ClubUser.role
+                    "userId": member.User.id,
+                    "userName": member.User.username,
+                    "clubRole": member.ClubUser.role
                 }
                 for member in club_members
             ]
             # Obtener el rol del usuario actual en este club
             current_club_role = next(
-                (member["role"] for member in club_members if member["user_id"] == current_user_id),
+                (member["clubRole"] for member in club_members if member["userId"] == current_user_id),
                 None
             )
         else:
@@ -67,14 +66,14 @@ async def get_form(
 
     context = {
         "players": players,
-        "user_clubs": clubs,
-        "club_id": club_id,
-        "current_user": {
-            "user_id": current_user_id,
-            "username": current_user.username,
-            "club_role": current_club_role
+        "userClubs": clubs,
+        "clubId": club_id,
+        "currentUser": {
+            "userId": current_user_id,
+            "userName": current_user.username,
+            "clubRole": current_club_role if club_id else "member"
         },
-        "club_members": club_members if club_id else []
+        "clubMembers": club_members if club_id else []
     }
 
     return templates.TemplateResponse(request=request, name="index.html", context=context)
