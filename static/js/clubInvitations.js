@@ -49,14 +49,16 @@ function closeModal(modalId) {
 // Funciones de carga de datos
 function loadInvitations() {
   fetch('/invitations/pending', {
-    method: 'GET'
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json'
+    }  
   })
   .then(response => response.json())
   .then(response => {
     pendingInvitations = response;
     updateInvitationsUI();
-  }
-  )
+  })
   .catch(error => {
     console.error('Error al cargar invitaciones:', error);
   });

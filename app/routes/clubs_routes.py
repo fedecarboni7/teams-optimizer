@@ -74,7 +74,7 @@ async def handle_invitation(
         raise HTTPException(status_code=400, detail="Invalid action")
 
 @router.get("/invitations/pending")
-async def get_pending_invitations(
+def get_pending_invitations(
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
