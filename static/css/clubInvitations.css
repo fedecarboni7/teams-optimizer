@@ -39,10 +39,10 @@
 /* Popover de invitaciones */
 .popover {
     display: none;
-    position: absolute;
+    /* position: absolute; */
     top: 100%;
     right: 0;
-    background: white;
+    background: transparent;
     border: 1px solid #ddd;
     border-radius: 4px;
     padding: 1rem;

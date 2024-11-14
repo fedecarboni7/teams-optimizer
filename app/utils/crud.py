@@ -257,8 +257,23 @@ def reject_club_invitation(db: Session, invitation_id: int, user_id: int):
     return invitation
 
 def get_user_pending_invitations(db: Session, user_id: int):
-    return db.query(models.ClubInvitation).filter(
+    invitations = db.query(
+        models.ClubInvitation,
+        models.Club.name.label('club_name')
+    ).join(
+        models.Club,
+        models.ClubInvitation.club_id == models.Club.id
+    ).filter(
         models.ClubInvitation.invited_user_id == user_id,
         models.ClubInvitation.status == models.InvitationStatus.PENDING.value,
         models.ClubInvitation.expiration_date > datetime.now()
     ).all()
+
+    # Convert to dictionary and include club name
+    return [
+        {
+            **invitation[0].__dict__,
+            'club_name': invitation[1]
+        }
+        for invitation in invitations
+    ]

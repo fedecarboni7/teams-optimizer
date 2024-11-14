@@ -85,7 +85,7 @@ function updateInvitationsUI() {
   list.innerHTML = pendingInvitations.length > 0 
     ? pendingInvitations.map(inv => `
       <div class="invitation-card">
-        <span>Unirse a ${inv.club.name}</span>
+        <span>Unirse a ${inv.club_name}</span>
         <div>
           <button class="btn" onclick="respondToInvitation(${inv.id}, false)">Rechazar</button>
           <button class="btn btn-primary" onclick="respondToInvitation(${inv.id}, true)">Aceptar</button>
