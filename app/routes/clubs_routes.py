@@ -60,16 +60,16 @@ def invite_to_club(
     return crud.invite_user_to_club(db, club_id, current_user.id, invite_request.invited_username)
 
 @router.post("/invitations/{invitation_id}/{action}")
-async def handle_invitation(
+def handle_invitation(
     invitation_id: int,
     action: str,
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     if action == "accept":
-        return await crud.accept_club_invitation(db, invitation_id, current_user.id)
+        return crud.accept_club_invitation(db, invitation_id, current_user.id)
     elif action == "reject":
-        return await crud.reject_club_invitation(db, invitation_id, current_user.id)
+        return crud.reject_club_invitation(db, invitation_id, current_user.id)
     else:
         raise HTTPException(status_code=400, detail="Invalid action")
 
@@ -82,7 +82,7 @@ def get_pending_invitations(
     return invitations
 
 @router.patch("/clubs/{club_id}/members/{user_id}")
-async def update_member_role(
+def update_member_role(
     club_id: int,
     user_id: int,
     role_data: dict,
@@ -112,7 +112,7 @@ async def update_member_role(
     return {"status": "success"}
 
 @router.delete("/clubs/{club_id}/members/{user_id}")
-async def remove_member(
+def remove_member(
     club_id: int,
     user_id: int,
     current_user: models.User = Depends(get_current_user),

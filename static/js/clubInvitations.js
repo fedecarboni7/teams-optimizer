@@ -3,6 +3,7 @@ let currentUser = null;
 let clubId = null;
 document.addEventListener('DOMContentLoaded', () => {
   clubId = document.getElementById('club-select').value;
+  currentUser = document.getElementById('manageBtn').value;
 });
 
 let pendingInvitations = [];
@@ -12,6 +13,9 @@ let clubMembers = [];
 document.addEventListener('DOMContentLoaded', () => {
   setupEventListeners(clubId);
   loadInvitations();
+  if (clubId !== 'my-players') {
+    loadClubMembers();
+  }
 });
 
 // Configuración de event listeners
@@ -28,8 +32,11 @@ function setupEventListeners(clubId) {
 
   // Botones de modales
   if (clubId !== 'my-players') {
-  document.getElementById('inviteBtn').addEventListener('click', () => openModal('inviteModal'));
-  document.getElementById('manageBtn').addEventListener('click', () => openModal('manageModal'));
+    document.getElementById('inviteBtn').addEventListener('click', () => openModal('inviteModal'));
+    document.getElementById('manageBtn').addEventListener('click', () => {
+      loadClubMembers();
+      openModal('manageModal');
+    });
   }
 }
 
@@ -102,7 +109,7 @@ function updateMembersTableUI() {
       <td>${member.username}</td>
       <td>
         <select
-          ${member.user_id === currentUser.id ? 'disabled' : ''}
+          ${member.user_id === currentUser.userId ? 'disabled' : ''}
           onchange="updateMemberRole(${member.user_id}, this.value)"
         >
           <option value="member" ${member.role === 'member' ? 'selected' : ''}>Miembro</option>
@@ -142,9 +149,9 @@ function sendInvitation() {
     });
 }
 
-async function respondToInvitation(invitationId, accept) {
+function respondToInvitation(invitationId, accept) {
   try {
-    const response = await fetch(`/invitations/${invitationId}/${accept ? 'accept' : 'reject'}`, {
+    const response = fetch(`/invitations/${invitationId}/${accept ? 'accept' : 'reject'}`, {
       method: 'POST'
     });
     
@@ -161,9 +168,9 @@ async function respondToInvitation(invitationId, accept) {
   }
 }
 
-async function updateMemberRole(userId, newRole) {
+function updateMemberRole(userId, newRole) {
   try {
-    const response = await fetch(`/clubs/${clubId}/members/${userId}`, {
+    const response = fetch(`/clubs/${clubId}/members/${userId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ role: newRole })
@@ -181,11 +188,11 @@ async function updateMemberRole(userId, newRole) {
   }
 }
 
-async function removeMember(userId) {
+function removeMember(userId) {
   if (!confirm('¿Estás seguro de que deseas eliminar a este miembro?')) return;
   
   try {
-    const response = await fetch(`/clubs/${clubId}/members/${userId}`, {
+    const response = fetch(`/clubs/${clubId}/members/${userId}`, {
       method: 'DELETE'
     });
     

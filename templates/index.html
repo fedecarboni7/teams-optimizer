@@ -66,7 +66,7 @@
             <button id="inviteBtn" class="icon-button">👥</button>
             {% if currentUser.clubRole == 'owner' %}
                 <!-- Botón de Administrar (solo visible para owners) -->
-                <button id="manageBtn" class="icon-button">⚙️</button>
+                <button id="manageBtn" class="icon-button" value="{{ currentUser }}">⚙️</button>
             {% endif %}
         {% endif %}
       </div>

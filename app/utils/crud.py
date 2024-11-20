@@ -17,9 +17,12 @@ def get_club_members(club_id: int, db: Session, current_user: models.User = Depe
     if not club_user:
         raise HTTPException(status_code=403, detail="You are not a member of this club")
     
-    # Obtener los miembros del club
-    members = db.query(models.ClubUser).filter(models.ClubUser.club_id == club_id).all()
-    return members
+        # Obtener los miembros del club junto con sus usernames
+    members = db.query(models.ClubUser, models.User.username).join(models.User, models.ClubUser.user_id == models.User.id).filter(models.ClubUser.club_id == club_id).all()
+    
+    # Convertir el resultado a una lista de diccionarios
+    members_list = [{"id": member.ClubUser.id, "club_id": member.ClubUser.club_id, "user_id": member.ClubUser.user_id, "role": member.ClubUser.role, "username": member.username} for member in members]
+    return members_list
 
 def add_user_to_club(club_id: int, user_data: schemas.ClubUserCreate, db: Session, current_user: models.User = Depends(get_current_user)):
     # Verificar que el club existe
