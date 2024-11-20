@@ -3,7 +3,7 @@ let currentUser = null;
 let clubId = null;
 document.addEventListener('DOMContentLoaded', () => {
   clubId = document.getElementById('club-select').value;
-  currentUser = document.getElementById('manageBtn').value;
+  currentUser = document.getElementById('invitationsBtn').value;
 });
 
 let pendingInvitations = [];
@@ -11,7 +11,7 @@ let clubMembers = [];
 
 // Inicialización
 document.addEventListener('DOMContentLoaded', () => {
-  setupEventListeners(clubId);
+  setupEventListeners(clubId, currentUser);
   loadInvitations();
   if (clubId !== 'my-players') {
     loadClubMembers();
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Configuración de event listeners
-function setupEventListeners(clubId) {
+function setupEventListeners(clubId, currentUser) {
   // Botón de invitaciones
   document.getElementById('invitationsBtn').addEventListener('click', toggleInvitationsPopover);
   
@@ -30,8 +30,9 @@ function setupEventListeners(clubId) {
     }
   });
 
+  currentUser = JSON.parse(currentUser.replace(/'/g, '"'));
   // Botones de modales
-  if (clubId !== 'my-players') {
+  if (clubId !== 'my-players' && currentUser.clubRole !== 'member') {
     document.getElementById('inviteBtn').addEventListener('click', () => openModal('inviteModal'));
     document.getElementById('manageBtn').addEventListener('click', () => {
       loadClubMembers();
