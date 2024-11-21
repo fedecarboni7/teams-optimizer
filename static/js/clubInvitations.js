@@ -135,13 +135,14 @@ function sendInvitation() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ invited_username: username })
     })
-    .then(response => {
-      if (response.ok) {
+    .then(response => response.json().then(data => ({ status: response.status, body: data })))
+    .then(({ status, body }) => {
+      if (status === 200) {
         alert('Invitación enviada con éxito');
         closeModal('inviteModal');
         document.getElementById('usernameInput').value = '';
       } else {
-        alert('Error al enviar la invitación');
+        alert(`Error al enviar la invitación: ${body.detail}`);
       }
     })
     .catch (error => {

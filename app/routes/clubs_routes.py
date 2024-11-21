@@ -81,8 +81,7 @@ def get_pending_invitations(
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    invitations = crud.get_user_pending_invitations(db, current_user.id)
-    return invitations
+    return crud.get_user_pending_invitations(db, current_user.id)
 
 @router.patch("/clubs/{club_id}/members/{user_id}")
 def update_member_role(
@@ -92,27 +91,7 @@ def update_member_role(
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    # Verificar que el current_user es owner
-    club_user = db.query(models.ClubUser).filter(
-        models.ClubUser.club_id == club_id,
-        models.ClubUser.user_id == current_user.id,
-        models.ClubUser.role == "owner"
-    ).first()
-    
-    if not club_user:
-        raise HTTPException(status_code=403, detail="Not authorized")
-    
-    member = db.query(models.ClubUser).filter(
-        models.ClubUser.club_id == club_id,
-        models.ClubUser.user_id == user_id
-    ).first()
-    
-    if not member:
-        raise HTTPException(status_code=404, detail="Member not found")
-    
-    member.role = role_data["role"]
-    db.commit()
-    return {"status": "success"}
+    return crud.update_member_role(db, club_id, user_id, role_data, current_user)
 
 @router.post("/clubs/{club_id}/leave")
 def leave_club(club_id: int, current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):

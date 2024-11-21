@@ -57,7 +57,7 @@
         <!-- Botón de Invitaciones -->
         <div style="position: relative;">
           <button id="invitationsBtn" class="icon-button" value="{{ currentUser }}">
-            🔔
+            <i class="fa-solid fa-bell"></i>
             <span id="invitationsBadge" class="notification-badge" style="display: none;">0</span>
           </button>
           <div id="invitationsPopover" class="popover">
@@ -65,11 +65,13 @@
             <div id="invitationsList"></div>
           </div>
         </div>
-        {% if clubId is not none and currentUser.clubRole != 'member'%}
-            <!-- Botón de Invitar -->
-            <button id="inviteBtn" class="icon-button">👥</button>
+        {% if clubId is not none %}
             <!-- Botón de Administrar -->
-            <button id="manageBtn" class="icon-button">⚙️</button>
+            <button id="manageBtn" class="icon-button"><i class="fa-solid fa-users"></i></button>
+            {% if currentUser.clubRole != 'member'%}
+                <!-- Botón de Invitar -->
+                <button id="inviteBtn" class="icon-button"><i class="fa-solid fa-user-plus"></i></button>
+            {% endif %}
         {% endif %}
     </div>
       
@@ -86,16 +88,16 @@
     <!-- Modal de Gestión de Miembros -->
     <div id="manageModal" class="modal">
         <div class="modal-content">
-            <h2>Gestionar miembros</h2>
+            <h2>Miembros del Club</h2>
             <table class="members-table">
-            <thead>
-                <tr>
-                <th>Usuario</th>
-                <th>Rol</th>
-                <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="membersTableBody"></tbody>
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Rol</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="membersTableBody"></tbody>
             </table>
             <button class="btn" onclick="closeModal('manageModal')">Cerrar</button>
         </div>

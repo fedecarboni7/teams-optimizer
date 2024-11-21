@@ -17,7 +17,7 @@ def get_club_members(club_id: int, db: Session, current_user: models.User = Depe
     if not club_user:
         raise HTTPException(status_code=403, detail="You are not a member of this club")
     
-        # Obtener los miembros del club junto con sus usernames
+    # Obtener los miembros del club junto con sus usernames
     members = db.query(models.ClubUser, models.User.username).join(models.User, models.ClubUser.user_id == models.User.id).filter(models.ClubUser.club_id == club_id).all()
     
     # Convertir el resultado a una lista de diccionarios
@@ -190,7 +190,7 @@ def invite_user_to_club(
     invited_username: str,
     expiration_days: int = 7
 ):
-    # Verificar que el invitador es miembro del club
+    # Verificar que el invitador es owner del club
     club_user = db.query(models.ClubUser).filter(
         models.ClubUser.club_id == club_id,
         models.ClubUser.user_id == inviter_id,
@@ -203,6 +203,14 @@ def invite_user_to_club(
     invited_user = db.query(models.User).filter(models.User.username == invited_username).first()
     if not invited_user:
         raise ValueError(f"Usuario {invited_username} no encontrado")
+    
+    # Verificar que el usuario no pertenezca ya al club
+    existing_membership = db.query(models.ClubUser).filter(
+        models.ClubUser.club_id == club_id,
+        models.ClubUser.user_id == invited_user.id
+    ).first()
+    if existing_membership:
+        raise ValueError(f"{invited_username} ya es miembro del club")
 
     # Verificar si ya existe una invitación pendiente
     existing_invitation = db.query(models.ClubInvitation).filter(
@@ -286,3 +294,26 @@ def get_user_pending_invitations(db: Session, user_id: int):
         }
         for invitation in invitations
     ]
+
+def update_member_role(db: Session, club_id: int, user_id: int, role_data: str, current_user: models.User = Depends(get_current_user)):
+    # Verificar que el current_user es owner
+    club_user = db.query(models.ClubUser).filter(
+        models.ClubUser.club_id == club_id,
+        models.ClubUser.user_id == current_user.id,
+        models.ClubUser.role == "owner"
+    ).first()
+    
+    if not club_user:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    member = db.query(models.ClubUser).filter(
+        models.ClubUser.club_id == club_id,
+        models.ClubUser.user_id == user_id
+    ).first()
+    
+    if not member:
+        raise HTTPException(status_code=404, detail="Member not found")
+    
+    member.role = role_data["role"]
+    db.commit()
+    return {"status": "success"}
