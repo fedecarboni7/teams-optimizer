@@ -56,7 +56,16 @@ class ClubUserResponse(BaseModel):
     user_id: int
     club_id: int
     role: str
-    username: Optional[str]
+
+    class Config:
+        from_attributes = True
+
+class ClubUsersResponse(BaseModel):
+    id: int
+    user_id: int
+    club_id: int
+    role: str
+    username: str
 
     class Config:
         from_attributes = True

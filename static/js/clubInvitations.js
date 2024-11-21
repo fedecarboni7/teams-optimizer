@@ -150,9 +150,9 @@ function sendInvitation() {
     });
 }
 
-function respondToInvitation(invitationId, accept) {
+async function respondToInvitation(invitationId, accept) {
   try {
-    const response = fetch(`/invitations/${invitationId}/${accept ? 'accept' : 'reject'}`, {
+    const response = await fetch(`/invitations/${invitationId}/${accept ? 'accept' : 'reject'}`, {
       method: 'POST'
     });
     
@@ -189,11 +189,11 @@ function updateMemberRole(userId, newRole) {
   }
 }
 
-function removeMember(userId) {
+async function removeMember(userId) {
   if (!confirm('¿Estás seguro de que deseas eliminar a este miembro?')) return;
   
   try {
-    const response = fetch(`/clubs/${clubId}/members/${userId}`, {
+    const response = await fetch(`/clubs/${clubId}/members/${userId}`, {
       method: 'DELETE'
     });
     

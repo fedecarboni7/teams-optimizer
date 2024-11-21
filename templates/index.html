@@ -35,7 +35,11 @@
             <option value="new-club">Crear Club</option>
         </select>
         {% if clubId is not none %}
-        <button class="delete-club-button" onclick="deleteClub('{{ clubId }}')">x</button>
+            {% if currentUser.clubRole == "owner" %}
+                <button class="delete-club-button" onclick="deleteClub('{{ clubId }}')">x</button>
+            {% else %}
+                <button class="leave-club-button" onclick="leaveClub('{{ clubId }}')">Salir del club</button>
+            {% endif %}
         {% endif %}
     </div>
 

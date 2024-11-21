@@ -26,7 +26,7 @@ def add_user_to_club(club_id: int, user_data: schemas.ClubUserCreate, db: Sessio
     return crud.add_user_to_club(club_id=club_id, user_data=user_data, db=db, current_user=current_user)
 
 # Get club members
-@router.get("/clubs/{club_id}/members", response_model=List[schemas.ClubUserResponse])
+@router.get("/clubs/{club_id}/members", response_model=List[schemas.ClubUsersResponse])
 def get_club_members(club_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     return crud.get_club_members(club_id, db, current_user)
 
@@ -57,7 +57,10 @@ def invite_to_club(
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    return crud.invite_user_to_club(db, club_id, current_user.id, invite_request.invited_username)
+    try:
+        return crud.invite_user_to_club(db, club_id, current_user.id, invite_request.invited_username)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.post("/invitations/{invitation_id}/{action}")
 def handle_invitation(
@@ -111,31 +114,16 @@ def update_member_role(
     db.commit()
     return {"status": "success"}
 
-@router.delete("/clubs/{club_id}/members/{user_id}")
-def remove_member(
-    club_id: int,
-    user_id: int,
-    current_user: models.User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    # Verificar que el current_user es owner
+@router.post("/clubs/{club_id}/leave")
+def leave_club(club_id: int, current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
     club_user = db.query(models.ClubUser).filter(
         models.ClubUser.club_id == club_id,
-        models.ClubUser.user_id == current_user.id,
-        models.ClubUser.role == "owner"
+        models.ClubUser.user_id == current_user.id
     ).first()
-    
+
     if not club_user:
-        raise HTTPException(status_code=403, detail="Not authorized")
-    
-    member = db.query(models.ClubUser).filter(
-        models.ClubUser.club_id == club_id,
-        models.ClubUser.user_id == user_id
-    ).first()
-    
-    if not member:
-        raise HTTPException(status_code=404, detail="Member not found")
-    
-    db.delete(member)
+        raise HTTPException(status_code=403, detail="No eres miembro de este club")
+
+    db.delete(club_user)
     db.commit()
-    return {"status": "success"}
+    return {"status": "success", "message": "Has salido del club"}

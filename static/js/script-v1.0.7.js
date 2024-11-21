@@ -1173,3 +1173,27 @@ function deleteClub(clubId) {
         alert(error.message);
     });
 }
+
+function leaveClub(clubId) {
+    if (!confirm("¿Estás seguro de que querés abandonar este club?")) {
+        return;
+    }
+
+    fetch('/clubs/' + clubId + '/leave', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => {
+        if (response.ok) {
+            // Recargar la página para actualizar el selector
+            window.location.href = '/';
+        } else {
+            throw new Error("Error al abandonar el club");
+        }
+    })
+    .catch(error => {
+        alert(error.message);
+    });
+}

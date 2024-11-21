@@ -130,12 +130,18 @@ def delete_club(db: Session, club_id: int, current_user: models.User = Depends(g
 
     # Eliminar los miembros
     db.query(models.ClubUser).filter(models.ClubUser.club_id == club_id).delete()
+
     # Eliminar los votos
     skill_votes = db.query(models.SkillVote).join(models.Player).filter(models.Player.club_id == club_id).all()
     for vote in skill_votes:
         db.delete(vote)
+    
     # Eliminar los jugadores
     db.query(models.Player).filter(models.Player.club_id == club_id).delete()
+
+    # Delete pending invitations associated with the club
+    db.query(models.ClubInvitation).filter(models.ClubInvitation.club_id == club_id).delete()
+
     # Eliminar el club
     db.delete(club)
     db.commit()
