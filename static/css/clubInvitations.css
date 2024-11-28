@@ -84,6 +84,14 @@
     overflow-y: auto;
 }
 
+.modal-content input {
+    width: 45%;
+    padding: 8px;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
 /* Tabla de miembros */
 .members-table {
     width: 100%;

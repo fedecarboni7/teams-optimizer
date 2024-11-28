@@ -170,9 +170,9 @@ async function respondToInvitation(invitationId, accept) {
   }
 }
 
-function updateMemberRole(userId, newRole) {
+async function updateMemberRole(userId, newRole) {
   try {
-    const response = fetch(`/clubs/${clubId}/members/${userId}`, {
+    const response = await fetch(`/clubs/${clubId}/members/${userId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ role: newRole })
@@ -183,6 +183,10 @@ function updateMemberRole(userId, newRole) {
         member.user_id === userId ? { ...member, role: newRole } : member
       );
       updateMembersTableUI();
+    } else {
+      const errorData = await response.json();
+      alert(`Error al actualizar el rol: ${errorData.detail}`);
+      loadClubMembers();
     }
   } catch (error) {
     console.error('Error:', error);
@@ -204,6 +208,7 @@ async function removeMember(userId) {
     } else {
       const errorData = await response.json();
       alert(`Error al eliminar al miembro: ${errorData.detail}`);
+      loadClubMembers();
     }
   } catch (error) {
     console.error('Error:', error);

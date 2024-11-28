@@ -50,6 +50,7 @@ def get_club_players(club_id: int, db: Session = Depends(get_db), current_user: 
 def remove_player_from_club(club_id: int, player_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     return crud.remove_player_from_club(db, club_id=club_id, player_id=player_id, current_user=current_user)
 
+# Invite user to a club
 @router.post("/clubs/{club_id}/invite")
 def invite_to_club(
     club_id: int,
@@ -62,6 +63,7 @@ def invite_to_club(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+# Accept or reject club invitation
 @router.post("/invitations/{invitation_id}/{action}")
 def handle_invitation(
     invitation_id: int,
@@ -76,6 +78,7 @@ def handle_invitation(
     else:
         raise HTTPException(status_code=400, detail="Invalid action")
 
+# Get pending invitations
 @router.get("/invitations/pending")
 def get_pending_invitations(
     current_user: models.User = Depends(get_current_user),
@@ -83,6 +86,7 @@ def get_pending_invitations(
 ):
     return crud.get_user_pending_invitations(db, current_user.id)
 
+# Change member role
 @router.patch("/clubs/{club_id}/members/{user_id}")
 def update_member_role(
     club_id: int,
@@ -93,6 +97,7 @@ def update_member_role(
 ):
     return crud.update_member_role(db, club_id, user_id, role_data, current_user)
 
+# Leave club
 @router.post("/clubs/{club_id}/leave")
 def leave_club(club_id: int, current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
     club_user = db.query(models.ClubUser).filter(

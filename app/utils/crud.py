@@ -318,6 +318,15 @@ def update_member_role(db: Session, club_id: int, user_id: int, role_data: str, 
     if not member:
         raise HTTPException(status_code=404, detail="Member not found")
     
+    # Verify that the at least one owner remains
+    if member.role == "owner" and role_data["role"] != "owner":
+        owners = db.query(models.ClubUser).filter(
+            models.ClubUser.club_id == club_id,
+            models.ClubUser.role == "owner"
+        ).count()
+        if owners == 1:
+            raise HTTPException(status_code=400, detail="At least one owner must remain in the club")
+    
     member.role = role_data["role"]
     db.commit()
     return {"status": "success"}
