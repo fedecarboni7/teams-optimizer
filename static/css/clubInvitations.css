@@ -74,10 +74,11 @@
 }
 
 .modal-content {
-    background: white;
-    padding: 2rem;
+    background: #2b2b2b;
+    padding: 1rem;
     border-radius: 8px;
     max-width: 500px;
+    min-width: 320px;
     width: 100%;
     max-height: 80vh;
     overflow-y: auto;
@@ -94,7 +95,11 @@
 .members-table td {
     padding: 8px;
     border: 1px solid #ddd;
-    text-align: left;
+    text-align: center;
+}
+
+.members-table tr:last-child {
+    font-weight: normal;
 }
 
 /* Botones */

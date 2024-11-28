@@ -100,7 +100,7 @@ function updateInvitationsUI() {
         </div>
       </div>
     `).join('')
-    : '<p>No tienes invitaciones pendientes</p>';
+    : '<p>No tenés invitaciones pendientes</p>';
 }
 
 function updateMembersTableUI() {
@@ -201,6 +201,9 @@ async function removeMember(userId) {
     if (response.ok) {
       clubMembers = clubMembers.filter(member => member.user_id !== userId);
       updateMembersTableUI();
+    } else {
+      const errorData = await response.json();
+      alert(`Error al eliminar al miembro: ${errorData.detail}`);
     }
   } catch (error) {
     console.error('Error:', error);

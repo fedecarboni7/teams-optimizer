@@ -63,6 +63,10 @@ def remove_user_from_club(club_id: int, user_id: int, db: Session, current_user:
     if not user_to_remove:
         raise HTTPException(status_code=404, detail="User not found in this club")
     
+    # Verificar que el usuario a eliminar no sea el mismo que el usuario actual
+    if user_to_remove.user_id == current_user.id:
+        raise HTTPException(status_code=403, detail="You can't remove yourself from the club")
+    
     # Eliminar al usuario del club
     db.delete(user_to_remove)
     db.commit()
