@@ -23,26 +23,54 @@
     <div class="content">
     <h1>Armar Equipos</h1>
 
-    <div class="club-selector">
-        <label for="club-select">Seleccionar club:</label>
-        <select id="club-select" onchange="loadPlayersForClub()">
-            <option value="my-players" {% if clubId is none %}selected{% endif %}>Mis jugadores</option>
-            {% for club in userClubs %}
-            <option value="{{ club.id }}" {% if club.id == clubId %}selected{% endif %}>
-                {{ club.name }}
-            </option>
-            {% endfor %}
-            <option value="new-club">Crear Club</option>
-        </select>
+    <div class="club-container">
+        <div class="club-selector">
+            <label for="club-select">Seleccionar club:</label>
+            <select id="club-select" onchange="loadPlayersForClub()">
+                <option value="my-players" {% if clubId is none %}selected{% endif %}>Mis jugadores</option>
+                {% for club in userClubs %}
+                <option value="{{ club.id }}" {% if club.id == clubId %}selected{% endif %}>
+                    {{ club.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+    
+        <div class="club-actions">
+            {% if clubId is not none %}
+                {% if currentUser.clubRole == "owner" %}
+                    <button class="delete-club-button" onclick="deleteClub('{{ clubId }}')" title="Eliminar club">Eliminar Club</button>
+                {% else %}
+                    <button class="leave-club-button" onclick="leaveClub('{{ clubId }}')">Salir del Club</button>
+                {% endif %}
+            {% endif %}
+            <!-- Botón Crear Club -->
+            <button class="create-club-button" onclick="openCreateClubModal()">Crear Club</button>
+        </div>
+    </div>
+
+    <div class="club-management">
+        <button id="invitationsBtn" class="icon-button notification-button" value="{{ currentUser }}" title="Notificaciones">
+            <i class="fa-solid fa-bell"></i>
+            <span id="invitationsBadge" class="notification-badge" style="display: none;">0</span>
+        </button>
         {% if clubId is not none %}
-            {% if currentUser.clubRole == "owner" %}
-                <button class="delete-club-button" onclick="deleteClub('{{ clubId }}')" title="Eliminar club">Eliminar</button>
-            {% else %}
-                <button class="leave-club-button" onclick="leaveClub('{{ clubId }}')">Salir del club</button>
+            <button id="manageBtn" class="icon-button" title="Administrar"><i class="fa-solid fa-users"></i></button>
+            {% if currentUser.clubRole != 'member'%}
+                <button id="inviteBtn" class="icon-button" title="Invitar"><i class="fa-solid fa-user-plus"></i></button>
             {% endif %}
         {% endif %}
     </div>
 
+    <!-- Modal para ver invitaciones -->
+    <div id="invitationsModal" class="modal">
+        <div class="modal-content">
+            <h2>Invitaciones pendientes</h2>
+            <div id="invitationsList"></div>
+            <button class="btn" onclick="closeModal('invitationsModal')">Cerrar</button>
+        </div>
+    </div>
+    
     <!-- Modal para crear un nuevo club -->
     <div id="create-club-modal" class="modal" style="display:none;">
         <div class="modal-content">
@@ -53,28 +81,6 @@
         </div>
     </div>
 
-    <div class="club-management">
-        <!-- Botón de Invitaciones -->
-        <div style="position: relative;">
-          <button id="invitationsBtn" class="icon-button" value="{{ currentUser }}">
-            <i class="fa-solid fa-bell"></i>
-            <span id="invitationsBadge" class="notification-badge" style="display: none;">0</span>
-          </button>
-          <div id="invitationsPopover" class="popover">
-            <h3>Invitaciones pendientes</h3>
-            <div id="invitationsList"></div>
-          </div>
-        </div>
-        {% if clubId is not none %}
-            <!-- Botón de Administrar -->
-            <button id="manageBtn" class="icon-button"><i class="fa-solid fa-users"></i></button>
-            {% if currentUser.clubRole != 'member'%}
-                <!-- Botón de Invitar -->
-                <button id="inviteBtn" class="icon-button"><i class="fa-solid fa-user-plus"></i></button>
-            {% endif %}
-        {% endif %}
-    </div>
-      
     <!-- Modal de Invitar -->
     <div id="inviteModal" class="modal">
         <div class="modal-content">

@@ -21,14 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Configuración de event listeners
 function setupEventListeners(clubId, currentUser) {
   // Botón de invitaciones
-  document.getElementById('invitationsBtn').addEventListener('click', toggleInvitationsPopover);
-  
-  // Cerrar popover al hacer click fuera
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('#invitationsBtn') && !e.target.closest('#invitationsPopover')) {
-      document.getElementById('invitationsPopover').classList.remove('active');
-    }
-  });
+  document.getElementById('invitationsBtn').addEventListener('click', () => openModal('invitationsModal'));
 
   currentUser = JSON.parse(currentUser.replace(/'/g, '"'));
   // Botones de modales
@@ -39,13 +32,16 @@ function setupEventListeners(clubId, currentUser) {
       openModal('manageModal');
     });
   }
+
+  // Cerrar modales al hacer click fuera
+  document.addEventListener('click', event => {
+    if (event.target.classList.contains('modal')) {
+      event.target.classList.remove('active');
+    }
+  });
 }
 
 // Funciones de UI
-function toggleInvitationsPopover() {
-  document.getElementById('invitationsPopover').classList.toggle('active');
-}
-
 function openModal(modalId) {
   document.getElementById(modalId).classList.add('active');
 }

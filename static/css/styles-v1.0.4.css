@@ -460,7 +460,7 @@ tr:last-child {
     position: relative;
     width: 100%;
     max-width: 400px;
-    margin: 0 auto 20px;
+    margin: 15px auto;
 }
 
 #searchInput {

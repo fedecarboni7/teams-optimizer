@@ -1,22 +1,32 @@
 /* Estilos generales */
-.club-management {
+
+/* Contenedor principal */
+.club-container {
     display: flex;
-    gap: 1rem;
-    align-items: center;
+    flex-wrap: wrap; /* Permite que los elementos bajen en pantallas pequeñas */
+    gap: 10px;
+    margin-bottom: 10px;
 }
 
+/* Selector de club */
 .club-selector {
+    flex: 1; /* Ocupa todo el ancho disponible */
+    min-width: 200px;
     color: #fff;
     display: flex;
     align-items: center;
     gap: 8px;
 }
-
+    
 .club-selector label {
     font-weight: bold;
+    min-width: fit-content;
 }
 
 #club-select {
+    width: 100%; /* Asegura que ocupe el espacio completo */
+    padding: 8px;
+    font-size: 14px;
     background-color: #2c2c2c; /* Fondo oscuro */
     color: #fff; /* Texto claro */
     border: 1px solid #555; /* Borde sutil */
@@ -36,6 +46,58 @@
     outline: none;
     border-color: #00bcd4; /* Color destacado al enfocar */
     box-shadow: 0 0 5px #00bcd4; /* Sombra al enfocar */
+}
+
+/* Acciones (botones) */
+.club-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* Botones generales */
+.icon-button, .delete-club-button, .leave-club-button {
+    padding: 8px 12px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.delete-club-button {
+    background-color: #e53935; /* Rojo para acciones destructivas */
+    color: #fff;
+}
+
+.leave-club-button {
+    background-color: #00bcd4; /* Azul para acciones secundarias */
+    color: #fff;
+}
+
+/* Disposición responsiva */
+@media (max-width: 768px) {
+    .club-container {
+        flex-direction: column; /* Cambia a una disposición vertical */
+        align-items: stretch; /* Asegura que los elementos ocupen el ancho completo */
+    }
+
+    .club-actions {
+        justify-content: space-between; /* Espaciado uniforme entre botones */
+    }
+
+    .icon-button {
+        flex: 1; /* Ocupa espacio uniforme */
+    }
+
+    .club-selector label {
+        font-size: 14px;
+    }
+}
+
+.club-management {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
 }
 
 .delete-club-button {
@@ -98,6 +160,52 @@
 
 .icon-button:hover {
     background: #f5f5f5;
+}
+
+.create-club-button {
+    background-color: #4caf50; /* Verde para indicar creación */
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 6px 16px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.create-club-button:hover {
+    background-color: #388e3c; /* Más oscuro al pasar el mouse */
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+}
+
+.create-club-button:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 1);
+}
+
+.notification-button {
+    background: none;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.notification-button:hover {
+    background: #f5f5f5;
+    border-color: #ccc;
+}
+
+.notification-button:focus {
+    outline: none;
+    box-shadow: 0 0 4px #999;
 }
 
 .notification-badge {
