@@ -36,7 +36,7 @@
         </select>
         {% if clubId is not none %}
             {% if currentUser.clubRole == "owner" %}
-                <button class="delete-club-button" onclick="deleteClub('{{ clubId }}')">x</button>
+                <button class="delete-club-button" onclick="deleteClub('{{ clubId }}')" title="Eliminar club">Eliminar</button>
             {% else %}
                 <button class="leave-club-button" onclick="leaveClub('{{ clubId }}')">Salir del club</button>
             {% endif %}

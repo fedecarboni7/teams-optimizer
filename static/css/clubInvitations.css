@@ -5,6 +5,85 @@
     align-items: center;
 }
 
+.club-selector {
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.club-selector label {
+    font-weight: bold;
+}
+
+#club-select {
+    background-color: #2c2c2c; /* Fondo oscuro */
+    color: #fff; /* Texto claro */
+    border: 1px solid #555; /* Borde sutil */
+    border-radius: 8px; /* Bordes redondeados */
+    padding: 5px 10px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#club-select:hover {
+    background-color: #444; /* Cambio de fondo en hover */
+    border-color: #888; /* Cambio de borde en hover */
+}
+
+#club-select:focus {
+    outline: none;
+    border-color: #00bcd4; /* Color destacado al enfocar */
+    box-shadow: 0 0 5px #00bcd4; /* Sombra al enfocar */
+}
+
+.delete-club-button {
+    background-color: #e53935; /* Rojo intenso */
+    color: #fff;
+    border: none;
+    border-radius: 50px; /* Bordes redondeados para un estilo más moderno */
+    padding: 6px 16px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px; /* Espacio entre el ícono y el texto */
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.delete-club-button:hover {
+    background-color: #d32f2f; /* Más oscuro al pasar el mouse */
+    box-shadow: 0 0 8px rgba(229, 57, 53, 0.6); /* Sombra suave */
+}
+
+.delete-club-button:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(229, 57, 53, 1); /* Enfoque destacado */
+}
+
+/* Botón de salida */
+.leave-club-button {
+    background-color: #00bcd4; /* Azul claro */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 6px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.leave-club-button:hover {
+    background-color: #0097a7; /* Azul más oscuro en hover */
+    box-shadow: 0 0 5px #80deea; /* Sombra azul clara */
+}
+
+.leave-club-button:focus {
+    outline: none;
+    box-shadow: 0 0 5px #00bcd4; /* Enfoque destacado */
+}
+
 .icon-button {
     position: relative;
     background: none;
