@@ -324,3 +324,13 @@
     justify-content: space-between;
     align-items: center;
 }
+
+.member-role-select {
+    background-color: #333;
+    border: 1px solid #ddd; /* Borde */
+    border-radius: 4px; /* Bordes redondeados */
+    padding: 8px; /* Espaciado interno */
+    font-size: 14px; /* Tamaño de fuente */
+    color: #e0e0e0; /* Color del texto */
+    width: 92%; /* Ancho completo */
+}

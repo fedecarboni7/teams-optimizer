@@ -109,6 +109,7 @@ function updateMembersTableUI() {
       <td>${member.username}</td>
       <td>
         <select
+          class="member-role-select"
           ${member.user_id === currentUser.userId ? 'disabled' : ''}
           onchange="updateMemberRole(${member.user_id}, this.value)"
         >
