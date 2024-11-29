@@ -1107,15 +1107,6 @@ function loadPlayersForClub() {
     window.location.href = '/?club_id=' + clubId;
 }
 
-function openCreateClubModal() {
-    document.getElementById('create-club-modal').style.display = 'block';
-}
-
-function closeCreateClubModal() {
-    document.getElementById('create-club-modal').style.display = 'none';
-    document.getElementById('club-select').value = 'my-players'; // Volver al valor por defecto
-}
-
 // Crear el nuevo club
 function createNewClub() {
     const clubName = document.getElementById('new-club-name').value;

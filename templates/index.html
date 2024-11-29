@@ -45,7 +45,7 @@
                 {% endif %}
             {% endif %}
             <!-- Botón Crear Club -->
-            <button class="create-club-button" onclick="openCreateClubModal()">Crear Club</button>
+            <button class="create-club-button" id="createClubBtn" title="Crear Club">Crear Club</button>
         </div>
     </div>
 
@@ -72,12 +72,12 @@
     </div>
     
     <!-- Modal para crear un nuevo club -->
-    <div id="create-club-modal" class="modal" style="display:none;">
+    <div id="createClubModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeCreateClubModal()">&times;</span>
             <h2>Crear Club</h2>
             <input type="text" id="new-club-name" placeholder="Nombre del club">
-            <button onclick="createNewClub()">Crear</button>
+            <button class="btn btn-primary" onclick="createNewClub()">Crear</button>
+            <button class="btn" onclick="closeModal('createClubModal')">Cancelar</button>
         </div>
     </div>
 

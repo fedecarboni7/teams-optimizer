@@ -22,6 +22,9 @@ document.addEventListener('DOMContentLoaded', () => {
 function setupEventListeners(clubId, currentUser) {
   // Botón de invitaciones
   document.getElementById('invitationsBtn').addEventListener('click', () => openModal('invitationsModal'));
+  
+  // Botón de crear club
+  document.getElementById('createClubBtn').addEventListener('click', () => openModal('createClubModal'));
 
   currentUser = JSON.parse(currentUser.replace(/'/g, '"'));
   // Botones de modales
