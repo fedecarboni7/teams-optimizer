@@ -98,6 +98,11 @@
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         {% endif %}
+                        {% if currentUser.clubRole != 'owner' %}
+                            <button class="icon-button" onclick="leaveClub('{{ clubId }}')" title="Salir del club">
+                                <i class="fa-solid fa-door-open"></i>
+                            </button>
+                        {% endif %}
                     </div>
                 </div>
                 <table class="members-table">
