@@ -21,6 +21,9 @@
     gap: 10px;
     width: 100%;
     position: relative;
+    flex: 1;
+    max-width: 300px;
+    min-width: 200px;
 }
 
 .club-selector select {
@@ -45,17 +48,15 @@
 }
 
 .club-selector select:hover {
-    border-color: #00bcd4;
-    box-shadow: 0 2px 8px rgba(0, 188, 212, 0.2);
+    box-shadow: 0 2px 4px #ffffff7f;
 }
 
 .club-selector select:focus {
     outline: none;
-    border-color: #00bcd4;
-    box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.2);
+    box-shadow: 0 0 0 1px #ffffff7f;
 }
 
-.icon-button, .delete-club-button, .create-club-button, .leave-club-button {
+.icon-button, .delete-club-button, .leave-club-button {
     padding: 0 12px;
     font-size: 13px;
     border-radius: 4px;
@@ -68,7 +69,6 @@
 }
 
 .delete-club-button,
-.create-club-button,
 .leave-club-button {
     display: none;
 }
@@ -124,24 +124,14 @@
 }
 
 .icon-button:hover {
-    background: #f5f5f5;
-}
-
-.create-club-button {
-    background-color: #4caf50;
-    color: #fff;
-}
-
-.create-club-button:hover {
-    background-color: #388e3c;
-    box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+    background: #ffffff7f;
 }
 
 .notification-button {
     background: none;
     border: 1px solid #ddd;
     border-radius: 4px;
-    padding: 8px;
+    padding: 10px;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -149,7 +139,7 @@
 }
 
 .notification-button:hover {
-    background: #f5f5f5;
+    background: #ffffff7f;
     border-color: #ccc;
 }
 
@@ -204,6 +194,48 @@
     border-radius: 4px;
 }
 
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.modal-actions .icon-button {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-actions .delete-club {
+    color: #e53935;
+    border-color: #e53935;
+}
+
+.modal-actions .delete-club:hover {
+    background-color: rgba(229, 57, 53, 0.1);
+}
+
+.modal-actions-bottom {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+#inviteContent input {
+    width: 100%;
+    margin-top: 1rem;
+}
+
 .members-table {
     width: 100%;
     border-collapse: collapse;
@@ -254,6 +286,22 @@
     justify-content: center;
 }
 
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: center;
+    width: 100%;
+    max-width: 500px;
+}
+
+.control-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* Ajustar el diseño responsivo */
 @media (max-width: 465px) {
     .club-container {
         flex-wrap: wrap;
@@ -327,5 +375,34 @@
         width: 100%;
         max-width: none;
         margin-bottom: 8px;
+    }
+
+    .header-controls {
+        gap: 8px;
+        flex-wrap: nowrap;
+    }
+
+    .club-selector {
+        flex: 1;
+        min-width: 0; /* Permite que el selector se encoja si es necesario */
+    }
+
+    .control-buttons {
+        flex-shrink: 0; /* Evita que los botones se encogan */
+    }
+
+    .header-controls {
+        flex-direction: row;
+        flex-wrap: nowrap;
+        width: 100%;
+    }
+
+    .club-selector {
+        flex: 1;
+    }
+
+    .club-selector select {
+        width: 100%;
+        margin: 0;
     }
 }

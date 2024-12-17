@@ -25,36 +25,30 @@
 
     <div class="club-section">
         <div class="club-container">
-            <!-- Management buttons -->
-            <div class="management-buttons">
-                <button id="invitationsBtn" class="icon-button notification-button" value="{{ currentUser }}" title="Notificaciones">
-                    <i class="fa-solid fa-bell"></i>
-                    <span id="invitationsBadge" class="notification-badge" style="display: none;">0</span>
-                </button>
-                {% if clubId is not none %}
-                    <button id="manageBtn" class="icon-button" title="Administrar"><i class="fa-solid fa-users"></i></button>
-                    {% if currentUser.clubRole != 'member'%}
-                        <button id="inviteBtn" class="icon-button" title="Invitar"><i class="fa-solid fa-user-plus"></i></button>
+            <!-- Reorganización de los elementos -->
+            <div class="header-controls">
+                <div class="club-selector">
+                    <select id="club-select" onchange="loadPlayersForClub()">
+                        <option value="my-players" {% if clubId is none %}selected{% endif %}>Mis jugadores</option>
+                        {% for club in userClubs %}
+                        <option value="{{ club.id }}" {% if club.id == clubId %}selected{% endif %}>
+                            {{ club.name }}
+                        </option>
+                        {% endfor %}
+                        <option value="create-club">+ Crear nuevo club</option>
+                    </select>
+                </div>
+
+                <div class="control-buttons">
+                    <button id="invitationsBtn" class="icon-button notification-button" value="{{ currentUser }}" title="Notificaciones">
+                        <i class="fa-solid fa-bell"></i>
+                        <span id="invitationsBadge" class="notification-badge" style="display: none;">0</span>
+                    </button>
+
+                    {% if clubId is not none %}
+                        <button id="manageBtn" class="icon-button" title="Administrar"><i class="fa-solid fa-users"></i></button>
                     {% endif %}
-                {% endif %}
-            </div>
-    
-            <!-- Club selector -->
-            <div class="club-selector">
-                <select id="club-select" onchange="loadPlayersForClub()">
-                    <option value="my-players" {% if clubId is none %}selected{% endif %}>Mis jugadores</option>
-                    {% for club in userClubs %}
-                    <option value="{{ club.id }}" {% if club.id == clubId %}selected{% endif %}>
-                        {{ club.name }}
-                    </option>
-                    {% endfor %}
-                    <option value="create-club">+ Crear nuevo club</option>
-                </select>
-                {% if clubId is not none %}
-                <button class="club-action-button" onclick="{% if currentUser.clubRole == 'owner' %}deleteClub('{{ clubId }}'){% else %}leaveClub('{{ clubId }}'){% endif %}" title="{% if currentUser.clubRole == 'owner' %}Eliminar club{% else %}Salir del club{% endif %}">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-                {% endif %}
+                </div>
             </div>
         </div>
     </div>
@@ -91,18 +85,48 @@
     <!-- Modal de Gestión de Miembros -->
     <div id="manageModal" class="modal">
         <div class="modal-content">
-            <h2>Miembros del Club</h2>
-            <table class="members-table">
-                <thead>
-                    <tr>
-                        <th>Usuario</th>
-                        <th>Rol</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="membersTableBody"></tbody>
-            </table>
-            <button class="btn" onclick="closeModal('manageModal')">Cerrar</button>
+            <!-- Contenido principal del modal -->
+            <div id="membersContent">
+                <div class="modal-header">
+                    <h2>Miembros del Club</h2>
+                    <div class="modal-actions">
+                        {% if clubId is not none and currentUser.clubRole != 'member' %}
+                            <button id="inviteBtn" class="icon-button" title="Invitar"><i class="fa-solid fa-user-plus"></i></button>
+                        {% endif %}
+                        {% if currentUser.clubRole == 'owner' %}
+                            <button class="icon-button delete-club" onclick="deleteClub('{{ clubId }}')" title="Eliminar club">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+                <table class="members-table">
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Rol</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="membersTableBody"></tbody>
+                </table>
+                <button class="btn" onclick="closeModal('manageModal')">Cerrar</button>
+            </div>
+            
+            <!-- Contenido de invitación -->
+            <div id="inviteContent" style="display: none;">
+                <div class="modal-header">
+                    <h2>Invitar usuario al club</h2>
+                    <button class="icon-button" onclick="showMembersContent()" title="Volver">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                </div>
+                <input type="text" id="inviteUsernameInput" placeholder="Nombre de usuario">
+                <div class="modal-actions-bottom">
+                    <button class="btn btn-primary" onclick="sendInvitation()">Enviar invitación</button>
+                    <button class="btn" onclick="showMembersContent()">Cancelar</button>
+                </div>
+            </div>
         </div>
     </div>
 

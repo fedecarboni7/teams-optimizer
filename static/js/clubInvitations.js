@@ -34,7 +34,13 @@ function setupEventListeners(clubId, currentUser) {
 
     // Solo admins y owners pueden invitar
     if (currentUser.clubRole !== 'member') {
-      document.getElementById('inviteBtn').addEventListener('click', () => openModal('inviteModal'));
+      const inviteBtn = document.getElementById('inviteBtn');
+      if (inviteBtn) {
+        inviteBtn.addEventListener('click', (e) => {
+          e.stopPropagation(); // Evitar que el click cierre el modal de miembros
+          showInviteContent();
+        });
+      }
     }
   }
 
@@ -44,6 +50,17 @@ function setupEventListeners(clubId, currentUser) {
       event.target.classList.remove('active');
     }
   });
+}
+
+function showInviteContent() {
+  document.getElementById('membersContent').style.display = 'none';
+  document.getElementById('inviteContent').style.display = 'block';
+  document.getElementById('inviteUsernameInput').value = ''; // Actualizado el ID
+}
+
+function showMembersContent() {
+  document.getElementById('inviteContent').style.display = 'none';
+  document.getElementById('membersContent').style.display = 'block';
 }
 
 // Funciones de UI
@@ -135,7 +152,12 @@ function updateMembersTableUI() {
 
 // Funciones de acción
 function sendInvitation() {
-  const username = document.getElementById('usernameInput').value;
+  const username = document.getElementById('inviteUsernameInput').value; // Actualizado el ID
+  if (!username) {
+    alert('Por favor ingresa un nombre de usuario');
+    return;
+  }
+  
   fetch(`/clubs/${clubId}/invite`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -145,8 +167,7 @@ function sendInvitation() {
     .then(({ status, body }) => {
       if (status === 200) {
         alert('Invitación enviada con éxito');
-        closeModal('inviteModal');
-        document.getElementById('usernameInput').value = '';
+        showMembersContent(); // Volver a la vista de miembros
       } else {
         alert(`Error al enviar la invitación: ${body.detail}`);
       }
