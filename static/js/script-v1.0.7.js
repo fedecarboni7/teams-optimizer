@@ -1093,20 +1093,6 @@ function generarFormaciones(button) {
     });
 }
 
-function loadPlayersForClub() {
-    const clubId = document.getElementById('club-select').value;
-    if (clubId === 'my-players') {
-        window.location.href = '/';
-        return;
-    }
-    if (clubId === 'new-club') {
-        openCreateClubModal();
-        return;
-    }
-    // ir a "/" pasandole el id del club
-    window.location.href = '/?club_id=' + clubId;
-}
-
 // Crear el nuevo club
 function createNewClub() {
     const clubName = document.getElementById('new-club-name').value;

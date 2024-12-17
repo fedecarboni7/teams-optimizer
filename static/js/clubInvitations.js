@@ -24,9 +24,6 @@ function setupEventListeners(clubId, currentUser) {
   // Botón de invitaciones
   document.getElementById('invitationsBtn').addEventListener('click', () => openModal('invitationsModal'));
   
-  // Botón de crear club
-  document.getElementById('createClubBtn').addEventListener('click', () => openModal('createClubModal'));
-
   // Botones de modales para el club
   if (clubId !== 'my-players') {
     // Permitir que todos los miembros vean la lista
@@ -223,4 +220,24 @@ async function removeMember(userId) {
     console.error('Error:', error);
     alert('Error al eliminar al miembro');
   }
+}
+
+function loadPlayersForClub() {
+  const select = document.getElementById('club-select');
+  const selectedValue = select.value;
+
+  if (selectedValue === 'create-club') {
+    // Restaurar el valor anterior del select
+    select.value = clubId || 'my-players';
+    openModal('createClubModal');
+    return;
+  }
+
+  if (selectedValue === 'my-players') {
+    window.location.href = '/';
+    return;
+  }
+
+  // Navegar al club seleccionado
+  window.location.href = '/?club_id=' + selectedValue;
 }

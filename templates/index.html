@@ -48,19 +48,13 @@
                         {{ club.name }}
                     </option>
                     {% endfor %}
+                    <option value="create-club">+ Crear nuevo club</option>
                 </select>
-            </div>
-    
-            <!-- Action buttons -->
-            <div class="club-actions">
                 {% if clubId is not none %}
-                    {% if currentUser.clubRole == "owner" %}
-                        <button class="delete-club-button" onclick="deleteClub('{{ clubId }}')" title="Eliminar club">Eliminar Club</button>
-                    {% else %}
-                        <button class="leave-club-button" onclick="leaveClub('{{ clubId }}')">Salir del Club</button>
-                    {% endif %}
+                <button class="club-action-button" onclick="{% if currentUser.clubRole == 'owner' %}deleteClub('{{ clubId }}'){% else %}leaveClub('{{ clubId }}'){% endif %}" title="{% if currentUser.clubRole == 'owner' %}Eliminar club{% else %}Salir del club{% endif %}">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
                 {% endif %}
-                <button class="create-club-button" id="createClubBtn" title="Crear Club">Crear Club</button>
             </div>
         </div>
     </div>

@@ -3,7 +3,9 @@
     justify-content: center;
     align-items: center;
     gap: 20px;
-    padding: 10px;
+    padding: 10px 10px;
+    max-width: 800px; /* Establecer ancho máximo */
+    margin: 0 auto; /* Centrar horizontalmente */
 }
 
 .management-buttons, .club-selector, .club-actions {
@@ -18,6 +20,7 @@
     justify-content: center;
     gap: 10px;
     width: 100%;
+    position: relative;
 }
 
 .club-selector select {
@@ -33,6 +36,12 @@
     font-size: 14px;
     transition: all 0.2s ease;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.club-selector select option[value="create-club"] {
+    color: #4caf50;
+    font-weight: bold;
 }
 
 .club-selector select:hover {
@@ -56,6 +65,29 @@
     gap: 6px;
     transition: all 0.2s ease;
     flex-shrink: 0;
+}
+
+.delete-club-button,
+.create-club-button,
+.leave-club-button {
+    display: none;
+}
+
+.club-action-button {
+    background: none;
+    border: none;
+    color: #e53935;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.club-action-button:hover {
+    background-color: rgba(229, 57, 53, 0.1);
 }
 
 .delete-club-button {
@@ -227,7 +259,43 @@
         flex-wrap: wrap;
         gap: 12px;
         flex-direction: column;
-        align-items: stretch;
+        align-items: center; /* Centrar elementos verticalmente */
+        padding: 10px; /* Ajustar padding */
+    }
+
+    .club-selector, .club-actions, .management-buttons {
+        width: 100%; /* Ocupan el 100% del ancho */
+        justify-content: center; /* Centrar elementos horizontalmente */
+    }
+
+    .club-selector {
+        flex-direction: column; /* Apilar elementos verticalmente */
+        gap: 8px; /* Reducir espacio entre elementos */
+    }
+
+    .club-selector select {
+        width: 80%; /* Reducir ancho del selector */
+        max-width: 300px; /* Establecer ancho máximo */
+    }
+
+    .club-actions {
+        flex-direction: column; /* Apilar botones verticalmente */
+        gap: 8px; /* Reducir espacio entre botones */
+    }
+
+    .club-actions button {
+        width: 80%; /* Botones más pequeños */
+        max-width: 300px; /* Ancho máximo para botones */
+        margin: 0 auto; /* Centrar botones */
+    }
+
+    .management-buttons {
+        flex-direction: row; /* Mantener botones en fila */
+        gap: 8px; /* Reducir espacio entre botones */
+    }
+
+    .management-buttons .icon-button {
+        margin: 0; /* Eliminar margen adicional */
     }
 
     .club-selector {
