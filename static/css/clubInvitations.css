@@ -31,7 +31,7 @@
     width: auto;
     padding: 8px 32px 8px 12px;
     border: 1px solid #e0e0e0;
-    border-radius: 6px;
+    border-radius: 20px;
     background: #2b2b2b url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M2.45 4.05L6 7.6l3.55-3.55.9.9-4.45 4.45L1.55 4.95z'/%3E%3C/svg%3E") no-repeat right 12px center;
     color: #e0e0e0;
     appearance: none;
