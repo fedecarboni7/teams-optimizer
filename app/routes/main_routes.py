@@ -7,7 +7,7 @@ from requests import Session
 
 from app.config.config import templates
 from app.db.database import get_db
-from app.db.database_utils import execute_with_retries, query_players
+from app.db.database_utils import execute_with_retries, query_club_members, query_club_players, query_clubs, query_players
 from app.db.models import Player, User
 from app.db.schemas import PlayerCreate
 from app.utils.ai_formations import create_formations
@@ -26,19 +26,55 @@ async def landing_page(request: Request):
 async def get_form(
         request: Request,
         db: Session = Depends(get_db),
-        current_user: User = Depends(get_current_user)
+        current_user: User = Depends(get_current_user),
+        club_id: int = None
     ):
     if not current_user:
         request.session.clear()
         return RedirectResponse("/landing-page", status_code=302)
     
     current_user_id = current_user.id
+    clubs = execute_with_retries(query_clubs, db, current_user_id)
+    clubs_ids = [club.id for club in clubs]
+    current_club_role = []
+    
     try:
-        players = execute_with_retries(query_players, db, current_user_id)
+        if not club_id:
+            players = execute_with_retries(query_players, db, current_user_id)
+        elif club_id in clubs_ids:
+            players = execute_with_retries(query_club_players, db, club_id)
+            # Obtener los miembros del club actual y sus roles
+            club_members = execute_with_retries(query_club_members, db, club_id)
+            # Convertir a diccionario para el template
+            club_members = [
+                {
+                    "userId": member.User.id,
+                    "userName": member.User.username,
+                    "clubRole": member.ClubUser.role
+                }
+                for member in club_members
+            ]
+            # Obtener el rol del usuario actual en este club
+            current_club_role = next(
+                (member["clubRole"] for member in club_members if member["userId"] == current_user_id),
+                None
+            )
+        else:
+            return RedirectResponse("/", status_code=302)
     except OperationalError:
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
 
-    context = {"players": players}
+    context = {
+        "players": players,
+        "userClubs": clubs,
+        "clubId": club_id,
+        "currentUser": {
+            "userId": current_user_id,
+            "userName": current_user.username,
+            "clubRole": current_club_role if club_id else "member"
+        },
+        "clubMembers": club_members if club_id else []
+    }
 
     return templates.TemplateResponse(request=request, name="index.html", context=context)
 
@@ -56,6 +92,8 @@ async def submit_form(
     current_user_id = current_user.id
     form_data = await request.form()
     list_players = form_data._list
+    club_id: int = form_data.get("clubId")
+    list_players = [tupla for tupla in list_players if tupla is not None and tupla[0] != "clubId"]
 
     cant_jug = sum(1 for tupla in list_players if tupla[0] == "names")
 
@@ -81,7 +119,10 @@ async def submit_form(
 
     # Guardar o actualizar jugadores en la base de datos
     try:
-        existing_players = execute_with_retries(query_players, db, current_user_id)
+        if club_id:
+            existing_players = execute_with_retries(query_club_players, db, club_id)
+        else:
+            existing_players = execute_with_retries(query_players, db, current_user_id)
     except OperationalError:
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
 
@@ -94,7 +135,10 @@ async def submit_form(
             for key, value in player.model_dump().items():
                 setattr(db_player, key, value)
         else:
-            players_to_add.append(Player(**player.model_dump(), user_id=current_user_id))
+            if club_id:
+                players_to_add.append(Player(**player.model_dump(), club_id=club_id))
+            else:
+                players_to_add.append(Player(**player.model_dump(), user_id=current_user_id))
 
     if players_to_add:
         db.add_all(players_to_add)
@@ -127,7 +171,10 @@ async def submit_form(
     
     # Calculate the total and average skills for each team
     try:
-        players = execute_with_retries(query_players, db, current_user_id)
+        if club_id:
+            players = execute_with_retries(query_club_players, db, club_id)
+        else:
+            players = execute_with_retries(query_players, db, current_user_id)
     except OperationalError:
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
     

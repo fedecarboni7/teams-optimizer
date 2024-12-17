@@ -2,7 +2,7 @@ from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
 from tenacity import retry, stop_after_attempt, wait_fixed
 
-from app.db.models import Player, User
+from app.db.models import Club, ClubUser, Player, User
 
 
 @retry(wait=wait_fixed(2), stop=stop_after_attempt(5))
@@ -27,3 +27,12 @@ def query_players(db: Session, current_user_id: int):
 
 def query_player(db: Session, player_id: int, current_user_id: int):
     return db.query(Player).filter(Player.id == player_id, Player.user_id == current_user_id).first()
+
+def query_clubs(db: Session, current_user_id: int):
+    return db.query(Club).join(ClubUser).filter(ClubUser.user_id == current_user_id).all()
+
+def query_club_players(db: Session, club_id: int):
+    return db.query(Player).filter(Player.club_id == club_id).all()
+
+def query_club_members(db: Session, club_id: int):
+    return db.query(ClubUser, User).join(User, ClubUser.user_id == User.id).filter(ClubUser.club_id == club_id).all()
