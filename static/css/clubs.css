@@ -177,12 +177,12 @@
 
 .modal-content {
     background: #2b2b2b;
-    padding: 1.5rem;
-    border-radius: 12px;
-    max-width: 600px;
-    min-width: 320px;
+    padding: 1rem;  /* Reducido de 1.5rem */
+    border-radius: 8px;  /* Reducido de 12px */
+    max-width: 400px;  /* Reducido de 600px */
+    min-width: 280px;  /* Reducido de 320px */
     width: 90%;
-    max-height: 85vh;
+    max-height: 80vh;  /* Reducido de 85vh */
     overflow-y: auto;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -200,14 +200,14 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
+    margin-bottom: 1rem;  /* Reducido de 1.5rem */
+    padding-bottom: 0.75rem;  /* Reducido de 1rem */
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .modal-header h2 {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: 1.25rem;  /* Reducido de 1.5rem */
     color: #fff;
 }
 
@@ -238,8 +238,8 @@
     display: flex;
     gap: 12px;
     justify-content: flex-end;
-    margin-top: 1.5rem;
-    padding-top: 1rem;
+    margin-top: 1rem;  /* Reducido de 1.5rem */
+    padding-top: 0.75rem;  /* Reducido de 1rem */
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -253,7 +253,7 @@
 
 .members-table th,
 .members-table td {
-    padding: 12px;
+    padding: 8px;  /* Reducido de 12px */
     border: none;
     text-align: left;
 }
