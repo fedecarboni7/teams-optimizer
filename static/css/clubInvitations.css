@@ -1,149 +1,82 @@
-/* Estilos generales */
-
-/* Contenedor principal */
 .club-container {
     display: flex;
-    flex-wrap: wrap; /* Permite que los elementos bajen en pantallas pequeñas */
-    gap: 10px;
-    margin-bottom: 10px;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 10px;
 }
 
-/* Selector de club */
+.management-buttons, .club-selector, .club-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 .club-selector {
-    flex: 1; /* Ocupa todo el ancho disponible */
-    min-width: 200px;
-    color: #fff;
     display: flex;
     align-items: center;
-    gap: 8px;
-}
-    
-.club-selector label {
-    font-weight: bold;
-    min-width: fit-content;
-}
-
-#club-select {
-    width: 100%; /* Asegura que ocupe el espacio completo */
-    padding: 8px;
-    font-size: 14px;
-    background-color: #2c2c2c; /* Fondo oscuro */
-    color: #fff; /* Texto claro */
-    border: 1px solid #555; /* Borde sutil */
-    border-radius: 8px; /* Bordes redondeados */
-    padding: 5px 10px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-#club-select:hover {
-    background-color: #444; /* Cambio de fondo en hover */
-    border-color: #888; /* Cambio de borde en hover */
-}
-
-#club-select:focus {
-    outline: none;
-    border-color: #00bcd4; /* Color destacado al enfocar */
-    box-shadow: 0 0 5px #00bcd4; /* Sombra al enfocar */
-}
-
-/* Acciones (botones) */
-.club-actions {
-    display: flex;
+    justify-content: center;
     gap: 10px;
+    width: 100%;
 }
 
-/* Botones generales */
-.icon-button, .delete-club-button, .leave-club-button {
-    padding: 8px 12px;
-    font-size: 14px;
-    border: none;
-    border-radius: 5px;
+.club-selector select {
+    min-width: 200px;
+    width: auto;
+    padding: 8px 32px 8px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    background: #2b2b2b url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M2.45 4.05L6 7.6l3.55-3.55.9.9-4.45 4.45L1.55 4.95z'/%3E%3C/svg%3E") no-repeat right 12px center;
+    color: #e0e0e0;
+    appearance: none;
     cursor: pointer;
-    transition: all 0.3s ease;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.club-selector select:hover {
+    border-color: #00bcd4;
+    box-shadow: 0 2px 8px rgba(0, 188, 212, 0.2);
+}
+
+.club-selector select:focus {
+    outline: none;
+    border-color: #00bcd4;
+    box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.2);
+}
+
+.icon-button, .delete-club-button, .create-club-button, .leave-club-button {
+    padding: 0 12px;
+    font-size: 13px;
+    border-radius: 4px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
 }
 
 .delete-club-button {
-    background-color: #e53935; /* Rojo para acciones destructivas */
+    background-color: #e53935;
     color: #fff;
-}
-
-.leave-club-button {
-    background-color: #00bcd4; /* Azul para acciones secundarias */
-    color: #fff;
-}
-
-/* Disposición responsiva */
-@media (max-width: 768px) {
-    .club-container {
-        flex-direction: column; /* Cambia a una disposición vertical */
-        align-items: stretch; /* Asegura que los elementos ocupen el ancho completo */
-    }
-
-    .club-actions {
-        justify-content: space-between; /* Espaciado uniforme entre botones */
-    }
-
-    .icon-button {
-        flex: 1; /* Ocupa espacio uniforme */
-    }
-
-    .club-selector label {
-        font-size: 14px;
-    }
-}
-
-.club-management {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-}
-
-.delete-club-button {
-    background-color: #e53935; /* Rojo intenso */
-    color: #fff;
-    border: none;
-    border-radius: 50px; /* Bordes redondeados para un estilo más moderno */
-    padding: 6px 16px;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    gap: 6px; /* Espacio entre el ícono y el texto */
-    cursor: pointer;
-    transition: all 0.3s ease;
 }
 
 .delete-club-button:hover {
-    background-color: #d32f2f; /* Más oscuro al pasar el mouse */
-    box-shadow: 0 0 8px rgba(229, 57, 53, 0.6); /* Sombra suave */
+    background-color: #d32f2f;
+    box-shadow: 0 0 8px rgba(229, 57, 53, 0.6);
 }
 
-.delete-club-button:focus {
-    outline: none;
-    box-shadow: 0 0 5px rgba(229, 57, 53, 1); /* Enfoque destacado */
-}
-
-/* Botón de salida */
 .leave-club-button {
-    background-color: #00bcd4; /* Azul claro */
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    padding: 6px 12px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    background-color: transparent;
+    color: #00bcd4;
+    border: 1px solid #00bcd4;
 }
 
 .leave-club-button:hover {
-    background-color: #0097a7; /* Azul más oscuro en hover */
-    box-shadow: 0 0 5px #80deea; /* Sombra azul clara */
-}
-
-.leave-club-button:focus {
-    outline: none;
-    box-shadow: 0 0 5px #00bcd4; /* Enfoque destacado */
+    background-color: #00bcd4;
+    color: white;
 }
 
 .icon-button {
@@ -163,27 +96,13 @@
 }
 
 .create-club-button {
-    background-color: #4caf50; /* Verde para indicar creación */
+    background-color: #4caf50;
     color: #fff;
-    border: none;
-    border-radius: 50px;
-    padding: 6px 16px;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-    transition: all 0.3s ease;
 }
 
 .create-club-button:hover {
-    background-color: #388e3c; /* Más oscuro al pasar el mouse */
+    background-color: #388e3c;
     box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
-}
-
-.create-club-button:focus {
-    outline: none;
-    box-shadow: 0 0 5px rgba(76, 175, 80, 1);
 }
 
 .notification-button {
@@ -195,17 +114,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .notification-button:hover {
     background: #f5f5f5;
     border-color: #ccc;
-}
-
-.notification-button:focus {
-    outline: none;
-    box-shadow: 0 0 4px #999;
 }
 
 .notification-badge {
@@ -223,26 +136,6 @@
     justify-content: center;
 }
 
-/* Popover de invitaciones */
-.popover {
-    display: none;
-    /* position: absolute; */
-    top: 100%;
-    right: 0;
-    background: transparent;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 1rem;
-    min-width: 300px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-}
-
-.popover.active {
-    display: block;
-}
-
-/* Modal */
 .modal {
     display: none;
     position: fixed;
@@ -279,7 +172,6 @@
     border-radius: 4px;
 }
 
-/* Tabla de miembros */
 .members-table {
     width: 100%;
     border-collapse: collapse;
@@ -297,7 +189,6 @@
     font-weight: normal;
 }
 
-/* Botones */
 .btn {
     padding: 8px 16px;
     border-radius: 4px;
@@ -310,27 +201,63 @@
     color: white;
 }
 
-.btn-danger {
-    background: #dc3545;
-    color: white;
-}
-
-.invitation-card {
-    border: 1px solid #ddd;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    border-radius: 4px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
 .member-role-select {
     background-color: #333;
-    border: 1px solid #ddd; /* Borde */
-    border-radius: 4px; /* Bordes redondeados */
-    padding: 8px; /* Espaciado interno */
-    font-size: 14px; /* Tamaño de fuente */
-    color: #e0e0e0; /* Color del texto */
-    width: 92%; /* Ancho completo */
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 14px;
+    color: #e0e0e0;
+    width: 92%;
+}
+
+.club-section {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 0 auto 20px;
+    max-width: 800px;
+    width: 100%;
+    padding: 0 16px;
+    justify-content: center;
+}
+
+@media (max-width: 465px) {
+    .club-container {
+        flex-wrap: wrap;
+        gap: 12px;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .club-selector {
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .club-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .club-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 0 12px;
+        justify-content: flex-start;
+    }
+
+    #club-select {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .club-selector select {
+        width: 100%;
+        max-width: none;
+        margin-bottom: 8px;
+    }
 }

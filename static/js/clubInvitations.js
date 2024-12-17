@@ -4,6 +4,7 @@ let clubId = null;
 document.addEventListener('DOMContentLoaded', () => {
   clubId = document.getElementById('club-select').value;
   currentUser = document.getElementById('invitationsBtn').value;
+  currentUser = JSON.parse(currentUser.replace(/'/g, '"'));
 });
 
 let pendingInvitations = [];
@@ -26,14 +27,18 @@ function setupEventListeners(clubId, currentUser) {
   // Botón de crear club
   document.getElementById('createClubBtn').addEventListener('click', () => openModal('createClubModal'));
 
-  currentUser = JSON.parse(currentUser.replace(/'/g, '"'));
-  // Botones de modales
-  if (clubId !== 'my-players' && currentUser.clubRole !== 'member') {
-    document.getElementById('inviteBtn').addEventListener('click', () => openModal('inviteModal'));
+  // Botones de modales para el club
+  if (clubId !== 'my-players') {
+    // Permitir que todos los miembros vean la lista
     document.getElementById('manageBtn').addEventListener('click', () => {
       loadClubMembers();
       openModal('manageModal');
     });
+
+    // Solo admins y owners pueden invitar
+    if (currentUser.clubRole !== 'member') {
+      document.getElementById('inviteBtn').addEventListener('click', () => openModal('inviteModal'));
+    }
   }
 
   // Cerrar modales al hacer click fuera
@@ -104,22 +109,26 @@ function updateInvitationsUI() {
 
 function updateMembersTableUI() {
   const tbody = document.getElementById('membersTableBody');
+  const canEdit = currentUser.clubRole === 'admin' || currentUser.clubRole === 'owner';
+  
   tbody.innerHTML = clubMembers.map(member => `
     <tr>
       <td>${member.username}</td>
       <td>
-        <select
-          class="member-role-select"
-          ${member.user_id === currentUser.userId ? 'disabled' : ''}
-          onchange="updateMemberRole(${member.user_id}, this.value)"
-        >
-          <option value="member" ${member.role === 'member' ? 'selected' : ''}>Miembro</option>
-          <option value="admin" ${member.role === 'admin' ? 'selected' : ''}>Admin</option>
-          <option value="owner" ${member.role === 'owner' ? 'selected' : ''}>Owner</option>
-        </select>
+        ${canEdit ? `
+          <select
+            class="member-role-select"
+            ${member.user_id === currentUser.userId ? 'disabled' : ''}
+            onchange="updateMemberRole(${member.user_id}, this.value)"
+          >
+            <option value="member" ${member.role === 'member' ? 'selected' : ''}>Miembro</option>
+            <option value="admin" ${member.role === 'admin' ? 'selected' : ''}>Admin</option>
+            <option value="owner" ${member.role === 'owner' ? 'selected' : ''}>Owner</option>
+          </select>
+        ` : member.role}
       </td>
       <td>
-        ${member.user_id !== currentUser.id 
+        ${canEdit && member.user_id !== currentUser.userId 
           ? `<button class="btn btn-danger" onclick="removeMember(${member.user_id})">Eliminar</button>`
           : ''}
       </td>
