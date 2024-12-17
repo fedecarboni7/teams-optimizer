@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 let pendingInvitations = [];
 let clubMembers = [];
+let pendingRoleChanges = new Map(); // Almacena los cambios pendientes
 
 // Inicialización
 document.addEventListener('DOMContentLoaded', () => {
@@ -133,7 +134,7 @@ function updateMembersTableUI() {
           <select
             class="member-role-select"
             ${member.user_id === currentUser.userId ? 'disabled' : ''}
-            onchange="updateMemberRole(${member.user_id}, this.value)"
+            onchange="handleRoleChange(${member.user_id}, this.value, '${member.role}')"
           >
             <option value="member" ${member.role === 'member' ? 'selected' : ''}>Miembro</option>
             <option value="admin" ${member.role === 'admin' ? 'selected' : ''}>Admin</option>
@@ -148,6 +149,60 @@ function updateMembersTableUI() {
       </td>
     </tr>
   `).join('');
+
+  // Mostrar u ocultar el botón de confirmar según haya cambios pendientes
+  const confirmButton = document.getElementById('confirmChangesBtn');
+  if (confirmButton) {
+    confirmButton.style.display = pendingRoleChanges.size > 0 ? 'block' : 'none';
+  }
+}
+
+function handleRoleChange(userId, newRole, currentRole) {
+  if (newRole !== currentRole) {
+    pendingRoleChanges.set(userId, newRole);
+  } else {
+    pendingRoleChanges.delete(userId);
+  }
+  
+  // Mostrar u ocultar el botón de confirmar
+  const confirmButton = document.getElementById('confirmChangesBtn');
+  confirmButton.style.display = pendingRoleChanges.size > 0 ? 'block' : 'none';
+}
+
+async function confirmRoleChanges() {
+  if (pendingRoleChanges.size === 0) return;
+
+  const confirmation = confirm('¿Confirmar los cambios de roles?');
+  if (!confirmation) return;
+
+  let success = true;
+  
+  for (const [userId, newRole] of pendingRoleChanges) {
+    try {
+      const response = await fetch(`/clubs/${clubId}/members/${userId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role: newRole })
+      });
+      
+      if (!response.ok) {
+        success = false;
+        const errorData = await response.json();
+        alert(`Error al actualizar el rol: ${errorData.detail}`);
+      }
+    } catch (error) {
+      success = false;
+      console.error('Error:', error);
+      alert('Error al actualizar el rol');
+    }
+  }
+
+  if (success) {
+    await loadClubMembers(); // Recargar la lista de miembros
+    pendingRoleChanges.clear(); // Limpiar cambios pendientes
+    const confirmButton = document.getElementById('confirmChangesBtn');
+    confirmButton.style.display = 'none';
+  }
 }
 
 // Funciones de acción

@@ -92,8 +92,8 @@ async def submit_form(
     current_user_id = current_user.id
     form_data = await request.form()
     list_players = form_data._list
-    club_id: int = form_data.get("club_id")
-    list_players = [tupla for tupla in list_players if tupla is not None and tupla[0] != "club_id"]
+    club_id: int = form_data.get("clubId")
+    list_players = [tupla for tupla in list_players if tupla is not None and tupla[0] != "clubId"]
 
     cant_jug = sum(1 for tupla in list_players if tupla[0] == "names")
 

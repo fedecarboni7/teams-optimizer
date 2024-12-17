@@ -115,7 +115,12 @@
                     </thead>
                     <tbody id="membersTableBody"></tbody>
                 </table>
-                <button class="btn" onclick="closeModal('manageModal')">Cerrar</button>
+                <div class="modal-actions-bottom">
+                    <button id="confirmChangesBtn" class="btn btn-primary" onclick="confirmRoleChanges()" style="display: none;">
+                        Confirmar cambios
+                    </button>
+                    <button class="btn" onclick="closeModal('manageModal')">Cerrar</button>
+                </div>
             </div>
             
             <!-- Contenido de invitación -->

@@ -327,6 +327,11 @@
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
 }
 
+.member-role-select.changed {
+    border-color: #ffffff;
+    background-color: #404040;
+}
+
 #inviteContent input {
     width: auto;
     padding: 12px;
@@ -343,6 +348,17 @@
     outline: none;
     border-color: #ffffff;
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+#confirmChangesBtn {
+    background: #ffffff;
+    color: #2b2b2b;
+    margin-right: auto; /* Alinear a la izquierda */
+}
+
+#confirmChangesBtn:hover {
+    background: #e0e0e0;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
 }
 
 .club-section {
