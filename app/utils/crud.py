@@ -19,9 +19,17 @@ def get_club_members(club_id: int, db: Session, current_user: models.User = Depe
     
     # Obtener los miembros del club junto con sus usernames
     members = db.query(models.ClubUser, models.User.username).join(models.User, models.ClubUser.user_id == models.User.id).filter(models.ClubUser.club_id == club_id).all()
+
+    # Obtener los username de los usuarios invitados al club
+    invited_users = db.query(models.ClubInvitation, models.User.username).join(models.User, models.ClubInvitation.invited_user_id == models.User.id).filter(models.ClubInvitation.club_id == club_id, models.ClubInvitation.status == models.InvitationStatus.PENDING.value).all()
     
     # Convertir el resultado a una lista de diccionarios
     members_list = [{"id": member.ClubUser.id, "club_id": member.ClubUser.club_id, "user_id": member.ClubUser.user_id, "role": member.ClubUser.role, "username": member.username} for member in members]
+    
+    # Agregar los usuarios invitados a la lista de miembros y ponerles member.status = "pending"
+    for invitation, username in invited_users:
+        members_list.append({"id": invitation.id, "club_id": club_id, "user_id": invitation.invited_user_id, "role": "pending", "username": username})
+    
     return members_list
 
 def add_user_to_club(club_id: int, user_data: schemas.ClubUserCreate, db: Session, current_user: models.User = Depends(get_current_user)):
@@ -330,3 +338,29 @@ def update_member_role(db: Session, club_id: int, user_id: int, role_data: str, 
     member.role = role_data["role"]
     db.commit()
     return {"status": "success"}
+
+def cancel_club_invitation(db: Session, club_id: int, invitation_id: int, current_user: models.User):
+    # Verify that the current user is club owner
+    club_user = db.query(models.ClubUser).filter(
+        models.ClubUser.club_id == club_id,
+        models.ClubUser.user_id == current_user.id,
+        models.ClubUser.role.in_(["owner", "admin"])
+    ).first()
+    
+    if not club_user:
+        raise HTTPException(status_code=403, detail="Not authorized to cancel invitations")
+
+    # Find the invitation
+    invitation = db.query(models.ClubInvitation).filter(
+        models.ClubInvitation.id == invitation_id,
+        models.ClubInvitation.club_id == club_id,
+        models.ClubInvitation.status == models.InvitationStatus.PENDING.value
+    ).first()
+    
+    if not invitation:
+        raise HTTPException(status_code=404, detail="Invitation not found")
+
+    # Cancel the invitation
+    invitation.status = models.InvitationStatus.CANCELLED.value
+    db.commit()
+    return invitation

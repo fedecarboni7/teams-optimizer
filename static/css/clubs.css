@@ -268,12 +268,39 @@
     transition: background-color 0.2s ease;
 }
 
+.members-table tr:last-child {
+    font-weight: 400;
+}
+
 .members-table tr:hover {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
 .members-table td {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pending-member {
+    background-color: rgba(255, 255, 255, 0.05);
+    opacity: 0.8;
+}
+
+.pending-badge {
+    background-color: #ffd700;
+    color: #2b2b2b;
+    padding: 2px 6px;
+    border-radius: 12px;
+    font-size: 11px;
+    display: inline-block;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+
+.btn-secondary {
+    background-color: #808080;
+    color: white;
+    padding: 6px 12px; /* Reduced padding */
+    font-size: 12px; /* Smaller font */
 }
 
 .btn {

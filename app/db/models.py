@@ -92,6 +92,7 @@ class InvitationStatus(Enum):
     PENDING = "pending"
     ACCEPTED = "accepted"
     REJECTED = "rejected"
+    CANCELLED = "cancelled"
     EXPIRED = "expired"
 
 class ClubInvitation(Base):
