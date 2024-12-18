@@ -63,6 +63,16 @@ def invite_to_club(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+# Cancel invitation
+@router.delete("/clubs/{club_id}/invitations/{invitation_id}")
+def cancel_invitation(
+    club_id: int,
+    invitation_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    return crud.cancel_club_invitation(db, club_id, invitation_id, current_user)
+
 # Accept or reject club invitation
 @router.post("/invitations/{invitation_id}/{action}")
 def handle_invitation(

@@ -117,6 +117,12 @@ function filterPlayers() {
             player.style.display = 'none';
         }
     });
+
+    // Mantener el orden al filtrar
+    const playersContainer = document.getElementById('players-container');
+    const visiblePlayers = Array.from(players).filter(player => player.style.display !== 'none');
+    playersContainer.innerHTML = '';
+    visiblePlayers.forEach(player => playersContainer.appendChild(player));
 }
 
 // Validar formulario
@@ -1173,4 +1179,35 @@ function leaveClub(clubId) {
     .catch(error => {
         alert(error.message);
     });
+}
+
+// Variable global para mantener el estado del ordenamiento
+let sortDirection = 'asc';
+
+function toggleSort() {
+    const button = document.getElementById('sortButton');
+    const icon = button.querySelector('i');
+    const playersContainer = document.getElementById('players-container');
+    const players = Array.from(playersContainer.children);
+
+    // Cambiar la dirección del ordenamiento
+    sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+
+    // Cambiar el ícono
+    icon.className = sortDirection === 'asc' 
+        ? 'fas fa-sort-alpha-down'
+        : 'fas fa-sort-alpha-up';
+
+    // Ordenar los jugadores
+    players.sort((a, b) => {
+        const nameA = a.querySelector('input[name="names"]').value.toLowerCase();
+        const nameB = b.querySelector('input[name="names"]').value.toLowerCase();
+        return sortDirection === 'asc'
+            ? nameA.localeCompare(nameB)
+            : nameB.localeCompare(nameA);
+    });
+
+    // Vaciar y volver a llenar el contenedor con los elementos ordenados
+    playersContainer.innerHTML = '';
+    players.forEach(player => playersContainer.appendChild(player));
 }

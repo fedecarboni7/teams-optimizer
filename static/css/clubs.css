@@ -31,7 +31,7 @@
     width: auto;
     padding: 8px 32px 8px 12px;
     border: 1px solid #e0e0e0;
-    border-radius: 6px;
+    border-radius: 20px;
     background: #2b2b2b url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M2.45 4.05L6 7.6l3.55-3.55.9.9-4.45 4.45L1.55 4.95z'/%3E%3C/svg%3E") no-repeat right 12px center;
     color: #e0e0e0;
     appearance: none;
@@ -177,12 +177,12 @@
 
 .modal-content {
     background: #2b2b2b;
-    padding: 1.5rem;
-    border-radius: 12px;
-    max-width: 600px;
-    min-width: 320px;
+    padding: 1rem;  /* Reducido de 1.5rem */
+    border-radius: 8px;  /* Reducido de 12px */
+    max-width: 400px;  /* Reducido de 600px */
+    min-width: 280px;  /* Reducido de 320px */
     width: 90%;
-    max-height: 85vh;
+    max-height: 80vh;  /* Reducido de 85vh */
     overflow-y: auto;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -200,14 +200,14 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
+    margin-bottom: 1rem;  /* Reducido de 1.5rem */
+    padding-bottom: 0.75rem;  /* Reducido de 1rem */
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .modal-header h2 {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: 1.25rem;  /* Reducido de 1.5rem */
     color: #fff;
 }
 
@@ -238,8 +238,8 @@
     display: flex;
     gap: 12px;
     justify-content: flex-end;
-    margin-top: 1.5rem;
-    padding-top: 1rem;
+    margin-top: 1rem;  /* Reducido de 1.5rem */
+    padding-top: 0.75rem;  /* Reducido de 1rem */
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -253,7 +253,7 @@
 
 .members-table th,
 .members-table td {
-    padding: 12px;
+    padding: 8px;  /* Reducido de 12px */
     border: none;
     text-align: left;
 }
@@ -268,12 +268,39 @@
     transition: background-color 0.2s ease;
 }
 
+.members-table tr:last-child {
+    font-weight: 400;
+}
+
 .members-table tr:hover {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
 .members-table td {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pending-member {
+    background-color: rgba(255, 255, 255, 0.05);
+    opacity: 0.8;
+}
+
+.pending-badge {
+    background-color: #ffd700;
+    color: #2b2b2b;
+    padding: 2px 6px;
+    border-radius: 12px;
+    font-size: 11px;
+    display: inline-block;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+
+.btn-secondary {
+    background-color: #808080;
+    color: white;
+    padding: 6px 12px; /* Reduced padding */
+    font-size: 12px; /* Smaller font */
 }
 
 .btn {

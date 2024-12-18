@@ -127,25 +127,32 @@ function updateMembersTableUI() {
   const canEdit = currentUser.clubRole === 'admin' || currentUser.clubRole === 'owner';
   
   tbody.innerHTML = clubMembers.map(member => `
-    <tr>
+    <tr class="${member.role === 'pending' ? 'pending-member' : ''}">
       <td>${member.username}</td>
       <td>
-        ${canEdit ? `
-          <select
-            class="member-role-select"
-            ${member.user_id === currentUser.userId ? 'disabled' : ''}
-            onchange="handleRoleChange(${member.user_id}, this.value, '${member.role}')"
-          >
-            <option value="member" ${member.role === 'member' ? 'selected' : ''}>Miembro</option>
-            <option value="admin" ${member.role === 'admin' ? 'selected' : ''}>Admin</option>
-            <option value="owner" ${member.role === 'owner' ? 'selected' : ''}>Owner</option>
-          </select>
-        ` : member.role}
+        ${member.role === 'pending' ? 
+          'Invitado <span class="pending-badge">Pendiente</span>' : 
+          canEdit ? `
+            <select
+              class="member-role-select"
+              ${member.user_id === currentUser.userId ? 'disabled' : ''}
+              onchange="handleRoleChange(${member.user_id}, this.value, '${member.role}')"
+            >
+              <option value="member" ${member.role === 'member' ? 'selected' : ''}>Miembro</option>
+              <option value="admin" ${member.role === 'admin' ? 'selected' : ''}>Admin</option>
+              <option value="owner" ${member.role === 'owner' ? 'selected' : ''}>Owner</option>
+            </select>
+          ` : member.role
+        }
       </td>
       <td>
-        ${canEdit && member.user_id !== currentUser.userId 
-          ? `<button class="btn btn-danger" onclick="removeMember(${member.user_id})">Eliminar</button>`
-          : ''}
+        ${member.role === 'pending' ? `
+          <button class="btn btn-secondary" onclick="cancelInvitation(${member.id})">Cancelar</button>
+        ` : 
+          canEdit && member.user_id !== currentUser.userId ? 
+          `<button class="btn btn-danger" onclick="removeMember(${member.user_id})">Eliminar</button>` 
+          : ''
+        }
       </td>
     </tr>
   `).join('');
@@ -295,6 +302,26 @@ async function removeMember(userId) {
   } catch (error) {
     console.error('Error:', error);
     alert('Error al eliminar al miembro');
+  }
+}
+
+async function cancelInvitation(invitationId) {
+  if (!confirm('¿Estás seguro de que deseas cancelar esta invitación?')) return;
+  
+  try {
+    const response = await fetch(`/clubs/${clubId}/invitations/${invitationId}`, {
+      method: 'DELETE'
+    });
+    
+    if (response.ok) {
+      await loadClubMembers(); // Reload the members list
+    } else {
+      const errorData = await response.json();
+      alert(`Error al cancelar la invitación: ${errorData.detail}`);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error al cancelar la invitación');
   }
 }
 
