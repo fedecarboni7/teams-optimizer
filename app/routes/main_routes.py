@@ -1,8 +1,10 @@
+import time
 from typing import List
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from sqlite3 import OperationalError
+import numpy as np
 from requests import Session
 
 from app.config.config import templates
@@ -13,6 +15,7 @@ from app.db.schemas import PlayerCreate
 from app.utils.ai_formations import create_formations
 from app.utils.auth import get_current_user
 from app.utils.team_optimizer import find_best_combination
+from app.utils.team_optimizer_ import find_best_combination_
 
 
 router = APIRouter()
@@ -161,8 +164,15 @@ async def submit_form(
         ]
         for p in player_data
     ]
+    
+    timer_ = time.time()
+    mejores_equipos, min_difference_total = find_best_combination_(player_scores)
+    print(f"Tiempo de ejecución Python: {time.time() - timer_} segundos")
 
+    timer = time.time()
+    player_scores = np.array(player_scores, dtype=np.float64)
     mejores_equipos, min_difference_total = find_best_combination(player_scores)
+    print(f"Tiempo de ejecución Cython: {time.time() - timer} segundos")
 
     teams = []
     for equipos in mejores_equipos:
