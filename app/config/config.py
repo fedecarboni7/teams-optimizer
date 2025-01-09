@@ -30,7 +30,7 @@ def create_app() -> FastAPI:
     @app.exception_handler(StarletteHTTPException)
     async def http_exception_handler(request: Request, exc: StarletteHTTPException):
         if exc.status_code in [405]:  # Not Found y Method Not Allowed
-            return RedirectResponse(url="/")
+            return RedirectResponse(url="/home")
         
         if exc.status_code == 404:
             return templates.TemplateResponse(request=request, name="404.html", status_code=404, context={"error": exc.detail})

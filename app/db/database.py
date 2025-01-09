@@ -6,6 +6,10 @@ from sqlalchemy.orm import sessionmaker
 from app.config.logging_config import logger
 from app.db.models import Base
 
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 LOCAL_DB = os.getenv("LOCAL_DB", "").lower() == "true"
 

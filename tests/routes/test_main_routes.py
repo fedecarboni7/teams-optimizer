@@ -24,14 +24,14 @@ def client(db):
 
 def test_get_home(client):
     client = TestClient(app, cookies=None)
-    response = client.get("/")
+    response = client.get("/home")
     assert response.status_code == 200
     assert response.template.name == "landing-page.html"
 
     # Authenticate the user
     response = client.post("/signup", data={"username": "testuser1", "password": "Testpassword1*"}, follow_redirects=False)
     assert response.status_code == 302
-    assert response.headers["location"] == "/"
+    assert response.headers["location"] == "/home"
 
 def test_get_current_user(client, db):
     user = User(username="testuser3")

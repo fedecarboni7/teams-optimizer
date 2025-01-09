@@ -26,7 +26,7 @@ def authenticated_client(client):
     if response.status_code == 401:
         response = client.post("/signup", data={"username": "loginuser", "password": "loginpassword"}, follow_redirects=False)
     assert response.status_code == 302
-    assert response.headers["location"] == "/"
+    assert response.headers["location"] == "/home"
     return client
 
 
@@ -42,7 +42,7 @@ def test_post_signup(client, db):
     password = "Newpassword1*"
     response = client.post("/signup", data={"username": username, "password": password}, follow_redirects=False)
     assert response.status_code == 302
-    assert response.headers["location"] == "/"
+    assert response.headers["location"] == "/home"
 
     db_user = db.query(User).filter(User.username == username).first()
     assert db_user is not None
@@ -76,7 +76,7 @@ def test_post_login(client, db):
 
     response = client.post("/login", data={"username": "loginuser", "password": "loginpassword"}, follow_redirects=False)
     assert response.status_code == 302
-    assert response.headers["location"] == "/"
+    assert response.headers["location"] == "/home"
 
     # Test that the user cannot login with wrong password
     response = client.post("/login", data={"username": "loginuser", "password": "wrongpassword"}, follow_redirects=False)

@@ -10,3 +10,8 @@ app.include_router(player_router, tags=["player"])
 app.include_router(auth_router, tags=["auth"])
 app.include_router(main_router, tags=["main"])
 app.include_router(clubs_router, tags=["clubs"])
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=8000)

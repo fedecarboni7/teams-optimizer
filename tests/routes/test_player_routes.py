@@ -26,7 +26,7 @@ def authenticated_client(client):
     if response.status_code == 401:
         response = client.post("/signup", data={"username": "loginuser", "password": "loginpassword"}, follow_redirects=False)
     assert response.status_code == 302
-    assert response.headers["location"] == "/"
+    assert response.headers["location"] == "/home"
     return client
 
 

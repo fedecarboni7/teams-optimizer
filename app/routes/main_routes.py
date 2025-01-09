@@ -17,12 +17,12 @@ from app.utils.team_optimizer import find_best_combination
 
 router = APIRouter()
 
-@router.get("/landing-page", response_class=HTMLResponse, include_in_schema=False)
+@router.get("/", response_class=HTMLResponse, include_in_schema=False)
 async def landing_page(request: Request):
     return templates.TemplateResponse(request=request, name="landing-page.html")
 
 
-@router.get("/", response_class=HTMLResponse, include_in_schema=False)
+@router.get("/home", response_class=HTMLResponse, include_in_schema=False)
 async def get_form(
         request: Request,
         db: Session = Depends(get_db),
@@ -31,7 +31,7 @@ async def get_form(
     ):
     if not current_user:
         request.session.clear()
-        return RedirectResponse("/landing-page", status_code=302)
+        return RedirectResponse("/", status_code=302)
     
     current_user_id = current_user.id
     clubs = execute_with_retries(query_clubs, db, current_user_id)
@@ -60,7 +60,7 @@ async def get_form(
                 None
             )
         else:
-            return RedirectResponse("/", status_code=302)
+            return RedirectResponse("/home", status_code=302)
     except OperationalError:
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
 
@@ -87,7 +87,7 @@ async def submit_form(
     ):
     if not current_user:
         request.session.clear()
-        return RedirectResponse("/landing-page", status_code=302)
+        return RedirectResponse("/", status_code=302)
 
     current_user_id = current_user.id
     form_data = await request.form()
@@ -241,7 +241,7 @@ async def show_formations(
     ):
     if not current_user:
         request.session.clear()
-        return RedirectResponse("/landing-page", status_code=302)
+        return RedirectResponse("/", status_code=302)
     
     # Recibir los datos del frontend
     data = await request.json()

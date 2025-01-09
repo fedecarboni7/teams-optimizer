@@ -20,7 +20,7 @@ router = APIRouter()
 @router.get("/signup", response_class=HTMLResponse, include_in_schema=False)
 async def signup_page(request: Request):
     if request.session.get("user_id"):
-        return RedirectResponse(url="/", status_code=302)
+        return RedirectResponse(url="/home", status_code=302)
     return templates.TemplateResponse(request=request, name="signup.html")
 
 
@@ -54,7 +54,7 @@ async def signup(
 
     # Set user_id in session after successful registration
     request.session["user_id"] = new_user.id
-    return RedirectResponse(url="/", status_code=302)
+    return RedirectResponse(url="/home", status_code=302)
 
 
 @router.get("/login", response_class=HTMLResponse, include_in_schema=False)
@@ -63,7 +63,7 @@ async def login_page(request: Request):
     if referer and 'logout' in referer:
         request.session.clear()
     if request.session.get("user_id"):
-        return RedirectResponse(url="/", status_code=302)
+        return RedirectResponse(url="/home", status_code=302)
     return templates.TemplateResponse(request=request, name="login.html")
 
 
@@ -85,7 +85,7 @@ async def login(
         return templates.TemplateResponse(request=request, name="login.html", context={"error": "Usuario o contraseña incorrectos"}, status_code=401)
 
     request.session["user_id"] = user.id
-    return RedirectResponse(url="/", status_code=302)
+    return RedirectResponse(url="/home", status_code=302)
 
 @router.get("/logout")
 async def logout(request: Request):

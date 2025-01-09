@@ -25,7 +25,7 @@ def unauthorized_client(client):
     if response.status_code == 409:
         response = client.post("/login", data={"username": "loginuser", "password": "Loginpassword123"}, follow_redirects=False)
     assert response.status_code == 302
-    assert response.headers["location"] == "/"
+    assert response.headers["location"] == "/home"
     return client
 
 @pytest.fixture
@@ -35,7 +35,7 @@ def authorized_client(client):
     if response.status_code == 409:
         response = client.post("/login", data={"username": "admin", "password": "Loginpassword123"}, follow_redirects=False)
     assert response.status_code == 302
-    assert response.headers["location"] == "/"
+    assert response.headers["location"] == "/home"
     return client
 
 

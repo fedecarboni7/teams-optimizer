@@ -14,3 +14,4 @@ uvicorn
 python-multipart
 langchain
 langchain-google-genai
+python-dotenv
