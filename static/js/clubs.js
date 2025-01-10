@@ -337,10 +337,10 @@ function loadPlayersForClub() {
   }
 
   if (selectedValue === 'my-players') {
-    window.location.href = '/';
+    window.location.href = "/home";
     return;
   }
 
   // Navegar al club seleccionado
-  window.location.href = '/?club_id=' + selectedValue;
+  window.location.href = '/home?club_id=' + selectedValue;
 }

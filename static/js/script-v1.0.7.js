@@ -557,7 +557,7 @@ function reset() {
         fetch('/reset')
             .then(response => response.text())
             .then(() => {
-                window.location.href = '/';
+                window.location.href = "/home";
             });
     }
 }
@@ -1123,7 +1123,7 @@ function createNewClub() {
     })
     .then(data => {
         // Redirigir a la página con el club recién creado seleccionado
-        window.location.href = '/?club_id=' + data.id;
+        window.location.href = '/home?club_id=' + data.id;
     })
     .catch(error => {
         alert(error.message);
@@ -1147,7 +1147,7 @@ function deleteClub(clubId) {
     .then(response => {
         if (response.ok) {
             // Recargar la página para actualizar el selector
-            window.location.href = '/';
+            window.location.href = "/home";
         } else {
             throw new Error("Error al eliminar el club");
         }
@@ -1171,7 +1171,7 @@ function leaveClub(clubId) {
     .then(response => {
         if (response.ok) {
             // Recargar la página para actualizar el selector
-            window.location.href = '/';
+            window.location.href = "/home";
         } else {
             throw new Error("Error al abandonar el club");
         }
