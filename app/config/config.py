@@ -56,4 +56,12 @@ def create_app() -> FastAPI:
         verify_admin_user(current_user, detail="Unauthorized: /openapi.json")
         return app.openapi()
 
+    @app.middleware("http")
+    async def redirect_to_new_domain(request: Request, call_next):
+        old_domain = "armar-equipos.up.railway.app"
+        if old_domain in request.url.hostname:
+            new_url = str(request.url).replace(old_domain, "armarequipos.lat")
+            return RedirectResponse(url=new_url, status_code=301)
+        return await call_next(request)
+
     return app
