@@ -370,13 +370,7 @@ function addPlayer() {
     deleteButton.appendChild(trashIcon);
 
     deleteButton.addEventListener("click", function() {
-        response = deletePlayer(deleteButton);
-        if (response) {
-            container.removeChild(playerDiv);
-            renumerarJugadores();
-            updateSelectedCount();
-            updateToggleButtonText();
-        }
+        deletePlayer(deleteButton);
     });
     playerHeader.appendChild(deleteButton);
 
@@ -497,7 +491,7 @@ function applyHoverEffect(container) {
 function deletePlayer(button) {
     playerId = button.getAttribute('id');
     const clubId = button.getAttribute('club-id');
-    if (playerId && confirm("¿Estás seguro de que querés eliminar este jugador?")) {
+    if (confirm("¿Estás seguro de que querés eliminar este jugador?")) {
         // Deshabilitar el botón para prevenir múltiples envíos
         button.disabled = true;
 
@@ -514,22 +508,20 @@ function deletePlayer(button) {
         
         button.appendChild(spinner);
 
-        if (clubId !== 'None') {
+        if (clubId !== 'None' && playerId !== null) {
             fetch(`/clubs/${clubId}/players/${playerId}`, { method: 'DELETE' })
                 .then(response => response.text())
-                .then(() => {
-                    container = document.getElementById("players-container");
-                    container.removeChild(button.parentNode.parentNode);
-            });
-        } else {
+        } else if (playerId !== null) {
             fetch(`/player/${playerId}`, { method: 'DELETE' })
                 .then(response => response.text())
-                .then(() => {
-                    container = document.getElementById("players-container");
-                    container.removeChild(button.parentNode.parentNode);
-            });
         }
+
+        container = document.getElementById("players-container");
+        container.removeChild(button.parentNode.parentNode);
+        renumerarJugadores();
+        updateToggleButtonText();
         updateSelectedCount();
+
         return true;
     }
     return false;
