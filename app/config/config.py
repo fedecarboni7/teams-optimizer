@@ -58,7 +58,7 @@ def create_app() -> FastAPI:
 
     @app.middleware("http")
     async def redirect_to_new_domain(request: Request, call_next):
-        old_domain = "armar-equipos-staging.up.railway.app"
+        old_domain = "armar-equipos.up.railway.app"
         if old_domain in request.url.hostname:
             new_url = str(request.url).replace(old_domain, "armarequipos.lat")
             return RedirectResponse(url=new_url, status_code=301)
