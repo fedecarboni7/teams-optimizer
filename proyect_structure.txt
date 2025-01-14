@@ -1,100 +1,109 @@
-Listado de rutas de carpetas
-
-|   .env
-|   .gitignore
-|   CONTRIBUTING.md
-|   LICENSE
-|   README.md
-|   requirements.txt
-|
-+---.github
-|   +---workflows
-|           codeql.yml
-|           python-app.yml
-|
-+---app
-|   |   main.py
-|   |   __init__.py
-|   |   
-|   +---config
-|   |   |   config.py
-|   |   |   logging_config.py
-|   |   |   __init__.py
-|   |
-|   +---db
-|   |   |   database.py
-|   |   |   database_utils.py
-|   |   |   models.py
-|   |   |   schemas.py
-|   |   |   __init__.py
-|   |           
-|   +---routes
-|   |   |   auth_routes.py
-|   |   |   main_routes.py
-|   |   |   player_routes.py
-|   |   |   __init__.py
-|   |           
-|   +---utils
-|   |   |   ai_formations.py
-|   |   |   auth.py
-|   |   |   security.py
-|   |   |   team_optimizer.py
-|   |   |   validators.py
-|   |   |   __init__.py
-|           
-+---static
-|   +---css
-|   |       daisyui.min.css
-|   |       formations.css
-|   |       style.css
-|   |       styles-v1.0.4.css
-|   |       
-|   +---favicon-v1.0
-|   |       android-chrome-192x192.png
-|   |       android-chrome-512x512.png
-|   |       apple-touch-icon.png
-|   |       favicon-16x16.png
-|   |       favicon-32x32.png
-|   |       favicon.ico
-|   |       site.webmanifest
-|   |       
-|   +---images
-|   |       armar-equipos-logo-circle.png
-|   |       footer-bg.svg
-|   |       hero-bg-bottom.svg
-|   |       hero-bg-top.svg
-|   |       iphone-feature-01.png
-|   |       iphone-feature-02.png
-|   |       iphone-feature-03.png
-|   |       iphone-feature-04.png
-|   |       iphone-feature-bg-01.svg
-|   |       iphone-feature-bg-02.svg
-|   |       iphone-feature-bg-03.svg
-|   |       iphone-feature-bg-04.svg
-|   |       iphone-hero-bg.svg
-|   |       iphone-hero.png
-|   |       
-|   +---js
-|           formations.js
-|           main.min.js
-|           script-v1.0.7.js
-|           
-+---templates
-|       500.html
-|       index.html
-|       landing-page.html
-|       login.html
-|       results.html
-|       signup.html
-|       
-+---tests
-|   |   __init__.py
-|   |   conftest.py
-|   |
-|   +---config
-|   |       test_config.py
-|   |       
-|   +---routes
-|   |       test_auth_routes.py
-|   |       test_main_routes.py
-|   |       test_player_routes.py
+Directory structure:
+└── teams-optimizer/
+    ├── .env
+    ├── .gitignore
+    ├── CODE_OF_CONDUCT.md
+    ├── CONTRIBUTING.md
+    ├── LICENSE
+    ├── README.md
+    ├── requirements.txt
+    ├── .github/
+    │   └── workflows/
+    │      ├── codeql.yml
+    │      └── python-app.yml
+    │
+    ├── app/
+    │   ├── __init__.py
+    │   └── main.py
+    │
+    ├── config/
+    │   ├── __init__.py
+    │   ├── config.py
+    │   └── logging_config.py
+    │
+    ├── db/
+    │   ├── __init__.py
+    │   ├── database_utils.py
+    │   ├── database.py
+    │   ├── models.py
+    │   └── schemas.py
+    │
+    ├── routes/
+    │   ├── __init__.py
+    │   ├── auth_routes.py
+    │   ├── clubs_routes.py
+    │   ├── main_routes.py
+    │   ├── player_routes.py
+    │   └── public_routes.py
+    │
+    ├── utils/
+    │   ├── __init__.py
+    │   ├── ai_formations.py
+    │   ├── auth.py
+    │   ├── crud.py
+    │   ├── security.py
+    │   ├── team_optimizer.py
+    │   └── validators.py
+    │
+    ├── static/
+    │   ├── robots.txt
+    │   ├── sitemap.xml
+    │   ├── css/
+    │   │   ├── clubs.css
+    │   │   ├── daisyui.min.css
+    │   │   ├── formations.css
+    │   │   ├── style.css
+    │   │   └── styles-v1.0.4.css
+    │   │
+    │   ├── favicon-v1.0/
+    │   │   ├── android-chrome-192x192.png
+    │   │   ├── android-chrome-512x512.png
+    │   │   ├── apple-touch-icon.png
+    │   │   ├── favicon-16x16.png
+    │   │   ├── favicon-32x32.png
+    │   │   ├── favicon.ico
+    │   │   └── site.webmanifest
+    │   │
+    │   ├── images/
+    │   │   ├── armar-equipos-logo-circle.png
+    │   │   ├── footer-bg.svg
+    │   │   ├── hero-bg-bottom.svg
+    │   │   ├── hero-bg-top.svg
+    │   │   ├── iphone-feature-01.png
+    │   │   ├── iphone-feature-02.png
+    │   │   ├── iphone-feature-03.png
+    │   │   ├── iphone-feature-04.png
+    │   │   ├── iphone-feature-bg-01.svg
+    │   │   ├── iphone-feature-bg-02.svg
+    │   │   ├── iphone-feature-bg-03.svg
+    │   │   ├── iphone-feature-bg-04.svg
+    │   │   ├── iphone-hero-bg.svg
+    │   │   ├── iphone-hero.png
+    │   │   └── social-preview.png
+    │   │
+    │   ├── js/
+    │   │   ├── clubs.js
+    │   │   ├── formations.js
+    │   │   ├── main.min.js
+    │   │   └── script-v1.0.7.js
+    │
+    ├── templates/
+    │   ├── 404.html
+    │   ├── 500.html
+    │   ├── index.html
+    │   ├── landing-page.html
+    │   ├── login.html
+    │   ├── results.html
+    │   └── signup.html
+    │
+    ├── tests/
+    │   ├── __init__.py
+    │   ├── conftest.py
+    │   │
+    │   ├── config/
+    │   │   └── test_config.py
+    │   │
+    │   ├── routes/
+    │   │   ├── test_auth_routes.py
+    │   │   ├── test_main_routes.py
+            └── test_player_routes.py
