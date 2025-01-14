@@ -19,7 +19,7 @@ body {
 h1 {
     color: #ffffff;
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
 }
 
 label {
@@ -460,17 +460,41 @@ tr:last-child {
     position: relative;
     width: 100%;
     max-width: 400px;
-    margin: 0 auto 20px;
+    margin: 15px auto;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.search-box {
+    position: relative;
+    flex: 1;
 }
 
 #searchInput {
     width: 100%;
     padding: 10px 40px 10px 20px;
-    border-radius: 20px;
+    border-radius: 25px;
     border: 1px solid #ccc;
     font-size: 16px;
     outline: none;
     box-sizing: border-box;
+}
+
+.sort-button {
+    padding: 10px;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #333;
+    transition: background-color 0.3s ease;
+}
+
+.sort-button:hover {
+    background-color: #444;
 }
 
 .search-icon {
@@ -580,4 +604,34 @@ tr:last-child {
     --swiper-navigation-size: 30px;
     --swiper-navigation-sides-offset: 2px;
     --swiper-navigation-color: #e0e0e0b5;
+}
+
+.feedback-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px 7px;
+    background-color: #333;
+    color: white;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: small;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    line-height: 1;
+}
+
+.feedback-button:hover {
+    background-color: #444;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.feedback-button i {
+    font-size: 1.2em;
+    margin-top: -1px;
+}
+
+.feedback-button span {
+    margin-top: -3px;
 }

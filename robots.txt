@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://armarequipos.lat/sitemap.xml

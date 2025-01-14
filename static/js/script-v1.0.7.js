@@ -117,6 +117,12 @@ function filterPlayers() {
             player.style.display = 'none';
         }
     });
+
+    // Mantener el orden al filtrar
+    const playersContainer = document.getElementById('players-container');
+    const visiblePlayers = Array.from(players).filter(player => player.style.display !== 'none');
+    playersContainer.innerHTML = '';
+    visiblePlayers.forEach(player => playersContainer.appendChild(player));
 }
 
 // Validar formulario
@@ -364,13 +370,7 @@ function addPlayer() {
     deleteButton.appendChild(trashIcon);
 
     deleteButton.addEventListener("click", function() {
-        response = deletePlayer(deleteButton);
-        if (response) {
-            container.removeChild(playerDiv);
-            renumerarJugadores();
-            updateSelectedCount();
-            updateToggleButtonText();
-        }
+        deletePlayer(deleteButton);
     });
     playerHeader.appendChild(deleteButton);
 
@@ -490,19 +490,38 @@ function applyHoverEffect(container) {
 // Eliminar jugador
 function deletePlayer(button) {
     playerId = button.getAttribute('id');
-
-    if (playerId && confirm("¿Estás seguro de que querés eliminar este jugador?")) {
-
+    const clubId = button.getAttribute('club-id');
+    if (confirm("¿Estás seguro de que querés eliminar este jugador?")) {
         // Deshabilitar el botón para prevenir múltiples envíos
         button.disabled = true;
 
-        fetch(`/player/${playerId}`, { method: 'DELETE' })
-            .then(response => response.text())
-            .then(() => {
-                container = document.getElementById("players-container");
-                container.removeChild(button.parentNode.parentNode);
-        });
+        // Mostrar un spinner encima del botón
+        const spinner = document.createElement('span');
+        spinner.className = 'spinner';
+        spinner.style.marginRight = '0px';
+        
+        // Ocultar el icono del tacho de basura
+        const trashIcon = button.querySelector('i.fa-trash');
+        if (trashIcon) {
+            trashIcon.style.display = 'none';
+        }
+        
+        button.appendChild(spinner);
+
+        if (clubId !== 'None' && playerId !== null) {
+            fetch(`/clubs/${clubId}/players/${playerId}`, { method: 'DELETE' })
+                .then(response => response.text())
+        } else if (playerId !== null) {
+            fetch(`/player/${playerId}`, { method: 'DELETE' })
+                .then(response => response.text())
+        }
+
+        container = document.getElementById("players-container");
+        container.removeChild(button.parentNode.parentNode);
+        renumerarJugadores();
+        updateToggleButtonText();
         updateSelectedCount();
+
         return true;
     }
     return false;
@@ -530,7 +549,7 @@ function reset() {
         fetch('/reset')
             .then(response => response.text())
             .then(() => {
-                window.location.href = '/';
+                window.location.href = "/home";
             });
     }
 }
@@ -625,7 +644,7 @@ function compartirEquipos(button) {
         }
         textoCompartir += '\n'; // Agrega una línea en blanco entre equipos
     }
-    textoCompartir += 'Generado con: https://bit.ly/ArmarEquipos'; // Agrega el enlace al sitio web
+    textoCompartir += 'Generado con: https://armarequipos.lat'; // Agrega el enlace al sitio web
     const shareData = {
         title: 'Resultados de los Equipos - Opción ' + (parseInt(indice)),
         text: textoCompartir
@@ -1070,4 +1089,117 @@ function generarFormaciones(button) {
             toggleStats(detallesButton);
         }
     });
+}
+
+// Crear el nuevo club
+function createNewClub() {
+    const clubName = document.getElementById('new-club-name').value;
+    if (!clubName) {
+        alert("Por favor, ingresá un nombre para el club.");
+        return;
+    }
+
+    // Hacer la solicitud AJAX para crear el club
+    fetch('/clubs/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: clubName }),
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        }
+        throw new Error("Error al crear el club");
+    })
+    .then(data => {
+        // Redirigir a la página con el club recién creado seleccionado
+        window.location.href = '/home?club_id=' + data.id;
+    })
+    .catch(error => {
+        alert(error.message);
+    })
+    .finally(() => {
+        closeCreateClubModal();
+    });
+}
+
+function deleteClub(clubId) {
+    if (!confirm("¿Estás seguro de que querés eliminar este club? Esta acción no se puede deshacer.")) {
+        return;
+    }
+
+    fetch('/clubs/' + clubId, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => {
+        if (response.ok) {
+            // Recargar la página para actualizar el selector
+            window.location.href = "/home";
+        } else {
+            throw new Error("Error al eliminar el club");
+        }
+    })
+    .catch(error => {
+        alert(error.message);
+    });
+}
+
+function leaveClub(clubId) {
+    if (!confirm("¿Estás seguro de que querés abandonar este club?")) {
+        return;
+    }
+
+    fetch('/clubs/' + clubId + '/leave', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => {
+        if (response.ok) {
+            // Recargar la página para actualizar el selector
+            window.location.href = "/home";
+        } else {
+            throw new Error("Error al abandonar el club");
+        }
+    })
+    .catch(error => {
+        alert(error.message);
+    });
+}
+
+// Variable global para mantener el estado del ordenamiento
+let sortDirection = 'asc';
+
+function toggleSort() {
+    const button = document.getElementById('sortButton');
+    const icon = button.querySelector('i');
+    const playersContainer = document.getElementById('players-container');
+    const players = Array.from(playersContainer.children);
+
+    // Cambiar la dirección del ordenamiento
+    sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+
+    // Cambiar el ícono
+    icon.className = sortDirection === 'asc' 
+        ? 'fas fa-sort-alpha-down'
+        : 'fas fa-sort-alpha-up';
+
+    // Ordenar los jugadores
+    players.sort((a, b) => {
+        const nameA = a.querySelector('input[name="names"]').value.toLowerCase();
+        const nameB = b.querySelector('input[name="names"]').value.toLowerCase();
+        return sortDirection === 'asc'
+            ? nameA.localeCompare(nameB)
+            : nameB.localeCompare(nameA);
+    });
+
+    // Vaciar y volver a llenar el contenedor con los elementos ordenados
+    playersContainer.innerHTML = '';
+    players.forEach(player => playersContainer.appendChild(player));
 }

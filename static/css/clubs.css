@@ -1,0 +1,521 @@
+.club-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 10px 10px;
+    max-width: 800px; /* Establecer ancho máximo */
+    margin: 0 auto; /* Centrar horizontalmente */
+}
+
+.management-buttons, .club-selector, .club-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.club-selector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    position: relative;
+    flex: 1;
+    max-width: 300px;
+    min-width: 200px;
+}
+
+.club-selector select {
+    min-width: 200px;
+    width: auto;
+    padding: 8px 32px 8px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    background: #2b2b2b url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M2.45 4.05L6 7.6l3.55-3.55.9.9-4.45 4.45L1.55 4.95z'/%3E%3C/svg%3E") no-repeat right 12px center;
+    color: #e0e0e0;
+    appearance: none;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.club-selector select option[value="create-club"] {
+    color: #4caf50;
+    font-weight: bold;
+}
+
+.club-selector select:hover {
+    box-shadow: 0 1px 4px #ffffff7f;
+}
+
+.club-selector select:focus {
+    outline: none;
+    box-shadow: 0 0 0 1px #ffffff7f;
+}
+
+.icon-button, .delete-club-button, .leave-club-button {
+    padding: 0 12px;
+    font-size: 13px;
+    border-radius: 4px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.delete-club-button,
+.leave-club-button {
+    display: none;
+}
+
+.club-action-button {
+    background: none;
+    border: none;
+    color: #e53935;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.club-action-button:hover {
+    background-color: rgba(229, 57, 53, 0.1);
+}
+
+.delete-club-button {
+    background-color: #e53935;
+    color: #fff;
+}
+
+.delete-club-button:hover {
+    background-color: #d32f2f;
+    box-shadow: 0 0 8px rgba(229, 57, 53, 0.6);
+}
+
+.leave-club-button {
+    background-color: transparent;
+    color: #ffffff;
+    border: 1px solid #ffffff;
+}
+
+.leave-club-button:hover {
+    background-color: #ffffff;
+    color: #2b2b2b;
+}
+
+.icon-button {
+    position: relative;
+    background: none;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-button:hover {
+    background: #ffffff7f;
+}
+
+.notification-button {
+    background: none;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-button:hover {
+    background: #ffffff7f;
+    border-color: #ccc;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: red;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: #2b2b2b;
+    padding: 1rem;  /* Reducido de 1.5rem */
+    border-radius: 8px;  /* Reducido de 12px */
+    max-width: 400px;  /* Reducido de 600px */
+    min-width: 280px;  /* Reducido de 320px */
+    width: 90%;
+    max-height: 80vh;  /* Reducido de 85vh */
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-content input {
+    width: 45%;
+    padding: 8px;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;  /* Reducido de 1.5rem */
+    padding-bottom: 0.75rem;  /* Reducido de 1rem */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.25rem;  /* Reducido de 1.5rem */
+    color: #fff;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.modal-actions .icon-button {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-actions .delete-club {
+    color: #e53935;
+    border-color: #e53935;
+}
+
+.modal-actions .delete-club:hover {
+    background-color: rgba(229, 57, 53, 0.1);
+}
+
+.modal-actions-bottom {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 1rem;  /* Reducido de 1.5rem */
+    padding-top: 0.75rem;  /* Reducido de 1rem */
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.members-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.members-table th,
+.members-table td {
+    padding: 8px;  /* Reducido de 12px */
+    border: none;
+    text-align: left;
+}
+
+.members-table th {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.members-table tr {
+    transition: background-color 0.2s ease;
+}
+
+.members-table tr:last-child {
+    font-weight: 400;
+}
+
+.members-table tr:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.members-table td {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pending-member {
+    background-color: rgba(255, 255, 255, 0.05);
+    opacity: 0.8;
+}
+
+.pending-badge {
+    background-color: #ffd700;
+    color: #2b2b2b;
+    padding: 2px 6px;
+    border-radius: 12px;
+    font-size: 11px;
+    display: inline-block;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+
+.btn-secondary {
+    background-color: #808080;
+    color: white;
+    padding: 6px 12px; /* Reduced padding */
+    font-size: 12px; /* Smaller font */
+}
+
+.btn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background: #ffffff;
+    color: #2b2b2b;
+}
+
+.btn-primary:hover {
+    background: #e0e0e0;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
+}
+
+.btn-danger {
+    background: #e53935;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #d32f2f;
+    box-shadow: 0 2px 8px rgba(229, 57, 53, 0.4);
+}
+
+.member-role-select {
+    background-color: #333;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 14px;
+    color: #e0e0e0;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.member-role-select:hover {
+    border-color: #ffffff;
+}
+
+.member-role-select:focus {
+    outline: none;
+    border-color: #ffffff;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+.member-role-select.changed {
+    border-color: #ffffff;
+    background-color: #404040;
+}
+
+#inviteContent input {
+    width: auto;
+    padding: 12px;
+    margin: 1rem 0;
+    background-color: #333;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    color: #fff;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+#inviteContent input:focus {
+    outline: none;
+    border-color: #ffffff;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+#confirmChangesBtn {
+    background: #ffffff;
+    color: #2b2b2b;
+    margin-right: auto; /* Alinear a la izquierda */
+}
+
+#confirmChangesBtn:hover {
+    background: #e0e0e0;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
+}
+
+.club-section {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 0 auto 20px;
+    max-width: 800px;
+    width: 100%;
+    padding: 0 16px;
+    justify-content: center;
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: center;
+    width: 100%;
+    max-width: 500px;
+}
+
+.control-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* Ajustar el diseño responsivo */
+@media (max-width: 465px) {
+    .club-container {
+        flex-wrap: wrap;
+        gap: 12px;
+        flex-direction: column;
+        align-items: center; /* Centrar elementos verticalmente */
+        padding: 10px; /* Ajustar padding */
+    }
+
+    .club-selector, .club-actions, .management-buttons {
+        width: 100%; /* Ocupan el 100% del ancho */
+        justify-content: center; /* Centrar elementos horizontalmente */
+    }
+
+    .club-selector {
+        flex-direction: column; /* Apilar elementos verticalmente */
+        gap: 8px; /* Reducir espacio entre elementos */
+    }
+
+    .club-selector select {
+        width: 80%; /* Reducir ancho del selector */
+        max-width: 300px; /* Establecer ancho máximo */
+    }
+
+    .club-actions {
+        flex-direction: column; /* Apilar botones verticalmente */
+        gap: 8px; /* Reducir espacio entre botones */
+    }
+
+    .club-actions button {
+        width: 80%; /* Botones más pequeños */
+        max-width: 300px; /* Ancho máximo para botones */
+        margin: 0 auto; /* Centrar botones */
+    }
+
+    .management-buttons {
+        flex-direction: row; /* Mantener botones en fila */
+        gap: 8px; /* Reducir espacio entre botones */
+    }
+
+    .management-buttons .icon-button {
+        margin: 0; /* Eliminar margen adicional */
+    }
+
+    .club-selector {
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .club-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .club-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 0 12px;
+        justify-content: flex-start;
+    }
+
+    #club-select {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .club-selector select {
+        width: 100%;
+        max-width: none;
+        margin-bottom: 8px;
+    }
+
+    .header-controls {
+        gap: 8px;
+        flex-wrap: nowrap;
+    }
+
+    .club-selector {
+        flex: 1;
+        min-width: 0; /* Permite que el selector se encoja si es necesario */
+    }
+
+    .control-buttons {
+        flex-shrink: 0; /* Evita que los botones se encogan */
+    }
+
+    .header-controls {
+        flex-direction: row;
+        flex-wrap: nowrap;
+        width: 100%;
+    }
+
+    .club-selector {
+        flex: 1;
+    }
+
+    .club-selector select {
+        width: 100%;
+        margin: 0;
+    }
+}

@@ -12,21 +12,148 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <script src="/static/js/script-v1.0.7.js"></script>
     <link rel="stylesheet" type="text/css" href="/static/css/formations.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/clubs.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="/static/js/formations.js"></script>
+    <script src="/static/js/clubs.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="content">
     <h1>Armar Equipos</h1>
 
+    <div class="club-section">
+        <div class="club-container">
+            <!-- Reorganización de los elementos -->
+            <div class="header-controls">
+                <div class="club-selector">
+                    <select id="club-select" onchange="loadPlayersForClub()">
+                        <option value="my-players" {% if clubId is none %}selected{% endif %}>Mis jugadores</option>
+                        {% for club in userClubs %}
+                        <option value="{{ club.id }}" {% if club.id == clubId %}selected{% endif %}>
+                            {{ club.name }}
+                        </option>
+                        {% endfor %}
+                        <option value="create-club">+ Crear nuevo club</option>
+                    </select>
+                </div>
+
+                <div class="control-buttons">
+                    <button id="invitationsBtn" class="icon-button notification-button" value="{{ currentUser }}" title="Notificaciones">
+                        <i class="fa-solid fa-bell"></i>
+                        <span id="invitationsBadge" class="notification-badge" style="display: none;">0</span>
+                    </button>
+
+                    {% if clubId is not none %}
+                        <button id="manageBtn" class="icon-button" title="Administrar"><i class="fa-solid fa-users"></i></button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para ver invitaciones -->
+    <div id="invitationsModal" class="modal">
+        <div class="modal-content">
+            <h2>Invitaciones pendientes</h2>
+            <div id="invitationsList"></div>
+            <button class="btn" onclick="closeModal('invitationsModal')">Cerrar</button>
+        </div>
+    </div>
+    
+    <!-- Modal para crear un nuevo club -->
+    <div id="createClubModal" class="modal">
+        <div class="modal-content">
+            <h2>Crear Club</h2>
+            <input type="text" id="new-club-name" placeholder="Nombre del club">
+            <button class="btn btn-primary" onclick="createNewClub()">Crear</button>
+            <button class="btn" onclick="closeModal('createClubModal')">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- Modal de Invitar -->
+    <div id="inviteModal" class="modal">
+        <div class="modal-content">
+            <h2>Invitar usuario al club</h2>
+            <input type="text" id="usernameInput" placeholder="Nombre de usuario">
+            <button class="btn btn-primary" onclick="sendInvitation()">Enviar invitación</button>
+            <button class="btn" onclick="closeModal('inviteModal')">Cancelar</button>
+        </div>
+    </div>
+    
+    <!-- Modal de Gestión de Miembros -->
+    <div id="manageModal" class="modal">
+        <div class="modal-content">
+            <!-- Contenido principal del modal -->
+            <div id="membersContent">
+                <div class="modal-header">
+                    <h2>Miembros del Club</h2>
+                    <div class="modal-actions">
+                        {% if clubId is not none and currentUser.clubRole != 'member' %}
+                            <button id="inviteBtn" class="icon-button" title="Invitar"><i class="fa-solid fa-user-plus"></i></button>
+                        {% endif %}
+                        {% if currentUser.clubRole == 'owner' %}
+                            <button class="icon-button delete-club" onclick="deleteClub('{{ clubId }}')" title="Eliminar club">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        {% endif %}
+                        {% if currentUser.clubRole != 'owner' %}
+                            <button class="icon-button" onclick="leaveClub('{{ clubId }}')" title="Salir del club">
+                                <i class="fa-solid fa-door-open"></i>
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+                <table class="members-table">
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Rol</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="membersTableBody"></tbody>
+                </table>
+                <div class="modal-actions-bottom">
+                    <button id="confirmChangesBtn" class="btn btn-primary" onclick="confirmRoleChanges()" style="display: none;">
+                        Confirmar cambios
+                    </button>
+                    <button class="btn" onclick="closeModal('manageModal')">Cerrar</button>
+                </div>
+            </div>
+            
+            <!-- Contenido de invitación -->
+            <div id="inviteContent" style="display: none;">
+                <div class="modal-header">
+                    <h2>Invitar usuario al club</h2>
+                    <button class="icon-button" onclick="showMembersContent()" title="Volver">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                </div>
+                <input type="text" id="inviteUsernameInput" placeholder="Nombre de usuario">
+                <div class="modal-actions-bottom">
+                    <button class="btn btn-primary" onclick="sendInvitation()">Enviar invitación</button>
+                    <button class="btn" onclick="showMembersContent()">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="search-container">
-        <input type="search" id="searchInput" placeholder="Buscar jugador..." oninput="filterPlayers()">
-        <i class="fas fa-search search-icon"></i>
+        <div class="search-box">
+            <input type="search" id="searchInput" placeholder="Buscar jugador..." oninput="filterPlayers()">
+            <i class="fas fa-search search-icon"></i>
+        </div>
+        <button id="sortButton" class="sort-button" onclick="toggleSort()">
+            <i class="fas fa-sort-alpha-down"></i>
+        </button>
     </div>
 
     <form action="/submit" method="post" onsubmit="return validateForm(event)">
+        {% if clubId is not none %}
+        <input type="hidden" name="clubId" value="{{ clubId }}">
+        {% endif %}
         <div id="players-container" class="player-container">
             {% for player in players %}
             <div class="player-entry">
@@ -37,7 +164,7 @@
                     <button class="toggle-details" type="button" onclick="toggleDetails(this)">
                         <i class="fa-solid fa-angle-down toggle-icon"></i>
                     </button>
-                    <button class="delete-button" id="{{ player.id }}" type="button" onclick="deletePlayer(this)">
+                    <button class="delete-button" id="{{ player.id }}" type="button" onclick="deletePlayer(this)" club-id="{{ clubId }}">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>
@@ -174,12 +301,13 @@
     </div>
     <footer class="footer">
         <div class="footer-links">
-            <a class="footer-link" href="https://form.typeform.com/to/FJzZpDL4" target="_blank" rel="noopener noreferrer"><i class="fa-regular fa-comment"></i></a>
-            <a class="footer-link" href="https://www.linkedin.com/in/fedecarboni7/" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-linkedin"></i></a>
-            <a class="footer-link" href="https://github.com/fedecarboni7" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github"></i></a>
+            <a class="feedback-button" href="https://form.typeform.com/to/FJzZpDL4" target="_blank" rel="noopener noreferrer">
+                <i class="fa-regular fa-comment"></i>
+                <span>Dejame tu opinión</span>
+            </a>
         </div>
         <div class="copyright">
-            <i class="fas fa-code"></i> with ❤️ by <a href="https://github.com/fedecarboni7/teams-optimizer" target="_blank" rel="noopener noreferrer">fedecarboni7</a>
+            <i class="fas fa-code"></i> with ❤️ by <a href="https://github.com/fedecarboni7" target="_blank">fedecarboni7</a>
         </div>
     </footer>
 </body>
