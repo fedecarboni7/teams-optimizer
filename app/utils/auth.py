@@ -10,11 +10,12 @@ def get_current_user(request: Request, db: Session = Depends(get_db)):
     user_id = request.session.get("user_id")
     if user_id:
         try:
-            user = db.get(User, user_id)
+            user = db.query(User).filter(User.id == user_id).first()
             return user
         except DatabaseError as e:
             if "HRANA_WEBSOCKET_ERROR" in str(e):
-                # Handle specific WebSocket error
+                print(f"Database error occurred: {e}")
+                db.rollback()
                 return None
             raise e
     return None
