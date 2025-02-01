@@ -1,4 +1,4 @@
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import OperationalError, DatabaseError
 from sqlalchemy.orm import Session
 from tenacity import retry, stop_after_attempt, wait_fixed
 
@@ -9,14 +9,14 @@ from app.db.models import Club, ClubUser, Player, User
 def execute_with_retries(func, *args, **kwargs):
     try:
         return func(*args, **kwargs)
-    except OperationalError as e:
+    except (OperationalError, DatabaseError) as e:
         raise e
     
 @retry(wait=wait_fixed(2), stop=stop_after_attempt(5))
 def execute_write_with_retries(func, *args, **kwargs):
     try:
         func(*args, **kwargs)
-    except OperationalError as e:
+    except (OperationalError, DatabaseError) as e:
         raise e
 
 def query_user(db: Session, username: str):
