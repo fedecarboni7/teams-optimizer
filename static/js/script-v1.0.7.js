@@ -109,14 +109,20 @@ function filterPlayers() {
     const searchInput = document.getElementById('searchInput').value.toLowerCase();
     const players = document.querySelectorAll('.player-entry');
 
-    players.forEach(player => {
-        const playerName = player.querySelector('input[name="names"]').value.toLowerCase();
-        if (playerName.includes(searchInput)) {
+    if (searchInput === '') {
+        players.forEach(player => {
             player.style.display = '';
-        } else {
-            player.style.display = 'none';
-        }
-    });
+        });
+    } else {
+        players.forEach(player => {
+            const playerName = player.querySelector('input[name="names"]').value.toLowerCase();
+            if (playerName.includes(searchInput)) {
+                player.style.display = '';
+            } else {
+                player.style.display = 'none';
+            }
+        });
+    }
 
     // Mantener el orden al filtrar
     const playersContainer = document.getElementById('players-container');
