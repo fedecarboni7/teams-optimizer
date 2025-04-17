@@ -271,11 +271,6 @@ function addPlayer() {
         updateToggleButtonText();
     });
 
-    // Nombre del jugador
-    const nameLabel = document.createElement("label");
-    nameLabel.textContent = "Jugador " + (playerCount + 1) + ":";
-    playerHeader.appendChild(nameLabel);
-
     const nameInput = document.createElement("input");
     nameInput.type = "text";
     nameInput.name = "names";

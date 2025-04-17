@@ -37,6 +37,12 @@
         <div class="club-container">
             <!-- Reorganización de los elementos -->
             <div class="header-controls">
+                <!-- Add the sort button container -->
+                <div class="sort-container" style="display: flex; justify-content: flex-end;">
+                    <button id="sortButton" class="sort-button" onclick="toggleSort()">
+                        <i class="fas fa-sort-alpha-down"></i>
+                    </button>
+                </div>
                 <div class="club-selector">
                     <select id="club-select" onchange="loadPlayersForClub()">
                         <option value="my-players" {% if clubId is none %}selected{% endif %}>Mis jugadores</option>
@@ -150,13 +156,6 @@
         </div>
     </div>
 
-    <!-- Add the sort button container -->
-    <div class="sort-container" style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
-        <button id="sortButton" class="sort-button" onclick="toggleSort()">
-            <i class="fas fa-sort-alpha-down"></i>
-        </button>
-    </div>
-
     <form action="/submit" method="post" onsubmit="return validateForm(event)">
         {% if clubId is not none %}
         <input type="hidden" name="clubId" value="{{ clubId }}">
@@ -166,8 +165,7 @@
             <div class="player-entry">
                 <div class="player-header">
                     <input type="checkbox" name="selectedPlayers" value="{{ player.id }}">
-                    <label>Jugador {{ loop.index }}:</label>
-                    <input type="text" name="names" value="{{ player.name }}" onclick="toggleDetails(this)" required readonly>
+                    <input type="text" name="names" value="{{ player.name }}" placeholder="Jugador {{ loop.index }}" onclick="toggleDetails(this)" required readonly>
                     <button class="toggle-details" type="button" onclick="toggleDetails(this)">
                         <i class="fa-solid fa-angle-down toggle-icon"></i>
                     </button>

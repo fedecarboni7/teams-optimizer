@@ -85,8 +85,8 @@ a.logout-link:hover {
     color: #fff;
     font-size: initial;
     position: absolute;
-    left: 140px;
-    width: calc(100% - 227px);
+    left: 50px;
+    width: calc(100% - 138px);
 }
 
 .player-header input[type="text"][readonly] {
