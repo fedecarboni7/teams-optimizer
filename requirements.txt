@@ -5,7 +5,6 @@ pytest
 SQLAlchemy
 starlette
 itsdangerous
-sqlalchemy-libsql
 tenacity
 colorlog
 pyjwt[crypto]
