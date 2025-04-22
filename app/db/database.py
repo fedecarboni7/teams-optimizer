@@ -19,12 +19,10 @@ if LOCAL_DB:
     engine = create_engine(dbUrl, connect_args={'check_same_thread': False})
     Base.metadata.create_all(engine)
 else:
-    TURSO_DATABASE_URL = os.getenv("TURSO_DATABASE_URL")
-    TURSO_AUTH_TOKEN = os.getenv("TURSO_AUTH_TOKEN")
-    timeout = int(os.getenv('DB_TIMEOUT', 30))
+    DATABASE_URL = os.getenv("DATABASE_URL")
+    engine = create_engine(DATABASE_URL, connect_args={'check_same_thread': False})
+    Base.metadata.create_all(engine)
 
-    dbUrl = f"sqlite+{TURSO_DATABASE_URL}/?authToken={TURSO_AUTH_TOKEN}&secure=true"
-    engine = create_engine(dbUrl, connect_args={'check_same_thread': False, 'timeout': timeout}, pool_pre_ping=True, pool_recycle=1800)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
