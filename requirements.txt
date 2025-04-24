@@ -5,7 +5,6 @@ pytest
 SQLAlchemy
 starlette
 itsdangerous
-sqlalchemy-libsql
 tenacity
 colorlog
 pyjwt[crypto]
@@ -15,3 +14,4 @@ python-multipart
 langchain
 langchain-google-genai
 python-dotenv
+jinja2
