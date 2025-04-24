@@ -24,9 +24,12 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      # Setting a dummy DATABASE_URL since test environment will use in-memory SQLite
+      DATABASE_URL: "sqlite://"
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+      # Explicitly mark that we're testing
+      PYTEST_RUNNING: "1"
 
     steps:
     - uses: actions/checkout@v4
@@ -47,4 +50,4 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pytest
+        pytest -v
