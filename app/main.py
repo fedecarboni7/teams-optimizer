@@ -4,6 +4,7 @@ from app.routes.auth_routes import router as auth_router
 from app.routes.main_routes import router as main_router
 from app.routes.clubs_routes import router as clubs_router
 from app.routes.public_routes import router as public_router
+from app.routes.admin_routes import router as admin_router
 
 app = create_app()
 
@@ -12,6 +13,7 @@ app.include_router(auth_router, tags=["auth"])
 app.include_router(main_router, tags=["main"])
 app.include_router(clubs_router, tags=["clubs"])
 app.include_router(public_router, tags=["public"])
+app.include_router(admin_router, tags=["admin"])
 
 if __name__ == "__main__":
     import uvicorn
