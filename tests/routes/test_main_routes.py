@@ -1,39 +1,22 @@
-import pytest
-
-from fastapi.testclient import TestClient
-
-from app.db.database import get_db
 from app.db.models import User
-from app.main import app
 from app.utils.auth import get_current_user
 from app.utils.team_optimizer import find_best_combination
 
-@pytest.fixture(scope="module")
-def client(db):
-    def override_get_db():
-        try:
-            yield db
-        finally:
-            db.rollback()
-    
-    app.dependency_overrides[get_db] = override_get_db
-    with TestClient(app) as client:
-        yield client
-    app.dependency_overrides.clear()
-
-
 def test_get_home(client):
-    client = TestClient(app, cookies=None)
+    # First test without authentication
     response = client.get("/home")
     assert response.status_code == 200
     assert response.template.name == "landing-page.html"
 
-    # Authenticate the user
-    response = client.post("/signup", data={"username": "testuser1", "password": "Testpassword1*"}, follow_redirects=False)
+    # Then test with authentication
+    response = client.post("/signup", data={"username": "hometestuser", "password": "Testpassword1*"}, follow_redirects=False)
+    if response.status_code == 409:  # If user already exists, login
+        response = client.post("/login", data={"username": "hometestuser", "password": "Testpassword1*"}, follow_redirects=False)
     assert response.status_code == 302
     assert response.headers["location"] == "/home"
 
 def test_get_current_user(client, db):
+    # Create a unique user for this test
     user = User(username="testuser3")
     user.set_password("testpassword")
     db.add(user)

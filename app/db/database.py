@@ -11,19 +11,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-LOCAL_DB = os.getenv("LOCAL_DB", "").lower() == "true"
+DATABASE_URL = os.getenv("DATABASE_URL")
+logger.info(f"Connecting to database at {DATABASE_URL}")
 
-if LOCAL_DB:
-    logger.info("Using local database")
-    DATABASE_URL = "sqlite:///./test.db"
-    engine = create_engine(DATABASE_URL, connect_args={'check_same_thread': False})
-    Base.metadata.create_all(engine)
-else:
-    DATABASE_URL = os.getenv("DATABASE_URL")
-    engine = create_engine(DATABASE_URL, connect_args={'check_same_thread': False})
-    Base.metadata.create_all(engine)
-
-
+engine = create_engine(DATABASE_URL, connect_args={'check_same_thread': False})
+Base.metadata.create_all(engine)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def get_db():
