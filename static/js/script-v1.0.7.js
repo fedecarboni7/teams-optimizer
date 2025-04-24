@@ -572,7 +572,7 @@ function updateSelectedPlayersList() {
 
     selectedPlayers.forEach(playerCheckbox => {
         let playerId = playerCheckbox.value;
-        let playerName = playerCheckbox.nextElementSibling.nextElementSibling.value;
+        let playerName = playerCheckbox.nextElementSibling.value;
 
         let listItem = document.createElement('li');
         let playerText = document.createElement('span');
