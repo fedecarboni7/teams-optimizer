@@ -15,8 +15,8 @@ LOCAL_DB = os.getenv("LOCAL_DB", "").lower() == "true"
 
 if LOCAL_DB:
     logger.info("Using local database")
-    dbUrl = "sqlite:///./test.db"
-    engine = create_engine(dbUrl, connect_args={'check_same_thread': False})
+    DATABASE_URL = "sqlite:///./test.db"
+    engine = create_engine(DATABASE_URL, connect_args={'check_same_thread': False})
     Base.metadata.create_all(engine)
 else:
     DATABASE_URL = os.getenv("DATABASE_URL")
