@@ -156,6 +156,11 @@
         </div>
     </div>
 
+    <div class="search-box" style="width: 80%; max-width: 800px; margin: 20px auto;">
+        <input type="search" id="searchInput" placeholder="Buscar jugador..." oninput="filterPlayers()">
+        <i class="fas fa-search search-icon"></i>
+    </div>
+
     <form action="/submit" method="post" onsubmit="return validateForm(event)">
         {% if clubId is not none %}
         <input type="hidden" name="clubId" value="{{ clubId }}">

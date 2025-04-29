@@ -109,26 +109,22 @@ function filterPlayers() {
     const searchInput = document.getElementById('searchInput').value.toLowerCase();
     const players = document.querySelectorAll('.player-entry');
 
-    if (searchInput === '') {
-        players.forEach(player => {
+    players.forEach(player => {
+        const playerName = player.querySelector('input[name="names"]').value.toLowerCase();
+        if (searchInput === '' || playerName.includes(searchInput)) {
             player.style.display = '';
-        });
-    } else {
-        players.forEach(player => {
-            const playerName = player.querySelector('input[name="names"]').value.toLowerCase();
-            if (playerName.includes(searchInput)) {
-                player.style.display = '';
-            } else {
-                player.style.display = 'none';
-            }
-        });
-    }
+        } else {
+            player.style.display = 'none';
+        }
+    });
 
-    // Mantener el orden al filtrar
-    const playersContainer = document.getElementById('players-container');
-    const visiblePlayers = Array.from(players).filter(player => player.style.display !== 'none');
-    playersContainer.innerHTML = '';
-    visiblePlayers.forEach(player => playersContainer.appendChild(player));
+    // Preserve the original order when showing all players
+    if (searchInput === '') {
+        const playersContainer = document.getElementById('players-container');
+        const allPlayers = Array.from(players);
+        playersContainer.innerHTML = '';
+        allPlayers.forEach(player => playersContainer.appendChild(player));
+    }
 }
 
 // Validar formulario
