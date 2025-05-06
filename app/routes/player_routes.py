@@ -137,3 +137,64 @@ def create_player(
     db.commit()
     db.refresh(db_player)
     return db_player
+
+@router.post("/players", response_model=list[PlayerResponse])
+def save_players(
+        players: list[PlayerCreate],
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user),
+        club_id: int = None
+    ) -> list[PlayerResponse]:
+    if not current_user:
+        raise HTTPException(status_code=401, detail="No hay un usuario autenticado")
+    
+    try:
+        # If club_id is provided, save players to club
+        if club_id:
+            # Query existing players in this club
+            existing_players = db.query(Player).filter(Player.club_id == club_id).all()
+        else:
+            # Query existing players for this user
+            existing_players = execute_with_retries(query_players, db, current_user.id)
+            
+        # Create a dict of existing players by name for quick lookup
+        existing_players_dict = {player.name: player for player in existing_players}
+        
+        # List to hold all players that need to be added
+        players_to_add = []
+        # List to hold all updated players
+        updated_players = []
+        
+        for player_data in players:
+            # Check if player already exists (by name)
+            existing_player = existing_players_dict.get(player_data.name)
+            if existing_player:
+                # Update existing player
+                for key, value in player_data.model_dump().items():
+                    setattr(existing_player, key, value)
+                updated_players.append(existing_player)
+            else:
+                # Create new player
+                if club_id:
+                    players_to_add.append(Player(**player_data.model_dump(), club_id=club_id))
+                else:
+                    players_to_add.append(Player(**player_data.model_dump(), user_id=current_user.id))
+        
+        # Add all new players
+        if players_to_add:
+            db.add_all(players_to_add)
+        
+        # Commit all changes
+        db.commit()
+        
+        # Refresh all objects
+        for player in updated_players:
+            db.refresh(player)
+        for player in players_to_add:
+            db.refresh(player)
+            
+        # Return all players that were updated or added
+        return updated_players + players_to_add
+    
+    except OperationalError:
+        raise HTTPException(status_code=500, detail="Error al acceder a la base de datos. Inténtalo de nuevo más tarde.")

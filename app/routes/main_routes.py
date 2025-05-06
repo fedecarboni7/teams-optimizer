@@ -117,7 +117,7 @@ async def submit_form(
         )
         player_data.append(player)
 
-    # Guardar o actualizar jugadores en la base de datos
+    # Get player data for selected players
     try:
         if club_id:
             existing_players = execute_with_retries(query_club_players, db, club_id)
@@ -126,26 +126,10 @@ async def submit_form(
     except OperationalError:
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
 
+    # Create a dictionary for quick player lookup
     existing_players_dict = {player.name: player for player in existing_players}
 
-    players_to_add = []
-    for player in player_data:
-        db_player = existing_players_dict.get(player.name)
-        if db_player:
-            for key, value in player.model_dump().items():
-                setattr(db_player, key, value)
-        else:
-            if club_id:
-                players_to_add.append(Player(**player.model_dump(), club_id=club_id))
-            else:
-                players_to_add.append(Player(**player.model_dump(), user_id=current_user_id))
-
-    if players_to_add:
-        db.add_all(players_to_add)
-
-    db.commit()
-
-    # Calcular equipos
+    # Calculate teams
     player_names = [p.name for p in player_data]
     player_scores = [
         [
@@ -170,16 +154,24 @@ async def submit_form(
         teams.append([[player_names[i] for i in list(equipos[1])]])
     
     # Calculate the total and average skills for each team
-    try:
-        if club_id:
-            players = execute_with_retries(query_club_players, db, club_id)
-        else:
-            players = execute_with_retries(query_players, db, current_user_id)
-    except OperationalError:
-        return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
+    # Use existing player data from the database
     
-    player_data_dict = {player.name: player for player in players}
-    
+    player_data_dict = {
+        player.name: {
+            "id": player.id,
+            "velocidad": player.velocidad,
+            "resistencia": player.resistencia,
+            "control": player.control,
+            "pases": player.pases,
+            "fuerza_cuerpo": player.fuerza_cuerpo,
+            "habilidad_arquero": player.habilidad_arquero,
+            "defensa": player.defensa,
+            "tiro": player.tiro,
+            "vision": player.vision
+        }
+        for player in existing_players if player.name in player_names
+    }
+
     for team in teams:
         team_skills = {
             "velocidad": {"total": 0, "avg": 0},
@@ -194,7 +186,7 @@ async def submit_form(
         }
     
         for player in team[0]:
-            player_data = player_data_dict[player]
+            player_data = existing_players_dict[player]
             player_attrs = {key: getattr(player_data, key) for key in team_skills}
             for key, value in player_attrs.items():
                 team_skills[key]["total"] += value
@@ -208,23 +200,7 @@ async def submit_form(
     
         team.append([team_skills, total_skills, avg_skills])
 
-    player_data_dict = {
-        player.name: {
-            "id": player.id,
-            "velocidad": player.velocidad,
-            "resistencia": player.resistencia,
-            "control": player.control,
-            "pases": player.pases,
-            "fuerza_cuerpo": player.fuerza_cuerpo,
-            "habilidad_arquero": player.habilidad_arquero,
-            "defensa": player.defensa,
-            "tiro": player.tiro,
-            "vision": player.vision
-        }
-        for _, player in player_data_dict.items()
-    }
-
-    # Renderizar solo el bloque de HTML que contiene los equipos
+    # Rendered only the block of HTML that contains the teams
     rendered_html = templates.get_template("results.html").render(
         teams=teams,
         skills={"velocidad": "Velocidad", "resistencia": "Resistencia", "control": "Control", "pases": "Pases", "fuerza_cuerpo": "Fuerza cuerpo", "habilidad_arquero": "Hab. Arquero", "defensa": "Defensa", "tiro": "Tiro", "vision": "Visión"},
