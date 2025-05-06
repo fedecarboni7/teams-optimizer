@@ -182,6 +182,25 @@ function validateForm(event) {
         }
     }
 
+    // Comprobar si hay jugadores seleccionados que no están guardados (sin ID)
+    const unsavedPlayers = [];
+    selectedPlayers.forEach(checkbox => {
+        const playerEntry = checkbox.closest('.player-entry');
+        const deleteButton = playerEntry.querySelector('.delete-button');
+        const nameInput = playerEntry.querySelector('input[name="names"]');
+        
+        // Si el botón de eliminar no tiene ID o el nombre no es de solo lectura, el jugador no está guardado
+        if (!deleteButton.id || !nameInput.readOnly) {
+            unsavedPlayers.push(nameInput.value);
+        }
+    });
+    
+    if (unsavedPlayers.length > 0) {
+        alert('Por favor, guardá los siguientes jugadores antes de crear equipos: ' + unsavedPlayers.join(', '));
+        event.preventDefault();
+        return false;
+    }
+
     const submitBtn = document.getElementById('submitBtn');
     const spinner = document.createElement('span');
     spinner.className = 'spinner';
@@ -239,6 +258,132 @@ function validateForm(event) {
     });
 
     return false;
+}
+
+// Save players function
+function savePlayers() {
+    // Get the form data
+    const playersContainer = document.getElementById('players-container');
+    const playerEntries = playersContainer.getElementsByClassName('player-entry');
+    
+    // Check if there are players to save
+    if (playerEntries.length === 0) {
+        alert('No hay jugadores para guardar.');
+        return;
+    }
+    
+    // Create an array to hold all player data
+    const playersData = [];
+    
+    // Get any club ID if present
+    const clubIdInput = document.querySelector('input[name="clubId"]');
+    const clubId = clubIdInput ? clubIdInput.value : null;
+    
+    // Collect data for each player
+    for (let entry of playerEntries) {
+        const nameInput = entry.querySelector('input[name="names"]');
+        if (!nameInput || nameInput.value.trim() === '') {
+            continue; // Skip empty player entries
+        }
+        
+        // Get all skill inputs for this player
+        const skills = entry.querySelectorAll('input[type="hidden"]');
+        
+        // Create player object
+        const player = {
+            name: nameInput.value.trim()
+        };
+        
+        // Add all skills
+        for (let skill of skills) {
+            const skillName = skill.name;
+            const skillValue = parseInt(skill.value);
+            if (!isNaN(skillValue)) {
+                player[skillName] = skillValue;
+            }
+        }
+        
+        // Ensure all required skills are present
+        const requiredSkills = ['velocidad', 'resistencia', 'control', 'pases', 'tiro', 'defensa', 'habilidad_arquero', 'fuerza_cuerpo', 'vision'];
+        const missingSkills = requiredSkills.filter(skill => !(skill in player));
+        
+        if (missingSkills.length > 0) {
+            alert(`Falta completar las siguientes habilidades para ${player.name}: ${missingSkills.join(', ')}`);
+            return;
+        }
+        
+        // Add valid player to the array
+        playersData.push(player);
+    }
+    
+    // If no valid players found
+    if (playersData.length === 0) {
+        alert('No hay jugadores válidos para guardar.');
+        return;
+    }
+    
+    // Create the save button spinner
+    const saveBtn = document.getElementById('savePlayersBtn');
+    saveBtn.disabled = true;
+    const spinner = document.createElement('span');
+    spinner.className = 'spinner';
+    saveBtn.appendChild(spinner);
+    
+    // Create URL for the API endpoint
+    let url = '/players';
+    let fetchParams = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(playersData)
+    };
+    
+    // Add club_id as query parameter if it exists
+    if (clubId) {
+        url = `/players?club_id=${clubId}`;
+    }
+    
+    // Send the data to the server
+    fetch(url, fetchParams)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error al guardar los jugadores');
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert('Jugadores guardados exitosamente');
+            
+            // Update the player IDs in the DOM
+            for (const player of data) {
+                const playerElement = Array.from(playerEntries).find(entry => 
+                    entry.querySelector('input[name="names"]').value === player.name
+                );
+                
+                if (playerElement) {
+                    const deleteButton = playerElement.querySelector('.delete-button');
+                    if (deleteButton) {
+                        deleteButton.id = player.id.toString();
+                    }
+                    
+                    // Make the name input readonly
+                    const nameInput = playerElement.querySelector('input[name="names"]');
+                    if (nameInput) {
+                        nameInput.readOnly = true;
+                    }
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al guardar los jugadores: ' + error.message);
+        })
+        .finally(() => {
+            // Remove the spinner and re-enable the button
+            saveBtn.removeChild(spinner);
+            saveBtn.disabled = false;
+        });
 }
 
 // Agregar jugador
