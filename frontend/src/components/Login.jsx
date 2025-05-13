@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../assets/css/tailwind.min.css'; 
 
+const BACKEND_URL = 'http://localhost:8000'; // Cambia esto si tu backend está en otra URL
+
 const Login = () => {
   useEffect(() => {
     document.title = 'Armar Equipos - Iniciar sesión';
@@ -16,25 +18,20 @@ const Login = () => {
     e.preventDefault();
     setError('');
     try {
-      const response = await fetch('/login', {
+      const response = await fetch(`${BACKEND_URL}/token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({ username, password }).toString(),
-        credentials: 'include',
       });
-      if (response.redirected) {
-        navigate('/index');
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('token', data.access_token);
+        navigate('/home');
       } else {
-        const text = await response.text();
-        if (text.includes('Usuario o contraseña incorrectos')) {
-          setError('Usuario o contraseña incorrectos');
-        } else if (text.includes('Error al acceder a la base de datos')) {
-          setError('Error al acceder a la base de datos. Inténtalo de nuevo más tarde.');
-        } else {
-          setError('Error desconocido.');
-        }
+        const data = await response.json();
+        setError(data.detail || 'Usuario o contraseña incorrectos');
       }
     // eslint-disable-next-line no-unused-vars
     } catch (err) {

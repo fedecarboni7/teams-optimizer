@@ -8,7 +8,7 @@ from requests import Session
 from app.config.config import templates
 from app.db.database import get_db
 from app.db.database_utils import execute_with_retries, query_club_members, query_club_players, query_clubs, query_players
-from app.db.models import Player, User
+from app.db.models import User
 from app.db.schemas import PlayerCreate
 from app.utils.ai_formations import create_formations
 from app.utils.auth import get_current_user
@@ -30,8 +30,7 @@ async def get_form(
         club_id: int = None
     ):
     if not current_user:
-        request.session.clear()
-        return RedirectResponse("/", status_code=302)
+        return JSONResponse({"error": "No autorizado"}, status_code=401)
     
     current_user_id = current_user.id
     clubs = execute_with_retries(query_clubs, db, current_user_id)

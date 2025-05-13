@@ -7,6 +7,8 @@ const Signup = () => {
     document.title = 'Armar Equipos - Crear cuenta';
   }, []);
 
+  const BACKEND_URL = 'http://localhost:8000'; // Cambia esto si tu backend está en otra URL
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -45,29 +47,20 @@ const Signup = () => {
     e.preventDefault();
     setError('');
     try {
-      const response = await fetch('/signup', {
+      const response = await fetch(`${BACKEND_URL}/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({ username, password }).toString(),
-        credentials: 'include',
       });
-      if (response.redirected) {
-        navigate('/index');
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('token', data.access_token);
+        navigate('/home');
       } else {
-        const text = await response.text();
-        if (text.includes('Usuario ya registrado')) {
-          setError('Usuario ya registrado');
-        } else if (text.includes('Error al acceder a la base de datos')) {
-          setError('Error al acceder a la base de datos. Inténtalo de nuevo más tarde.');
-        } else if (text.includes('contraseña')) {
-          // Mensaje de error de validación de contraseña
-          const match = text.match(/<div class="bg-red-500 text-white p-2 rounded mb-4">([\s\S]*?)<\/div>/);
-          setError(match ? match[1].trim() : 'Error en la contraseña.');
-        } else {
-          setError('Error desconocido.');
-        }
+        const data = await response.json();
+        setError(data.error || 'Error desconocido.');
       }
     // eslint-disable-next-line no-unused-vars
     } catch (err) {

@@ -1,4 +1,10 @@
+import { useEffect } from 'react';
+
 function Results() {
+  useEffect(() => {
+    document.title = 'Armar Equipos - Resultados';
+  }, []);
+
   return (
     <div>
       {/* Contenido migrado de results.html */}

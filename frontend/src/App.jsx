@@ -16,7 +16,7 @@ function App() {
   return (
     <Routes>
       {/* Páginas migradas a React */}
-      <Route path="/index" element={<Home />} />
+      <Route path="/home" element={<Home />} />
       <Route path="/results" element={<Results />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
