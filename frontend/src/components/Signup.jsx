@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../assets/css/tailwind.min.css';
 
 const Signup = () => {
+  useEffect(() => {
+    document.title = 'Armar Equipos - Crear cuenta';
+  }, []);
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -65,6 +69,7 @@ const Signup = () => {
           setError('Error desconocido.');
         }
       }
+    // eslint-disable-next-line no-unused-vars
     } catch (err) {
       setError('Error de red.');
     }
@@ -72,6 +77,20 @@ const Signup = () => {
 
   return (
     <div className="justify-center flex h-screen items-center" style={{ backgroundColor: '#1d232a' }}>
+        {/* Add style tag to override browser autofill styling */}
+      <style>
+        {`
+          input:-webkit-autofill,
+          input:-webkit-autofill:hover, 
+          input:-webkit-autofill:focus,
+          input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px #374151 inset !important;
+            -webkit-text-fill-color: white !important;
+            transition: background-color 5000s ease-in-out 0s;
+          }
+        `}
+      </style>
+
       <div
         className="sm:w-96 w-full max-w-96 h-fit m-4 rounded-lg bg-gray-800 text-white"
         style={{ backgroundColor: '#2a323c' }}
@@ -151,8 +170,28 @@ const Signup = () => {
             <br />
             <button
               type="submit"
-              className="py-3 text-black rounded font-semibold"
-              style={{ backgroundColor: '#7480ff' }}
+              className={`py-3 rounded font-semibold transition-all duration-200 ${
+                passwordValid 
+                  ? "text-black hover:shadow-lg active:shadow-inner active:scale-[0.98]" 
+                  : "text-gray-300 opacity-70 cursor-not-allowed"
+              }`}
+              style={{ 
+                backgroundColor: passwordValid ? '#7480ff' : '#4a5568',
+                borderWidth: passwordValid ? '0' : '1px',
+                borderColor: '#6b7280',
+              }}
+              onMouseOver={(e) => {
+                if (passwordValid) e.currentTarget.style.backgroundColor = '#6470f0';
+              }}
+              onMouseOut={(e) => {
+                if (passwordValid) e.currentTarget.style.backgroundColor = '#7480ff';
+              }}
+              onMouseDown={(e) => {
+                if (passwordValid) e.currentTarget.style.backgroundColor = '#5460e0';
+              }}
+              onMouseUp={(e) => {
+                if (passwordValid) e.currentTarget.style.backgroundColor = '#6470f0';
+              }}
               disabled={!passwordValid}
             >
               Crear cuenta
