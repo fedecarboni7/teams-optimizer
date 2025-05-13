@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.sessions import SessionMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.config.logging_config import configure_logging
 from app.db.models import User
@@ -22,6 +23,14 @@ def create_app() -> FastAPI:
     secret_key = os.getenv("SECRET_KEY")
 
     app = FastAPI(title="Armar Equipos", docs_url=None, redoc_url=None, openapi_url=None)
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["http://localhost:5173"],  # o ["*"] para desarrollo
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     app.add_middleware(SessionMiddleware, secret_key=secret_key)
     
