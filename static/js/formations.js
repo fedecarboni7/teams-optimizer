@@ -36,6 +36,55 @@ document.addEventListener('DOMContentLoaded', function () {
                 "CB": {top: 80, left: 50},
                 "ST": [{top: 54, left: 20}, {top: 60, left: 50}, {top: 54, left: 80}]
             },
+            // Fútbol 9
+            "3-3-2": {
+                "GK": {top: 92, left: 50},
+                "CB": [{top: 82, left: 25}, {top: 82, left: 50}, {top: 82, left: 75}],
+                "CM": [{top: 68, left: 25}, {top: 68, left: 50}, {top: 68, left: 75}],
+                "ST": [{top: 54, left: 40}, {top: 54, left: 60}]
+            },
+            "4-2-2": {
+                "GK": {top: 92, left: 50},
+                "LB": {top: 82, left: 15},
+                "CB": [{top: 82, left: 40}, {top: 82, left: 60}],
+                "RB": {top: 82, left: 85},
+                "CM": [{top: 68, left: 40}, {top: 68, left: 60}],
+                "ST": [{top: 54, left: 40}, {top: 54, left: 60}]
+            },
+            "3-4-1": {
+                "GK": {top: 92, left: 50},
+                "CB": [{top: 82, left: 25}, {top: 82, left: 50}, {top: 82, left: 75}],
+                "LM": {top: 68, left: 15},
+                "CM": [{top: 68, left: 40}, {top: 68, left: 60}],
+                "RM": {top: 68, left: 85},
+                "ST": {top: 54, left: 50}
+            },
+            "4-3-1": {
+                "GK": {top: 92, left: 50},
+                "LB": {top: 82, left: 15},
+                "CB": [{top: 82, left: 40}, {top: 82, left: 60}],
+                "RB": {top: 82, left: 85},
+                "CM": [{top: 68, left: 30}, {top: 68, left: 50}, {top: 68, left: 70}],
+                "ST": {top: 54, left: 50}
+            },
+            "3-2-3": {
+                "GK": {top: 92, left: 50},
+                "CB": [{top: 82, left: 25}, {top: 82, left: 50}, {top: 82, left: 75}],
+                "CM": [{top: 68, left: 40}, {top: 68, left: 60}],
+                "LW": {top: 54, left: 25},
+                "ST": {top: 54, left: 50},
+                "RW": {top: 54, left: 75}
+            },
+            "4-1-3": {
+                "GK": {top: 92, left: 50},
+                "LB": {top: 82, left: 15},
+                "CB": [{top: 82, left: 40}, {top: 82, left: 60}],
+                "RB": {top: 82, left: 85},
+                "CM": {top: 68, left: 50},
+                "LW": {top: 54, left: 25},
+                "ST": {top: 54, left: 50},
+                "RW": {top: 54, left: 75}
+            },
             // Fútbol 11
             "4-4-2": {
                 "GK": {top: 92, left: 50},
