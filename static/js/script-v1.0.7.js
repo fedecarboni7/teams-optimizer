@@ -777,12 +777,15 @@ function compartirEquipos(button) {
     const titulos = contenedor.querySelectorAll('h2');
     const listasJugadores = contenedor.querySelectorAll('ul');
     for (let i = 0; i < titulos.length; i++) {
-        textoCompartir += titulos[i].innerText + '\n'; // Agrega el título
+        textoCompartir += '*' + titulos[i].innerText + '*\n'; // Agrega el título
         
         // Itera sobre los jugadores en la lista
         const jugadores = listasJugadores[i].querySelectorAll('li');
         for (let j = 0; j < jugadores.length; j++) {
-            textoCompartir += (j + 1) + '. ' + jugadores[j].innerText + '\n'; // Agrega el jugador con número
+            // Obtener solo el nombre del jugador desde el span player-name
+            const playerNameElement = jugadores[j].querySelector('.player-name');
+            const playerName = playerNameElement ? playerNameElement.textContent : jugadores[j].innerText;
+            textoCompartir += (j + 1) + '. ' + playerName + '\n'; // Agrega el jugador con número
         }
         textoCompartir += '\n'; // Agrega una línea en blanco entre equipos
     }
@@ -841,6 +844,12 @@ function swapPlayer(player, fromTeamIndex, toTeamIndex) {
         // Crear un nuevo elemento de lista para el jugador en el equipo de destino
         var newPlayerElement = document.createElement("li");
         newPlayerElement.classList.add("player-item");
+        
+        // Crear el span para el número del jugador
+        var playerNumberSpan = document.createElement("span");
+        playerNumberSpan.classList.add("player-number");
+        // El número será la cantidad de elementos actuales + 1
+        playerNumberSpan.textContent = (toTeamList.children.length + 1) + ".";
 
         // Crear el span para el nombre del jugador
         var playerNameSpan = document.createElement("span");
@@ -856,12 +865,17 @@ function swapPlayer(player, fromTeamIndex, toTeamIndex) {
             swapPlayer(player, toTeamIndex, fromTeamIndex);
         };
 
-        // Añadir el span del nombre del jugador y el botón al nuevo elemento de lista
+        // Añadir todos los elementos en orden
+        newPlayerElement.appendChild(playerNumberSpan);
         newPlayerElement.appendChild(playerNameSpan);
         newPlayerElement.appendChild(swapButton);
 
         // Añadir el nuevo elemento de lista al equipo de destino
         toTeamList.appendChild(newPlayerElement);
+        
+        // Actualizar los números de todos los jugadores en ambos equipos
+        renumerarJugadoresEquipo(fromTeamList);
+        renumerarJugadoresEquipo(toTeamList);
     }
 
     // Definir equipo 1 y equipo 2
@@ -942,6 +956,20 @@ function getTeamSkills(players) {
     }, 0);
 
     return skills;
+}
+
+// Renumerar jugadores después de un swap
+function renumerarJugadoresEquipo(teamList) {
+    // Obtener todos los elementos de jugador en el equipo
+    const jugadores = teamList.querySelectorAll('.player-item');
+    
+    // Actualizar el número de cada jugador según su posición en la lista
+    jugadores.forEach((jugador, index) => {
+        const numeroSpan = jugador.querySelector('.player-number');
+        if (numeroSpan) {
+            numeroSpan.textContent = (index + 1) + '.';
+        }
+    });
 }
 
 let radarCharts = {}; // Objeto global para almacenar gráficos por número de contenedor

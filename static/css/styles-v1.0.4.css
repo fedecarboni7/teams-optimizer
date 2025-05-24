@@ -533,9 +533,16 @@ tr:last-child {
     padding: 5px 0;
 }
 
+.player-number {
+    min-width: 25px;
+    text-align: right;
+    font-weight: 600;
+    margin-right: 5px;
+}
+
 .player-name {
     flex-grow: 1;
-    padding-left: 20px;
+    padding-left: 8px;
 }
 
 .swap-button {

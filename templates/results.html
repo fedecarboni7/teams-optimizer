@@ -18,6 +18,7 @@
             <ul class="team-list" data-index="{{ i }}">
                 {% for player in teams[i][0] %}
                 <li class="player-item">
+                    <span class="player-number">{{ loop.index }}.</span>
                     <span class="player-name">{{ player }}</span>
                     <button type="button" class="swap-button" onclick="swapPlayer('{{ player }}', '{{ i }}', '{{ i + 1 }}')"><i class="fa-solid fa-right-left"></i></button>
                 </li>
@@ -30,6 +31,7 @@
             <ul class="team-list" data-index="{{ i + 1 }}">
                 {% for player in teams[i + 1][0] %}
                 <li class="player-item">
+                    <span class="player-number">{{ loop.index }}.</span>
                     <span class="player-name">{{ player }}</span>
                     <button type="button" class="swap-button" onclick="swapPlayer('{{ player }}', '{{ i + 1 }}', '{{ i }}')"><i class="fa-solid fa-right-left"></i></button>
                 </li>
