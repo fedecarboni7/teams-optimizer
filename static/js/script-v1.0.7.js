@@ -1199,13 +1199,13 @@ function generarFormaciones(button) {
     // Hacer una lista de las listas de equipos
     const teamsList = [teams[team1], teams[team2]];
 
-    // Validar que la cantidad de jugadores por equipo sea de 11 o 5 (para fútbol o futsal)
-    if (teamsList[0][0].length !== 11 && teamsList[0][0].length !== 5) {
-        alert('La cantidad de jugadores por equipo debe ser de 11 o 5.');
+    // Validar que la cantidad de jugadores por equipo sea de 5, 9 o 11 (para futsal, fútbol 9 o fútbol 11)
+    if (teamsList[0][0].length !== 11 && teamsList[0][0].length !== 9 && teamsList[0][0].length !== 5) {
+        alert('La cantidad de jugadores por equipo debe ser de 5, 9 o 11.');
         return;
     }
-    if (teamsList[1][0].length !== 11 && teamsList[1][0].length !== 5) {
-        alert('La cantidad de jugadores por equipo debe ser de 11 o 5.');
+    if (teamsList[1][0].length !== 11 && teamsList[1][0].length !== 9 && teamsList[1][0].length !== 5) {
+        alert('La cantidad de jugadores por equipo debe ser de 5, 9 o 11.');
         return;
     }
 

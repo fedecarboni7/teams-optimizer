@@ -50,6 +50,14 @@ allowed_formations = {
         '1-1-2': ['GK', 'CB', 'CM', 'ST', 'ST'],
         '1-0-3': ['GK', 'CB', 'ST', 'ST', 'ST']
     },
+    9: {
+        '3-3-2': ['GK', 'CB', 'CB', 'CB', 'CM', 'CM', 'CM', 'ST', 'ST'],
+        '4-2-2': ['GK', 'LB', 'CB', 'CB', 'RB', 'CM', 'CM', 'ST', 'ST'],
+        '3-4-1': ['GK', 'CB', 'CB', 'CB', 'LM', 'CM', 'CM', 'RM', 'ST'],
+        '4-3-1': ['GK', 'LB', 'CB', 'CB', 'RB', 'CM', 'CM', 'CM', 'ST'],
+        '3-2-3': ['GK', 'CB', 'CB', 'CB', 'CM', 'CM', 'LW', 'ST', 'RW'],
+        '4-1-3': ['GK', 'LB', 'CB', 'CB', 'RB', 'CM', 'LW', 'ST', 'RW']
+    },
     11: 
     {
         '4-4-2': ['GK', 'LB', 'CB', 'CB', 'RB', 'LM', 'CM', 'CM', 'RM', 'ST', 'ST'],
