@@ -782,7 +782,7 @@ function compartirEquipos(button) {
         // Itera sobre los jugadores en la lista
         const jugadores = listasJugadores[i].querySelectorAll('li');
         for (let j = 0; j < jugadores.length; j++) {
-            textoCompartir += '- ' + jugadores[j].innerText + '\n'; // Agrega el jugador
+            textoCompartir += (j + 1) + '. ' + jugadores[j].innerText + '\n'; // Agrega el jugador con número
         }
         textoCompartir += '\n'; // Agrega una línea en blanco entre equipos
     }
