@@ -273,98 +273,37 @@ class PlayerChangeTracker {
         return originalData && this.hasPlayerChanged(currentData, originalData);
     }
 
-    discardChanges() {
-        const playerEntries = document.querySelectorAll('.player-entry');
-        
-        playerEntries.forEach((entry, index) => {
-            const originalData = this.originalPlayerData.get(index);
-            if (originalData && !this.isNewPlayer(entry)) {
-                // Restaurar datos originales para jugadores existentes
-                this.restorePlayerData(entry, originalData);
-            }
-        });
-        
-        // Remover indicadores visuales
-        this.removeAllChangeIndicators();
-        this.captureInitialState();
-    }
-
-    restorePlayerData(playerEntry, originalData) {
-        const nameInput = playerEntry.querySelector('input[name="names"]');
-        if (nameInput && !nameInput.readOnly) {
-            nameInput.value = originalData.name;
-        }
-
-        // Restaurar habilidades
-        Object.entries(originalData.skills).forEach(([skillName, value]) => {
-            const skillRating = playerEntry.querySelector(`[data-skill="${skillName}"]`);
-            if (skillRating) {
-                const stars = skillRating.querySelectorAll('.star');
-                const hiddenInput = skillRating.querySelector('input[type="hidden"]');
-                
-                hiddenInput.value = value;
-                stars.forEach(star => {
-                    if (star.getAttribute('data-value') <= value) {
-                        star.classList.add('active');
-                    } else {
-                        star.classList.remove('active');
-                    }
-                });
-            }
-        });
-    }
+    // ...existing code...
 
     addChangeIndicator(playerEntry) {
-        // Agregar indicador visual de cambios
-        let indicator = playerEntry.querySelector('.change-indicator');
-        if (!indicator) {
-            indicator = document.createElement('span');
-            indicator.className = 'change-indicator';
-            indicator.style.fontSize = '16px';
-            indicator.style.marginRight = '5px';
-            indicator.style.position = 'relative';
-            
-            const playerHeader = playerEntry.querySelector('.player-header');
-            if (playerHeader) {
-                playerHeader.insertBefore(indicator, playerHeader.firstChild);
-            }
-        }
-        
-        // Determinar tipo de cambio
+        // Aplicar solo colores de fondo sin símbolos
         if (this.isNewPlayer(playerEntry)) {
-            indicator.innerHTML = '✱ ';
-            indicator.style.color = '#4ecdc4';
-            indicator.className = 'change-indicator new-player';
-            indicator.title = 'Jugador nuevo sin guardar';
             playerEntry.classList.add('is-new');
             playerEntry.classList.remove('has-changes');
+            playerEntry.style.backgroundColor = 'rgba(78, 205, 196, 0.1)'; // Verde claro para nuevos
+            playerEntry.style.borderLeft = '4px solid #4ecdc4';
         } else {
-            indicator.innerHTML = '● ';
-            indicator.style.color = '#ff6b35';
-            indicator.className = 'change-indicator modified-player';
-            indicator.title = 'Este jugador tiene cambios sin guardar';
             playerEntry.classList.add('has-changes');
             playerEntry.classList.remove('is-new');
+            playerEntry.style.backgroundColor = 'rgba(255, 107, 53, 0.1)'; // Naranja claro para modificados
+            playerEntry.style.borderLeft = '4px solid #ff6b35';
         }
     }
 
     removeChangeIndicator(playerEntry) {
-        const indicator = playerEntry.querySelector('.change-indicator');
-        if (indicator) {
-            indicator.remove();
-        }
-        // Limpiar clases CSS del entry
+        // Limpiar estilos y clases CSS del entry
         playerEntry.classList.remove('has-changes', 'is-new');
+        playerEntry.style.backgroundColor = '';
+        playerEntry.style.borderLeft = '';
     }
 
     removeAllChangeIndicators() {
-        const indicators = document.querySelectorAll('.change-indicator');
-        indicators.forEach(indicator => indicator.remove());
-        
-        // Limpiar clases CSS de todos los entries
+        // Limpiar estilos y clases CSS de todos los entries
         const playerEntries = document.querySelectorAll('.player-entry');
         playerEntries.forEach(entry => {
             entry.classList.remove('has-changes', 'is-new');
+            entry.style.backgroundColor = '';
+            entry.style.borderLeft = '';
         });
     }
 
@@ -394,50 +333,23 @@ function validateUnsavedChanges() {
     const newPlayers = window.playerChangeTracker.getNewPlayers();
     
     let message = '';
-    let options = '';
     
     if (newPlayers.length > 0 && modifiedPlayers.length > 0) {
-        message = `Tenés jugadores nuevos: ${newPlayers.join(', ')} y cambios en: ${modifiedPlayers.join(', ')}.`;
-        options = '\n\n¿Querés guardar todo antes de armar los equipos?';
+        message = `Tenés jugadores nuevos: ${newPlayers.join(', ')} y cambios en: ${modifiedPlayers.join(', ')}.\n\n¿Querés guardar todo antes de armar los equipos?`;
     } else if (newPlayers.length > 0) {
-        message = `Tenés jugadores nuevos sin guardar: ${newPlayers.join(', ')}.`;
-        options = '\n\n¿Querés guardarlos antes de armar los equipos?';
+        message = `Tenés jugadores nuevos sin guardar: ${newPlayers.join(', ')}.\n\n¿Querés guardarlos antes de armar los equipos?`;
     } else if (modifiedPlayers.length > 0) {
-        message = `Tenés cambios sin guardar en: ${modifiedPlayers.join(', ')}.`;
-        options = '\n\n¿Querés guardar los cambios, descartarlos o cancelar?';
+        message = `Tenés cambios sin guardar en: ${modifiedPlayers.join(', ')}.\n\n¿Querés guardar los cambios antes de armar los equipos?`;
     }
     
-    if (newPlayers.length > 0) {
-        // Si hay jugadores nuevos, solo opción de guardar o cancelar
-        const shouldSave = confirm(message + options);
-        if (shouldSave) {
-            // Marcar que debe auto-enviar después de guardar
-            window.playerChangeTracker.shouldAutoSubmitAfterSave = true;
-            savePlayers();
-            return true; // Cancelar por ahora, se reenviará después de guardar
-        } else {
-            return true; // Cancelar
-        }
+    const shouldSave = confirm(message);
+    if (shouldSave) {
+        // Marcar que debe auto-enviar después de guardar
+        window.playerChangeTracker.shouldAutoSubmitAfterSave = true;
+        savePlayers();
+        return true; // Cancelar por ahora, se reenviará después de guardar
     } else {
-        // Si solo hay modificaciones, dar tres opciones usando un diálogo personalizado
-        const choice = prompt(message + '\n\nEscribí una opción:\n1. "guardar" - Guardar cambios y continuar\n2. "descartar" - Descartar cambios y continuar\n3. "cancelar" - No hacer nada', 'guardar');
-        
-        if (choice === null || choice.toLowerCase() === 'cancelar') {
-            return true; // Cancelar
-        } else if (choice.toLowerCase() === 'guardar') {
-            // Marcar que debe auto-enviar después de guardar
-            window.playerChangeTracker.shouldAutoSubmitAfterSave = true;
-            savePlayers();
-            return true; // Cancelar por ahora, se reenviará después de guardar
-        } else if (choice.toLowerCase() === 'descartar') {
-            // Descartar cambios
-            window.playerChangeTracker.discardChanges();
-            return false; // Continuar después de descartar
-        } else {
-            // Opción inválida, mostrar mensaje y cancelar
-            alert('Opción inválida. Operación cancelada.');
-            return true;
-        }
+        return true; // Cancelar
     }
 }
 
