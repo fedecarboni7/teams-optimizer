@@ -641,3 +641,61 @@ tr:last-child {
 .feedback-button span {
     margin-top: -3px;
 }
+
+/* Estilos para indicadores de cambios */
+.change-indicator {
+    color: #ff6b35 !important;
+    font-size: 16px !important;
+    margin-right: 5px !important;
+    animation: pulse 2s infinite;
+    cursor: help;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.player-entry.has-changes {
+    border-left: 3px solid #ff6b35;
+    background: linear-gradient(90deg, rgba(255, 107, 53, 0.1) 0%, transparent 10%);
+}
+
+.player-entry.is-new {
+    border-left: 3px solid #4ecdc4;
+    background: linear-gradient(90deg, rgba(78, 205, 196, 0.1) 0%, transparent 10%);
+}
+
+.change-indicator.new-player {
+    color: #4ecdc4 !important;
+}
+
+/* Tooltip para indicadores */
+.change-indicator::after {
+    content: attr(title);
+    position: absolute;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.change-indicator:hover::after {
+    opacity: 1;
+}
