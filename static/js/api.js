@@ -159,6 +159,10 @@ function savePlayers() {
                     const deleteButton = playerElement.querySelector('.delete-button');
                     if (deleteButton) {
                         deleteButton.id = player.id.toString();
+                        // Asignar el club-id si existe
+                        if (clubId) {
+                            deleteButton.setAttribute('club-id', clubId);
+                        }
                     }
                     
                     // Make the name input readonly
@@ -210,7 +214,7 @@ function deletePlayer(button) {
         
         button.appendChild(spinner);
 
-        if (clubId !== 'None' && playerId !== null) {
+        if (clubId && clubId !== 'None' && clubId !== 'null' && playerId !== null) {
             fetch(`/clubs/${clubId}/players/${playerId}`, { method: 'DELETE' })
                 .then(response => {
                     if (!response.ok) {
