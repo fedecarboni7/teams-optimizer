@@ -248,7 +248,7 @@ function deletePlayer(button) {
                     return response.text();
                 })
                 .then(() => {
-                    container = document.getElementById("players-container");
+                    const container = document.getElementById("players-container");
                     container.removeChild(button.parentNode.parentNode);
                     renumerarJugadores();
                     updateToggleButtonText();
