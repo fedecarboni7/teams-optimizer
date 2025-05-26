@@ -157,17 +157,3 @@ function validateAndPrepareTeamsForFormations(indice) {
 
     return payload;
 }
-
-// Renumerar jugadores después de un swap
-function renumerarJugadoresEquipo(teamList) {
-    // Obtener todos los elementos de jugador en el equipo
-    const jugadores = teamList.querySelectorAll('.player-item');
-    
-    // Actualizar el número de cada jugador según su posición en la lista
-    jugadores.forEach((jugador, index) => {
-        const numeroSpan = jugador.querySelector('.player-number');
-        if (numeroSpan) {
-            numeroSpan.textContent = (index + 1) + '.';
-        }
-    });
-}
