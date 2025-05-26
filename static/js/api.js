@@ -1,7 +1,3 @@
-// Variables globales para datos de jugadores y equipos
-window.playerDataDict = {};
-window.teams = {};
-
 function submitForm(formData) {
     const submitBtn = document.getElementById('submitBtn');
     const spinner = document.createElement('span');
@@ -212,22 +208,82 @@ function deletePlayer(button) {
 
         if (clubId !== 'None' && playerId !== null) {
             fetch(`/clubs/${clubId}/players/${playerId}`, { method: 'DELETE' })
-                .then(response => response.text())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error al eliminar el jugador del club');
+                    }
+                    return response.text();
+                })
+                .then(() => {
+                    container = document.getElementById("players-container");
+                    container.removeChild(button.parentNode.parentNode);
+                    renumerarJugadores();
+                    updateToggleButtonText();
+                    updateSelectedCount();
+                    
+                    // Recapturar estado inicial después de eliminar jugador
+                    if (window.playerChangeTracker) {
+                        window.playerChangeTracker.captureInitialState();
+                        window.playerChangeTracker.updateChangeIndicators();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al eliminar el jugador del club: ' + error.message);
+                })
+                .finally(() => {
+                    // Habilitar el botón nuevamente y remover el spinner
+                    button.disabled = false;
+                    button.removeChild(spinner);
+                    if (trashIcon) {
+                        trashIcon.style.display = 'inline';
+                    }
+                });
         } else if (playerId !== null) {
             fetch(`/player/${playerId}`, { method: 'DELETE' })
-                .then(response => response.text())
-        }
-
-        container = document.getElementById("players-container");
-        container.removeChild(button.parentNode.parentNode);
-        renumerarJugadores();
-        updateToggleButtonText();
-        updateSelectedCount();
-        
-        // Recapturar estado inicial después de eliminar jugador
-        if (window.playerChangeTracker) {
-            window.playerChangeTracker.captureInitialState();
-            window.playerChangeTracker.updateChangeIndicators();
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error al eliminar el jugador');
+                    }
+                    return response.text();
+                })
+                .then(() => {
+                    container = document.getElementById("players-container");
+                    container.removeChild(button.parentNode.parentNode);
+                    renumerarJugadores();
+                    updateToggleButtonText();
+                    updateSelectedCount();
+                    
+                    // Recapturar estado inicial después de eliminar jugador
+                    if (window.playerChangeTracker) {
+                        window.playerChangeTracker.captureInitialState();
+                        window.playerChangeTracker.updateChangeIndicators();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al eliminar el jugador: ' + error.message);
+                })
+                .finally(() => {
+                    // Habilitar el botón nuevamente y remover el spinner
+                    button.disabled = false;
+                    button.removeChild(spinner);
+                    if (trashIcon) {
+                        trashIcon.style.display = 'inline';
+                    }
+                });
+        } else {
+            container = document.getElementById("players-container");
+            container.removeChild(button.parentNode.parentNode);
+            renumerarJugadores();
+            updateToggleButtonText();
+            updateSelectedCount();
+            
+            // Recapturar estado inicial después de eliminar jugador
+            if (window.playerChangeTracker) {
+                window.playerChangeTracker.captureInitialState();
+                window.playerChangeTracker.updateChangeIndicators();
+            }
         }
 
         return true;
