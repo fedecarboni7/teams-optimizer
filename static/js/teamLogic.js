@@ -103,8 +103,8 @@ function swapPlayer(player, fromTeamIndex, toTeamIndex) {
 }
 
 function updateSkillsTable(team1Index, team2Index) {
-    team1List = document.querySelector(`.team-list[data-index='${team1Index}']`);
-    team2List = document.querySelector(`.team-list[data-index='${team2Index}']`);
+    let team1List = document.querySelector(`.team-list[data-index='${team1Index}']`);
+    let team2List = document.querySelector(`.team-list[data-index='${team2Index}']`);
 
     // Obtener los nombres de los jugadores de ambos equipos
     var team1Players = Array.from(team1List.children).map(function(element) {
