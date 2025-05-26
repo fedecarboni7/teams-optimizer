@@ -1,3 +1,7 @@
+// Variables globales para datos de jugadores y equipos 
+window.playerDataDict = {};
+window.teams = {};
+
 function submitForm(formData) {
     const submitBtn = document.getElementById('submitBtn');
     const spinner = document.createElement('span');
