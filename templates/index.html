@@ -295,7 +295,7 @@
         <button type="button" id="toggle-select-button">Seleccionar a todos</button>
         <button type="button" id="savePlayersBtn" onclick="savePlayers()">Guardar Jugadores</button>
     </form>
-    <button class="reset-button" id="resetBtn" type="button" onclick="reset()">Borrar a todos</button>
+    <button class="reset-button" id="resetBtn" type="button" onclick="deleteSelectedPlayers()">Borrar seleccionados</button>
     <br>
     <a href="/logout" class="logout-link">
         <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión ({{ currentUser.userName }})
