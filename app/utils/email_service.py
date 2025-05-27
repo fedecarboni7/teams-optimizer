@@ -107,7 +107,7 @@ class EmailService:
             return True
             
         except Exception as e:
-            print(f"Error sending email: {e}")
+            logger.error(f"Error sending email: {e}")
             return False
 
 
