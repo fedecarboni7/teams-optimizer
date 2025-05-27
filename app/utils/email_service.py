@@ -8,6 +8,7 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 from app.db import models
+from app.config.logging_config import logger
 
 
 class EmailService:
