@@ -1,0 +1,36 @@
+/* Utilities - Small, reusable utility classes (margins, colors, etc.) */
+.player-entry.has-changes {
+    border-left: 3px solid #ff6b35;
+    background: linear-gradient(90deg, rgba(255, 107, 53, 0.1) 0%, transparent 10%);
+}
+
+.player-entry.is-new {
+    border-left: 3px solid #4ecdc4;
+    background: linear-gradient(90deg, rgba(78, 205, 196, 0.1) 0%, transparent 10%);
+}
+
+.change-indicator.new-player {
+    color: #4ecdc4 !important;
+}
+
+.change-indicator::after {
+    content: attr(title);
+    position: absolute;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.change-indicator:hover::after {
+    opacity: 1;
+}

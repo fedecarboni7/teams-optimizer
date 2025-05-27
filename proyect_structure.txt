@@ -49,13 +49,19 @@ Directory structure:
     │   ├── robots.txt
     │   ├── sitemap.xml
     │   ├── css/
+    │   │   ├── animations.css
+    │   │   ├── base.css
     │   │   ├── clubs.css
+    │   │   ├── components.css
     │   │   ├── daisyui.min.css
     │   │   ├── formations.css
+    │   │   ├── layout.css
+    │   │   ├── pages.css
+    │   │   ├── responsive.css
     │   │   ├── style.css
-    │   │   └── styles-v1.0.4.css
+    │   │   └── utilities.css
     │   │
-    │   ├── favicon-v1.0/
+    │   ├── favicon/
     │   │   ├── android-chrome-192x192.png
     │   │   ├── android-chrome-512x512.png
     │   │   ├── apple-touch-icon.png
@@ -81,11 +87,17 @@ Directory structure:
     │   │   ├── iphone-hero.png
     │   │   └── social-preview.png
     │   │
-    │   ├── js/
-    │   │   ├── clubs.js
-    │   │   ├── formations.js
-    │   │   ├── main.min.js
-    │   │   └── script-v1.0.7.js
+    │   │   ├── js/
+    │   │   │   ├── api.js
+    │   │   │   ├── changeTracker.js
+    │   │   │   ├── charts.js
+    │   │   │   ├── clubs.js
+    │   │   │   ├── formations.js
+    │   │   │   ├── main.js
+    │   │   │   ├── main.min.js
+    │   │   │   ├── teamLogic.js
+    │   │   │   ├── ui.js
+    │   │   │   └── utils.js
     │
     ├── templates/
     │   ├── 404.html
@@ -106,4 +118,8 @@ Directory structure:
     │   ├── routes/
     │   │   ├── test_auth_routes.py
     │   │   ├── test_main_routes.py
-            └── test_player_routes.py
+    │   │   └── test_player_routes.py
+    │   │
+    │   └── utils/
+    │       ├── __init__.py
+    │       └── create_sample_players.py
