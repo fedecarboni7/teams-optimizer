@@ -159,6 +159,10 @@ function savePlayers() {
                     const deleteButton = playerElement.querySelector('.delete-button');
                     if (deleteButton) {
                         deleteButton.id = player.id.toString();
+                        // Asignar el club-id si existe
+                        if (clubId) {
+                            deleteButton.setAttribute('club-id', clubId);
+                        }
                     }
                     
                     // Make the name input readonly
@@ -210,7 +214,7 @@ function deletePlayer(button) {
         
         button.appendChild(spinner);
 
-        if (clubId !== 'None' && playerId !== null) {
+        if (clubId && clubId !== 'None' && clubId !== 'null' && playerId !== null) {
             fetch(`/clubs/${clubId}/players/${playerId}`, { method: 'DELETE' })
                 .then(response => {
                     if (!response.ok) {
@@ -295,22 +299,107 @@ function deletePlayer(button) {
     return false;
 }
 
-// Botón para borrar la información de todos los jugadores
-function reset() {
-    if (confirm("Estás a punto de borrar la información de todos los jugadores. ¿Estás seguro de que querés continuar?")) {
+// Botón para borrar los jugadores seleccionados
+function deleteSelectedPlayers() {
+    const selectedCheckboxes = document.querySelectorAll('input[name="selectedPlayers"]:checked');
+    
+    if (selectedCheckboxes.length === 0) {
+        alert('No hay jugadores seleccionados para eliminar.');
+        return;
+    }
+    
+    const playerNames = Array.from(selectedCheckboxes).map(checkbox => {
+        const nameInput = checkbox.nextElementSibling;
+        return nameInput.value || 'Sin nombre';
+    });
+    
+    if (confirm(`¿Estás seguro de que querés eliminar los siguientes ${selectedCheckboxes.length} jugadores?\n\n${playerNames.join(', ')}`)) {
         const resetBtn = document.getElementById('resetBtn');
         const spinner = document.createElement('span');
         spinner.className = 'spinner';
         resetBtn.appendChild(spinner);
-
-        // Deshabilitar el botón para prevenir múltiples envíos
         resetBtn.disabled = true;
-
-        fetch('/reset')
-            .then(response => response.text())
-            .then(() => {
-                window.location.href = "/home";
-            });
+        
+        // Eliminar jugadores uno por uno usando la función deletePlayer existente
+        const deleteButtons = Array.from(selectedCheckboxes).map(checkbox => 
+            checkbox.closest('.player-entry').querySelector('.delete-button')
+        );
+        
+        let deletedCount = 0;
+        
+        deleteButtons.forEach((deleteButton, index) => {
+            if (deleteButton) {
+                // Simular click en el botón de eliminar pero sin confirmación
+                const playerId = deleteButton.getAttribute('id');
+                const clubId = deleteButton.getAttribute('club-id');
+                
+                if (clubId && clubId !== 'None' && clubId !== 'null' && playerId !== null) {
+                    fetch(`/clubs/${clubId}/players/${playerId}`, { method: 'DELETE' })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Error al eliminar el jugador del club');
+                            }
+                            return response.text();
+                        })
+                        .then(() => {
+                            const container = document.getElementById("players-container");
+                            container.removeChild(deleteButton.parentNode.parentNode);
+                            deletedCount++;
+                            if (deletedCount === deleteButtons.length) {
+                                finishDeletion();
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Error al eliminar algunos jugadores: ' + error.message);
+                        });
+                } else if (playerId !== null) {
+                    fetch(`/player/${playerId}`, { method: 'DELETE' })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Error al eliminar el jugador');
+                            }
+                            return response.text();
+                        })
+                        .then(() => {
+                            const container = document.getElementById("players-container");
+                            container.removeChild(deleteButton.parentNode.parentNode);
+                            deletedCount++;
+                            if (deletedCount === deleteButtons.length) {
+                                finishDeletion();
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Error al eliminar algunos jugadores: ' + error.message);
+                        });
+                } else {
+                    // Jugador no guardado, eliminar directamente del DOM
+                    const container = document.getElementById("players-container");
+                    container.removeChild(deleteButton.parentNode.parentNode);
+                    deletedCount++;
+                    if (deletedCount === deleteButtons.length) {
+                        finishDeletion();
+                    }
+                }
+            }
+        });
+        
+        function finishDeletion() {
+            renumerarJugadores();
+            updateToggleButtonText();
+            updateSelectedCount();
+            
+            // Recapturar estado inicial después de eliminar jugadores
+            if (window.playerChangeTracker) {
+                window.playerChangeTracker.captureInitialState();
+                window.playerChangeTracker.updateChangeIndicators();
+            }
+            
+            // Remover spinner y rehabilitar botón
+            resetBtn.removeChild(spinner);
+            resetBtn.disabled = false;
+        }
     }
 }
 

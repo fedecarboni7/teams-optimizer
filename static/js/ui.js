@@ -368,6 +368,12 @@ function updateSelectedCount() {
     let selectedCount = document.querySelectorAll('input[name="selectedPlayers"]:checked').length;
     document.getElementById('selected-count').textContent = selectedCount;
 
+    // Controlar la visibilidad del botón "Borrar seleccionados"
+    const deleteSelectedBtn = document.getElementById('resetBtn');
+    if (deleteSelectedBtn) {
+        deleteSelectedBtn.style.display = selectedCount > 0 ? 'block' : 'none';
+    }
+
     updateSelectedPlayersList();
 }
 
