@@ -1,0 +1,172 @@
+import os
+import secrets
+import smtplib
+from datetime import datetime, timedelta
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from typing import Optional
+
+from sqlalchemy.orm import Session
+from app.db import models
+
+
+class EmailService:
+    def __init__(self):
+        self.smtp_server = "smtp-relay.brevo.com"
+        self.smtp_port = 587
+        self.username = os.getenv("BREVO_SMTP_USERNAME")
+        self.password = os.getenv("BREVO_SMTP_PASSWORD")
+        self.from_email = "info@armarequipos.lat"
+        self.from_name = "Armar Equipos"
+
+    def send_password_reset_email(self, to_email: str, reset_token: str, username: str) -> bool:
+        """Send password reset email via Brevo SMTP"""
+        try:
+            # Create reset URL (ajustar según tu dominio)
+            reset_url = f"{os.getenv('FRONTEND_URL', 'http://localhost:8000')}/reset-password/{reset_token}"
+            
+            # Create email content
+            subject = "Restablecer contraseña - Armar Equipos"
+            
+            html_body = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Restablecer contraseña</title>
+                <style>
+                    body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                    .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                    .header {{ background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }}
+                    .content {{ background-color: #ffffff; padding: 30px; border: 1px solid #e9ecef; }}
+                    .button {{ display: inline-block; padding: 12px 24px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 4px; margin: 20px 0; }}
+                    .footer {{ background-color: #f8f9fa; padding: 15px; text-align: center; font-size: 12px; color: #6c757d; border-radius: 0 0 8px 8px; }}
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>Restablecer contraseña</h1>
+                    </div>
+                    <div class="content">
+                        <p>Hola {username},</p>
+                        <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta en Armar Equipos.</p>
+                        <p>Haz clic en el siguiente botón para crear una nueva contraseña:</p>
+                        <p style="text-align: center;">
+                            <a href="{reset_url}" class="button">Restablecer contraseña</a>
+                        </p>
+                        <p>Si no puedes hacer clic en el botón, copia y pega este enlace en tu navegador:</p>
+                        <p style="word-break: break-all; color: #007bff;">{reset_url}</p>
+                        <p><strong>Este enlace expirará en 1 hora.</strong></p>
+                        <p>Si no solicitaste restablecer tu contraseña, puedes ignorar este email.</p>
+                        <p>Saludos,<br>Equipo de Armar Equipos</p>
+                    </div>
+                    <div class="footer">
+                        <p>Este es un email automático, por favor no respondas a este mensaje.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """
+            
+            text_body = f"""
+            Hola {username},
+
+            Recibimos una solicitud para restablecer la contraseña de tu cuenta en Armar Equipos.
+
+            Visita este enlace para crear una nueva contraseña:
+            {reset_url}
+
+            Este enlace expirará en 1 hora.
+
+            Si no solicitaste restablecer tu contraseña, puedes ignorar este email.
+
+            Saludos,
+            Equipo de Armar Equipos
+            """
+
+            # Create message
+            msg = MIMEMultipart('alternative')
+            msg['Subject'] = subject
+            msg['From'] = f"{self.from_name} <{self.from_email}>"
+            msg['To'] = to_email
+
+            # Attach parts
+            part1 = MIMEText(text_body, 'plain', 'utf-8')
+            part2 = MIMEText(html_body, 'html', 'utf-8')
+            
+            msg.attach(part1)
+            msg.attach(part2)
+
+            # Send email
+            with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
+                server.starttls()
+                server.login(self.username, self.password)
+                server.send_message(msg)
+            
+            return True
+            
+        except Exception as e:
+            print(f"Error sending email: {e}")
+            return False
+
+
+class PasswordResetService:
+    @staticmethod
+    def generate_reset_token() -> str:
+        """Generate a secure random token"""
+        return secrets.token_urlsafe(32)
+    
+    @staticmethod
+    def create_reset_token(db: Session, user_id: int) -> str:
+        """Create a new password reset token for user"""
+        # Invalidate any existing tokens
+        existing_tokens = db.query(models.PasswordResetToken).filter(
+            models.PasswordResetToken.user_id == user_id,
+            models.PasswordResetToken.used == False
+        ).all()
+        
+        for token in existing_tokens:
+            token.used = True
+        
+        # Create new token
+        token_string = PasswordResetService.generate_reset_token()
+        expires_at = datetime.now() + timedelta(hours=1)  # 1 hour expiration
+        
+        reset_token = models.PasswordResetToken(
+            user_id=user_id,
+            token=token_string,
+            expires_at=expires_at
+        )
+        
+        db.add(reset_token)
+        db.commit()
+        
+        return token_string
+    
+    @staticmethod
+    def validate_reset_token(db: Session, token: str) -> Optional[models.User]:
+        """Validate reset token and return user if valid"""
+        reset_token = db.query(models.PasswordResetToken).filter(
+            models.PasswordResetToken.token == token,
+            models.PasswordResetToken.used == False,
+            models.PasswordResetToken.expires_at > datetime.now()
+        ).first()
+        
+        if reset_token:
+            return reset_token.user
+        return None
+    
+    @staticmethod
+    def use_reset_token(db: Session, token: str) -> bool:
+        """Mark reset token as used"""
+        reset_token = db.query(models.PasswordResetToken).filter(
+            models.PasswordResetToken.token == token,
+            models.PasswordResetToken.used == False
+        ).first()
+        
+        if reset_token:
+            reset_token.used = True
+            db.commit()
+            return True
+        return False

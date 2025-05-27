@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q0GE6VCJGX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-Q0GE6VCJGX');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Perfil - Armar Equipos</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="../static/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../static/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../static/favicon/favicon-16x16.png">
+    <link rel="manifest" href="../static/favicon/site.webmanifest">
+    <link rel="stylesheet" type="text/css" href="../static/css/daisyui.min.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="justify-center flex h-screen items-center">
+    <div
+        class="card bg-neutral text-neutral-content sm:w-96 w-full max-w-96 h-fit m-4">
+        <div class="p-4 rounded-lg shadow-md border-primary">
+            <h1 class="text-2xl font-bold text-center">Mi Perfil</h1>
+            <br/>
+            
+            <!-- User info section -->
+            <div class="mb-6">
+                <div class="text-sm text-gray-400 mb-2">Usuario:</div>
+                <div class="text-lg font-medium">{{ user.username }}</div>
+            </div>
+            
+            <!-- Success/Error messages -->
+            {% if error %}
+            <div class="bg-red-500 text-white p-2 rounded mb-4">
+                {{ error }}
+            </div>
+            {% endif %}
+            {% if success %}
+            <div class="bg-green-500 text-white p-2 rounded mb-4">
+                {{ success }}
+            </div>
+            {% endif %}
+            
+            <!-- Email section -->
+            <div class="mb-6">
+                <div class="text-sm text-gray-400 mb-2">Email:</div>
+                {% if user.email %}
+                    <div class="text-lg font-medium mb-2">{{ user.email }}</div>
+                    <div class="text-xs text-gray-500">
+                        ✅ Podés restablecer tu contraseña usando este email
+                    </div>
+                {% else %}
+                    <div class="text-yellow-400 mb-2">
+                        ⚠️ No tenés email configurado
+                    </div>
+                    <div class="text-xs text-gray-500 mb-4">
+                        Agregá tu email para poder restablecer tu contraseña en el futuro
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Email form -->
+            <form action="/profile/update-email" method="POST" class="mt-4 flex flex-col gap-2">
+            <label class="text-sm text-gray-400 mb-1">
+                {% if user.email %}Cambiar email:{% else %}Agregar email:{% endif %}
+            </label>
+            <label
+                class="input input-bordered flex items-center gap-2"
+                for="email">
+                <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+                class="h-4 w-4 opacity-70">
+                <path
+                    d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z" />
+                <path
+                    d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" />
+                </svg>
+                <input
+                type="email"
+                class="grow"
+                placeholder="tu@email.com"
+                name="email"
+                value="{{ user.email or '' }}"
+                required />
+            </label>
+            <br />
+            <button type="submit" class="btn btn-primary w-full">
+                {% if user.email %}Actualizar Email{% else %}Agregar Email{% endif %}
+            </button>
+            </form>
+            
+            <!-- Navigation links -->
+            <div class="mt-6 text-center space-y-2">
+                <div>
+                    <a href="/home" class="link link-primary" style="text-decoration-line: none;">
+                    Volver al inicio
+                    </a>
+                </div>
+            <div>
+                <button
+                onclick="confirmDeleteAccount()"
+                class="link link-error text-sm cursor-pointer bg-transparent border-0 hover:underline">
+                Borrar cuenta
+                </button>
+            </div>
+        </div>
+    </div>
+      <script>
+      function confirmDeleteAccount() {
+        const confirmation = confirm(`¿Estás seguro de que quieres borrar tu cuenta permanentemente?
+
+        ESTA ACCIÓN NO SE PUEDE DESHACER.
+
+        Se eliminarán TODOS tus datos:
+        • Tu perfil de usuario
+        • Todos los jugadores que hayas creado
+        • Tu membresía en todos los clubes
+
+        Para clubes donde eres OWNER:
+        • Si eres el único owner: se borrará TODO el club y sus datos
+        • Si hay otros owners: solo se te removerá del club
+
+        Para clubes donde eres admin/member:
+        • Solo se te removerá del club
+
+        ¿Confirmar el borrado de la cuenta?`);
+        
+        if (confirmation) {
+          const finalConfirmation = confirm('ÚLTIMA CONFIRMACIÓN: ¿Estás absolutamente seguro? Esta acción es IRREVERSIBLE.');
+          if (finalConfirmation) {
+            // Create a form to submit the delete request
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/profile/delete-account';
+            document.body.appendChild(form);
+            form.submit();
+          }
+        }
+      }
+    </script>
+  </body>
+</html>
