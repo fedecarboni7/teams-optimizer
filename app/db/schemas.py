@@ -1,7 +1,29 @@
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
+
+# User schemas
+class UserCreate(BaseModel):
+    username: str
+    password: str
+    email: EmailStr
+
+class UserResponse(BaseModel):
+    id: int
+    username: str
+    email: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+# Password reset schemas
+class PasswordResetRequest(BaseModel):
+    email: EmailStr
+
+class PasswordResetConfirm(BaseModel):
+    token: str
+    new_password: str
 
 class PlayerCreate(BaseModel):
     name: str

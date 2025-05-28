@@ -6,11 +6,12 @@ def unauthorized_client(client, db):
     # Create a regular user for the test
     username = "regularuser"
     password = "Loginpassword123"
+    email = "regularuser@example.com"
     
     # Check if user already exists
     user = db.query(User).filter(User.username == username).first()
     if not user:
-        user = User(username=username)
+        user = User(username=username, email=email)
         user.set_password(password)
         db.add(user)
         db.commit()
@@ -25,11 +26,12 @@ def authorized_client(client, db):
     # Create an admin user for the test
     username = "admin"
     password = "Loginpassword123"
+    email = "admin@example.com"
     
     # Check if admin already exists
     admin_user = db.query(User).filter(User.username == username).first()
     if not admin_user:
-        admin_user = User(username=username)
+        admin_user = User(username=username, email=email)
         admin_user.set_password(password)
         db.add(admin_user)
         db.commit()

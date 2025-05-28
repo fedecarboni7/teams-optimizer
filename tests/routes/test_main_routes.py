@@ -9,7 +9,7 @@ def test_get_home(client):
     assert response.template.name == "landing-page.html"
 
     # Then test with authentication
-    response = client.post("/signup", data={"username": "hometestuser", "password": "Testpassword1*"}, follow_redirects=False)
+    response = client.post("/signup", data={"username": "hometestuser", "password": "Testpassword1*", "email": "hometestuser@example.com"}, follow_redirects=False)
     if response.status_code == 409:  # If user already exists, login
         response = client.post("/login", data={"username": "hometestuser", "password": "Testpassword1*"}, follow_redirects=False)
     assert response.status_code == 302
@@ -17,7 +17,7 @@ def test_get_home(client):
 
 def test_get_current_user(client, db):
     # Create a unique user for this test
-    user = User(username="testuser3")
+    user = User(username="testuser3", email="testuser3@example.com")
     user.set_password("testpassword")
     db.add(user)
     db.commit()
