@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Migration script to add email field to User table and create PasswordResetToken table.
 This script ensures backward compatibility with existing users.
