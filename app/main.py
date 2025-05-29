@@ -17,7 +17,7 @@ if os.getenv("RUN_MIGRATION") == "true":
         scripts_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "scripts")
         sys.path.insert(0, scripts_path)
         
-        from migrate_database import run_migration
+        from add_email_confirmation_fields import run_migration
         
         success = run_migration()
         if success:

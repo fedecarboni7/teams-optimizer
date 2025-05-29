@@ -89,7 +89,6 @@
                 value="{{ user.email or '' }}"
                 required />
             </label>
-            <br />
             <button type="submit" class="btn btn-primary w-full">
                 {% if user.email %}Actualizar Email{% else %}Agregar Email{% endif %}
             </button>
@@ -102,12 +101,15 @@
                     Volver al inicio
                     </a>
                 </div>
-            <div>
-                <button
-                onclick="confirmDeleteAccount()"
-                class="link link-error text-sm cursor-pointer bg-transparent border-0 hover:underline">
-                Borrar cuenta
-                </button>
+                <br>
+                <div>
+                    <button
+                    onclick="confirmDeleteAccount()"
+                    class="link link-error text-sm cursor-pointer bg-transparent border-0 hover:underline"
+                    style="margin-bottom: 1rem;">
+                        Borrar cuenta
+                    </button>
+                </div>
             </div>
         </div>
     </div>

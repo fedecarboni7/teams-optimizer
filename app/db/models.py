@@ -15,6 +15,9 @@ class User(Base):
     username = Column(String, unique=True, index=True)
     password = Column(String)
     email = Column(String, unique=True, index=True, nullable=True)  # Nullable para usuarios existentes
+    email_confirmed = Column(Boolean, default=False, nullable=False)
+    email_confirmation_token = Column(String, nullable=True)
+    email_confirmation_expires = Column(DateTime, nullable=True)
 
     players = relationship("Player", back_populates="user")
     skill_votes = relationship("SkillVote", back_populates="voter")

@@ -11,7 +11,7 @@ from app.config.config import templates
 from app.db.database import get_db
 from app.db.database_utils import execute_with_retries, query_user
 from app.db.models import User
-from app.utils.security import create_access_token
+from app.utils.security import create_access_token, create_email_confirmation_token
 from app.utils.validators import validate_password, validate_username, validate_email
 from app.utils.email_service import EmailService, PasswordResetService
 
@@ -50,21 +50,42 @@ async def signup(
         existing_email = db.query(User).filter(User.email == email).first()
         if existing_email:
             return templates.TemplateResponse(request=request, name="signup.html", context={"error": "Email ya registrado"}, status_code=409)
-        
         validate_password(password)
     except ValueError as e:
         return templates.TemplateResponse(request=request, name="signup.html", context={"error": str(e)})
     except OperationalError:
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
 
-    new_user = User(username=username, email=email)
+    new_user = User(username=username, email=email, email_confirmed=False)
     new_user.set_password(password)
     db.add(new_user)
     db.commit()
+    db.refresh(new_user)
 
-    # Set user_id in session after successful registration
-    request.session["user_id"] = new_user.id
-    return RedirectResponse(url="/home", status_code=302)
+    # Generate email confirmation token
+    confirmation_token = create_email_confirmation_token(db, new_user)
+    
+    # Send confirmation email
+    email_service = EmailService()
+    email_sent = email_service.send_email_confirmation(email, confirmation_token, username)
+    if not email_sent:
+        # If email fails, we still create the account but show a warning
+        return templates.TemplateResponse(
+            request=request, 
+            name="email_confirmation_pending.html", 
+            context={
+                "user_email": email,
+                "error": "Cuenta creada, pero hubo un problema enviando el email de confirmación. Intenta reenviar el email."
+            }
+        )
+    # Redirect to confirmation pending page
+    return templates.TemplateResponse(
+        request=request, 
+        name="email_confirmation_pending.html", 
+        context={
+            "user_email": email
+        }
+    )
 
 
 @router.get("/login", response_class=HTMLResponse, include_in_schema=False)
@@ -95,9 +116,21 @@ async def login(
         user: User = execute_with_retries(query_user, db, username)
     except OperationalError:
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
-    
     if not user or not user.verify_password(password):
         return templates.TemplateResponse(request=request, name="login.html", context={"error": "Usuario o contraseña incorrectos"}, status_code=401)
+    
+    # Check if email is confirmed
+    if not user.email_confirmed:
+        return templates.TemplateResponse(
+            request=request, 
+            name="login.html", 
+            context={
+                "error": "Debes confirmar tu email antes de iniciar sesión. Revisa tu bandeja de entrada.",
+                "email_not_confirmed": True,
+                "user_email": user.email
+            }, 
+            status_code=401
+        )
 
     request.session["user_id"] = user.id
     return RedirectResponse(url="/home", status_code=302)
@@ -444,4 +477,106 @@ async def delete_account(
             request=request,
             name="profile.html",
             context={"user": user, "error": f"Error al borrar la cuenta: {str(e)}. Inténtalo de nuevo más tarde."}
+        )
+
+
+# Email confirmation routes
+@router.get("/confirm-email/{token}", response_class=HTMLResponse, include_in_schema=False)
+async def confirm_email(request: Request, token: str, db: Session = Depends(get_db)):
+    """Confirm user email with token"""
+    from app.utils.security import validate_email_confirmation_token, confirm_user_email
+    
+    # Validate token and get user
+    user = validate_email_confirmation_token(db, token)
+    if not user:
+        return templates.TemplateResponse(
+            request=request,
+            name="signup.html",
+            context={
+                "error": "El enlace de confirmación no es válido o ha expirado.",
+                "invalid_token": True
+            }
+        )
+    
+    # Confirm email
+    success = confirm_user_email(db, user)
+    if not success:
+        return templates.TemplateResponse(
+            request=request,
+            name="signup.html",
+            context={
+                "error": "Error al confirmar el email. Inténtalo de nuevo más tarde.",
+                "confirmation_failed": True
+            }
+        )
+      # Auto-login the user after successful confirmation
+    request.session["user_id"] = user.id
+    
+    return templates.TemplateResponse(
+        request=request,
+        name="login.html",
+        context={
+            "success": "¡Email confirmado exitosamente! Ya puedes usar tu cuenta."
+        }
+    )
+
+
+@router.post("/resend-confirmation")
+async def resend_confirmation(
+    request: Request,
+    email: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    """Resend email confirmation"""
+    from app.utils.security import create_email_confirmation_token
+    
+    try:
+        email = email.strip().lower()
+        validate_email(email)
+        
+        # Find user with this email
+        user = db.query(User).filter(User.email == email, User.email_confirmed == False).first()
+        
+        if user:
+            # Generate new confirmation token
+            confirmation_token = create_email_confirmation_token(db, user)
+            
+            # Send confirmation email
+            email_service = EmailService()
+            email_sent = email_service.send_email_confirmation(email, confirmation_token, user.username)
+            if not email_sent:
+                return templates.TemplateResponse(
+                    request=request,
+                    name="email_confirmation_pending.html",
+                    context={
+                        "error": "Error al enviar el email. Inténtalo de nuevo más tarde.",
+                        "user_email": email
+                    }
+                )
+          # Always show success message for security (don't reveal if email exists)
+        return templates.TemplateResponse(
+            request=request,
+            name="email_confirmation_pending.html",
+            context={
+                "success": "Si el email existe y no está confirmado, recibirás un nuevo enlace de confirmación.",
+                "user_email": email
+            }
+        )
+    except ValueError as e:
+        return templates.TemplateResponse(
+            request=request,
+            name="email_confirmation_pending.html",
+            context={
+                "error": str(e),
+                "user_email": email
+            }
+        )
+    except Exception as e:
+        return templates.TemplateResponse(
+            request=request,
+            name="email_confirmation_pending.html",
+            context={
+                "error": "Error interno. Inténtalo de nuevo más tarde.",
+                "user_email": email
+            }
         )
