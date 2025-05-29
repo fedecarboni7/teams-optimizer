@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 from passlib.hash import pbkdf2_sha256
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Boolean
 from sqlalchemy.orm import DeclarativeBase, relationship
 
 
@@ -14,6 +14,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True)
     password = Column(String)
+    email = Column(String, unique=True, index=True, nullable=True)  # Nullable para usuarios existentes
 
     players = relationship("Player", back_populates="user")
     skill_votes = relationship("SkillVote", back_populates="voter")
@@ -109,3 +110,15 @@ class ClubInvitation(Base):
     club = relationship("Club", backref="invitations")
     invited_user = relationship("User", foreign_keys=[invited_user_id])
     inviter = relationship("User", foreign_keys=[inviter_id])
+
+class PasswordResetToken(Base):
+    __tablename__ = "password_reset_tokens"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    token = Column(String, unique=True, index=True)
+    created_at = Column(DateTime, default=datetime.now)
+    expires_at = Column(DateTime)
+    used = Column(Boolean, default=False)
+    
+    user = relationship("User", backref="password_reset_tokens")

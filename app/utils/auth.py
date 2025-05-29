@@ -4,7 +4,7 @@ from sqlalchemy.exc import DatabaseError
 
 from app.db.database import get_db
 from app.db.models import User
-
+from app.config.logging_config import logger
 
 def get_current_user(request: Request, db: Session = Depends(get_db)):
     user_id = request.session.get("user_id")
@@ -14,7 +14,7 @@ def get_current_user(request: Request, db: Session = Depends(get_db)):
             return user
         except DatabaseError as e:
             if "HRANA_WEBSOCKET_ERROR" in str(e):
-                print(f"Database error occurred: {e}")
+                logger.error(f"Database error occurred: {e}")
                 db.rollback()
                 return None
             raise e

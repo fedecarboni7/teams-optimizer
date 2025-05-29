@@ -1,6 +1,6 @@
 fastapi
 passlib
-pydantic
+pydantic[email]
 pytest
 SQLAlchemy
 starlette
