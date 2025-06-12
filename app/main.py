@@ -9,29 +9,29 @@ from app.routes.clubs_routes import router as clubs_router
 from app.routes.public_routes import router as public_router
 from app.routes.admin_routes import router as admin_router
 
-# Check if email confirmed migration should be run
-if os.getenv("RUN_EMAIL_MIGRATION") == "true":
-    print("🔄 Running email confirmed migration...")
+# Check if migration should be run
+if os.getenv("RUN_MIGRATION") == "true":
+    print("🔄 Running database migration...")
     try:
         # Add scripts directory to path
         scripts_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "scripts")
         sys.path.insert(0, scripts_path)
         
-        from migrate_email_confirmed_to_integer import run_migration as run_email_migration
+        from add_email_confirmation_fields import run_migration
         
-        success = run_email_migration()
+        success = run_migration()
         if success:
-            print("✅ Email confirmed migration completed successfully")
+            print("✅ Database migration completed successfully")
         else:
-            print("❌ Email confirmed migration failed")
+            print("❌ Database migration failed")
             sys.exit(1)
     except Exception as e:
-        print(f"❌ Error running email migration: {e}")
+        print(f"❌ Error running migration: {e}")
         sys.exit(1)
     finally:
         # Remove the environment variable to prevent running migration again
-        if "RUN_EMAIL_MIGRATION" in os.environ:
-            del os.environ["RUN_EMAIL_MIGRATION"]
+        if "RUN_MIGRATION" in os.environ:
+            del os.environ["RUN_MIGRATION"]
 
 app = create_app()
 
