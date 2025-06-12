@@ -69,7 +69,7 @@ def validate_email_confirmation_token(db: Session, token: str) -> Optional[User]
     user = db.query(UserModel).filter(
         UserModel.email_confirmation_token == token,
         UserModel.email_confirmation_expires > datetime.now(timezone.utc),
-        UserModel.email_confirmed == False
+        UserModel.email_confirmed.in_([0, -1])  # Both new users (0) and legacy users (-1) with unconfirmed emails
     ).first()
     
     return user
@@ -77,7 +77,7 @@ def validate_email_confirmation_token(db: Session, token: str) -> Optional[User]
 def confirm_user_email(db: Session, user: User) -> bool:
     """Mark user email as confirmed and clear confirmation token"""
     try:
-        user.email_confirmed = True
+        user.email_confirmed = 1  # 1 = email confirmado
         user.email_confirmation_token = None
         user.email_confirmation_expires = None
         

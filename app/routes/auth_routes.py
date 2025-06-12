@@ -56,7 +56,7 @@ async def signup(
     except OperationalError:
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
 
-    new_user = User(username=username, email=email, email_confirmed=False)
+    new_user = User(username=username, email=email, email_confirmed=0)  # 0 = nuevo usuario sin confirmar
     new_user.set_password(password)
     db.add(new_user)
     db.commit()
@@ -116,11 +116,11 @@ async def login(
         user: User = execute_with_retries(query_user, db, username)
     except OperationalError:
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
+    
     if not user or not user.verify_password(password):
         return templates.TemplateResponse(request=request, name="login.html", context={"error": "Usuario o contraseña incorrectos"}, status_code=401)
-    
-    # Check if email is confirmed
-    if not user.email_confirmed:
+    # Check if email confirmation is required (only for new users with email but unconfirmed)
+    if user.is_new_user() and user.email:  # Only block if user has email but hasn't confirmed it
         return templates.TemplateResponse(
             request=request, 
             name="login.html", 
@@ -186,11 +186,10 @@ async def forgot_password(
     """Process forgot password request"""
     try:
         validate_email(email)
-        
         # Find user by email
         user = db.query(User).filter(User.email == email.lower().strip()).first()
         
-        if user:
+        if user and user.is_email_confirmed():  # Solo permite reset si el email está confirmado
             # Generate reset token
             reset_token = PasswordResetService.create_reset_token(db, user.id)
             
@@ -332,7 +331,7 @@ async def update_email(
     email: str = Form(...),
     db: Session = Depends(get_db)
 ):
-    """Update user email address"""
+    """Update user email address with confirmation requirement"""
     user_id = request.session.get("user_id")
     if not user_id:
         return RedirectResponse(url="/login", status_code=302)
@@ -355,14 +354,44 @@ async def update_email(
                 context={"user": user, "error": "Este email ya está registrado por otro usuario."}
             )
         
-        # Update email
+        # Check if it's the same email they already have
+        if user.email == email:
+            return templates.TemplateResponse(
+                request=request,
+                name="profile.html",
+                context={"user": user, "error": "Este email ya está asociado a tu cuenta."}
+            )
+          # Set email as unconfirmed for legacy users and generate confirmation token
         user.email = email
+        user.email_confirmed = -1  # -1 = usuario legacy con email sin confirmar (puede hacer login)
         db.commit()
+        db.refresh(user)
+        
+        # Generate confirmation token
+        confirmation_token = create_email_confirmation_token(db, user)
+        
+        # Send confirmation email
+        email_service = EmailService()
+        email_sent = email_service.send_email_confirmation(email, confirmation_token, user.username)
+        
+        if not email_sent:
+            return templates.TemplateResponse(
+                request=request,
+                name="profile.html",
+                context={
+                    "user": user, 
+                    "error": "Email actualizado pero hubo un problema enviando la confirmación. Puedes reenviar el email desde tu perfil."
+                }
+            )
         
         return templates.TemplateResponse(
             request=request,
             name="profile.html",
-            context={"user": user, "success": "Email actualizado exitosamente."}
+            context={
+                "user": user, 
+                "success": "Email actualizado. Te hemos enviado un enlace de confirmación al nuevo email.",
+                "email_pending_confirmation": True
+            }
         )
         
     except ValueError as e:
@@ -534,8 +563,8 @@ async def resend_confirmation(
         email = email.strip().lower()
         validate_email(email)
         
-        # Find user with this email
-        user = db.query(User).filter(User.email == email, User.email_confirmed == False).first()
+        # Find user with this email (any unconfirmed state)
+        user = db.query(User).filter(User.email == email, User.email_confirmed.in_([0, -1])).first()
         
         if user:
             # Generate new confirmation token
@@ -579,4 +608,66 @@ async def resend_confirmation(
                 "error": "Error interno. Inténtalo de nuevo más tarde.",
                 "user_email": email
             }
+        )
+
+
+@router.post("/profile/resend-email-confirmation")
+async def resend_email_confirmation_profile(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Resend email confirmation from profile page"""
+    user_id = request.session.get("user_id")
+    if not user_id:
+        return RedirectResponse(url="/login", status_code=302)
+    
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        request.session.clear()
+        return RedirectResponse(url="/login", status_code=302)
+    
+    # Check if user has email and it's not confirmed
+    if not user.email:
+        return templates.TemplateResponse(
+            request=request,
+            name="profile.html",
+            context={"user": user, "error": "No tienes un email configurado para confirmar."}
+        )
+    if user.is_email_confirmed():
+        return templates.TemplateResponse(
+            request=request,
+            name="profile.html",
+            context={"user": user, "error": "Tu email ya está confirmado."}
+        )
+    
+    try:
+        # Generate new confirmation token
+        confirmation_token = create_email_confirmation_token(db, user)
+        
+        # Send confirmation email
+        email_service = EmailService()
+        email_sent = email_service.send_email_confirmation(user.email, confirmation_token, user.username)
+        
+        if not email_sent:
+            return templates.TemplateResponse(
+                request=request,
+                name="profile.html",
+                context={"user": user, "error": "Error al enviar el email de confirmación. Intentalo de nuevo más tarde."}
+            )
+        
+        return templates.TemplateResponse(
+            request=request,
+            name="profile.html",
+            context={
+                "user": user, 
+                "success": "Email de confirmación reenviado exitosamente.",
+                "email_pending_confirmation": True
+            }
+        )
+        
+    except Exception as e:
+        return templates.TemplateResponse(
+            request=request,
+            name="profile.html",
+            context={"user": user, "error": "Error interno. Inténtalo de nuevo más tarde."}
         )

@@ -15,19 +15,35 @@ class User(Base):
     username = Column(String, unique=True, index=True)
     password = Column(String)
     email = Column(String, unique=True, index=True, nullable=True)  # Nullable para usuarios existentes
-    email_confirmed = Column(Boolean, default=False, nullable=False)
+    email_confirmed = Column(Integer, default=0, nullable=False)  # 0=nuevo sin confirmar, -1=legacy sin confirmar, 1=confirmado
     email_confirmation_token = Column(String, nullable=True)
     email_confirmation_expires = Column(DateTime, nullable=True)
 
     players = relationship("Player", back_populates="user")
     skill_votes = relationship("SkillVote", back_populates="voter")
     club_users = relationship("ClubUser", back_populates="user")
-
+    
     def set_password(self, password):
         self.password = pbkdf2_sha256.hash(password)
 
     def verify_password(self, password):
         return pbkdf2_sha256.verify(password, self.password)
+    
+    def is_new_user(self):
+        """Check if this is a new user (requires email confirmation to login)"""
+        return self.email_confirmed == 0
+    
+    def is_legacy_user_with_unconfirmed_email(self):
+        """Check if this is a legacy user with unconfirmed email (can login without confirmation)"""
+        return self.email_confirmed == -1
+    
+    def is_email_confirmed(self):
+        """Check if email is confirmed"""
+        return self.email_confirmed == 1
+    
+    def has_unconfirmed_email(self):
+        """Check if user has an unconfirmed email (new or legacy)"""
+        return self.email_confirmed in [0, -1]
 
 
 class Player(Base):

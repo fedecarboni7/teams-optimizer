@@ -11,7 +11,7 @@ def unauthorized_client(client, db):
     # Check if user already exists
     user = db.query(User).filter(User.username == username).first()
     if not user:
-        user = User(username=username, email=email, email_confirmed=True)
+        user = User(username=username, email=email, email_confirmed=1)
         user.set_password(password)
         db.add(user)
         db.commit()
@@ -31,7 +31,7 @@ def authorized_client(client, db):
     # Check if admin already exists
     admin_user = db.query(User).filter(User.username == username).first()
     if not admin_user:
-        admin_user = User(username=username, email=email, email_confirmed=True)
+        admin_user = User(username=username, email=email, email_confirmed=1)
         admin_user.set_password(password)
         db.add(admin_user)
         db.commit()

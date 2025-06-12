@@ -21,7 +21,7 @@ def test_get_home(client, db):
         db.commit()
     
     # Create user with confirmed email
-    user = User(username=username, email=email, email_confirmed=True)
+    user = User(username=username, email=email, email_confirmed=1)
     user.set_password(password)
     db.add(user)
     db.commit()
@@ -32,7 +32,7 @@ def test_get_home(client, db):
     assert response.headers["location"] == "/home"
 
 def test_get_current_user(client, db):    # Create a unique user for this test
-    user = User(username="testuser3", email="testuser3@example.com", email_confirmed=True)
+    user = User(username="testuser3", email="testuser3@example.com", email_confirmed=1)
     user.set_password("testpassword")
     db.add(user)
     db.commit()
