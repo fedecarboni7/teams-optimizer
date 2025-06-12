@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q0GE6VCJGX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-Q0GE6VCJGX');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Confirma tu cuenta - Armar Equipos</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="../static/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../static/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../static/favicon/favicon-16x16.png">
+    <link rel="manifest" href="../static/favicon/site.webmanifest">
+    <link rel="stylesheet" type="text/css" href="../static/css/daisyui.min.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="justify-center flex h-screen items-center">
+    <div class="card bg-neutral text-neutral-content sm:w-96 w-full max-w-96 h-fit m-4">
+      <div class="p-4 rounded-lg shadow-md border-primary">
+        <div class="text-center mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          <h1 class="text-2xl font-bold">¡Cuenta creada!</h1>
+          <p class="text-sm text-gray-400 mt-1">Confirma tu email para continuar</p>
+        </div>
+
+        <div class="bg-base-200 p-4 rounded-lg mb-4">
+          <div class="text-center">
+            <h3 class="font-semibold mb-2">📧 Revisa tu email</h3>
+            <p class="text-sm mb-3">
+              Hemos enviado un enlace de confirmación a:
+            </p>
+            <div class="bg-primary text-primary-content px-3 py-2 rounded text-sm font-mono break-all">
+              {{ user_email }}
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-3 text-sm">
+          <div class="flex items-start">
+            <span class="text-primary mr-2 mt-0.5">1.</span>
+            <span>Abre tu bandeja de entrada</span>
+          </div>
+          <div class="flex items-start">
+            <span class="text-primary mr-2 mt-0.5">2.</span>
+            <span>Busca un email de "Armar Equipos"</span>
+          </div>
+          <div class="flex items-start">
+            <span class="text-primary mr-2 mt-0.5">3.</span>
+            <span>Haz clic en el enlace de confirmación</span>
+          </div>
+          <div class="flex items-start">
+            <span class="text-primary mr-2 mt-0.5">4.</span>
+            <span>¡Listo! Podrás iniciar sesión</span>
+          </div>
+        </div>
+
+        <div class="mt-6 text-center">
+          <p class="text-xs text-gray-400 mb-3">¿No recibiste el email?</p>
+          <form action="/resend-confirmation" method="POST" class="mb-3">
+            <input type="hidden" name="email" value="{{ user_email }}">
+            <button type="submit" class="btn btn-outline btn-sm w-full">
+              Reenviar email de confirmación
+            </button>
+          </form>
+          
+          <div class="text-xs text-gray-500">
+            También revisa tu carpeta de spam
+          </div>
+        </div>
+
+        <!-- Navigation links -->
+        <div class="mt-6 pt-4 border-t border-gray-600">
+          <div class="flex justify-between text-sm">
+            <a href="/login" class="link link-primary" style="text-decoration-line: none;">
+              ← Volver al login
+            </a>
+            <a href="/signup" class="link link-secondary" style="text-decoration-line: none;">
+              Crear otra cuenta
+            </a>
+          </div>
+        </div>
+
+        {% if error %}
+            <div class="mt-4 bg-red-500 text-white p-3 rounded text-sm text-center">
+            {{ error }}
+            </div>
+        {% endif %}
+
+        {% if success %}
+            <div class="mt-4 bg-green-500 text-white p-3 rounded text-sm text-center">
+            {{ success }}
+            </div>
+        {% endif %}
+      </div>
+    </div>
+  </body>
+</html>

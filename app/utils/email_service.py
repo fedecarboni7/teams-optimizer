@@ -111,6 +111,102 @@ class EmailService:
             logger.error(f"Error sending email: {e}")
             return False
 
+    def send_email_confirmation(self, to_email: str, confirmation_token: str, username: str) -> bool:
+        """Send email confirmation email"""
+        try:
+            # Create confirmation URL
+            confirmation_url = f"{os.getenv('FRONTEND_URL', 'http://localhost:8000')}/confirm-email/{confirmation_token}"
+            
+            # Create email content
+            subject = "Confirma tu cuenta - Armar Equipos"
+            
+            html_body = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Confirma tu cuenta</title>
+                <style>
+                    body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                    .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                    .header {{ background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }}
+                    .content {{ background-color: #ffffff; padding: 30px; border: 1px solid #e9ecef; }}
+                    .button {{ display: inline-block; padding: 12px 24px; background-color: #28a745; color: #ffffff; text-decoration: none; border-radius: 4px; margin: 20px 0; }}
+                    .footer {{ background-color: #f8f9fa; padding: 15px; text-align: center; font-size: 12px; color: #6c757d; border-radius: 0 0 8px 8px; }}
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>¡Bienvenido a Armar Equipos!</h1>
+                    </div>
+                    <div class="content">
+                        <p>Hola {username},</p>
+                        <p>¡Gracias por registrarte en Armar Equipos! Para completar tu registro, necesitas confirmar tu dirección de email.</p>
+                        <p>Haz clic en el siguiente botón para confirmar tu cuenta:</p>
+                        <p style="text-align: center;">
+                            <a href="{confirmation_url}" class="button">Confirmar mi cuenta</a>
+                        </p>
+                        <p>Si no puedes hacer clic en el botón, copia y pega este enlace en tu navegador:</p>
+                        <p style="word-break: break-all; color: #28a745;">{confirmation_url}</p>
+                        <p><strong>Este enlace expirará en 24 horas.</strong></p>
+                        <p>Una vez confirmada tu cuenta, podrás acceder a todas las funcionalidades de Armar Equipos.</p>
+                        <p>Si no te registraste en nuestra plataforma, puedes ignorar este email.</p>
+                        <p>Saludos,<br>Equipo de Armar Equipos</p>
+                    </div>
+                    <div class="footer">
+                        <p>Este es un email automático, por favor no respondas a este mensaje.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """
+            
+            text_body = f"""
+            ¡Bienvenido a Armar Equipos!
+
+            Hola {username},
+
+            ¡Gracias por registrarte en Armar Equipos! Para completar tu registro, necesitas confirmar tu dirección de email.
+
+            Visita este enlace para confirmar tu cuenta:
+            {confirmation_url}
+
+            Este enlace expirará en 24 horas.
+
+            Una vez confirmada tu cuenta, podrás acceder a todas las funcionalidades de Armar Equipos.
+
+            Si no te registraste en nuestra plataforma, puedes ignorar este email.
+
+            Saludos,
+            Equipo de Armar Equipos
+            """
+
+            # Create message
+            msg = MIMEMultipart('alternative')
+            msg['Subject'] = subject
+            msg['From'] = f"{self.from_name} <{self.from_email}>"
+            msg['To'] = to_email
+
+            # Attach parts
+            part1 = MIMEText(text_body, 'plain', 'utf-8')
+            part2 = MIMEText(html_body, 'html', 'utf-8')
+            
+            msg.attach(part1)
+            msg.attach(part2)
+
+            # Send email
+            with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
+                server.starttls()
+                server.login(self.username, self.password)
+                server.send_message(msg)
+            
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error sending confirmation email: {e}")
+            return False
+
 
 class PasswordResetService:
     @staticmethod

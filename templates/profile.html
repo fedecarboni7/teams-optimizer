@@ -50,9 +50,23 @@
                 <div class="text-sm text-gray-400 mb-2">Email:</div>
                 {% if user.email %}
                     <div class="text-lg font-medium mb-2">{{ user.email }}</div>
-                    <div class="text-xs text-gray-500">
-                        ✅ Podés restablecer tu contraseña usando este email
-                    </div>
+                    {% if user.is_email_confirmed() %}
+                        <div class="text-xs text-green-400 mb-2">
+                            ✅ Email confirmado - Podés restablecer tu contraseña
+                        </div>
+                    {% else %}
+                        <div class="text-xs text-yellow-400 mb-2">
+                            ⚠️ Email pendiente de confirmación
+                        </div>
+                        <div class="text-xs text-gray-500 mb-2">
+                            Revisá tu bandeja de entrada para confirmar tu email
+                        </div>
+                        <form action="/profile/resend-email-confirmation" method="POST" class="mb-2">
+                            <button type="submit" class="btn btn-sm btn-outline btn-secondary">
+                                Reenviar confirmación
+                            </button>
+                        </form>
+                    {% endif %}
                 {% else %}
                     <div class="text-yellow-400 mb-2">
                         ⚠️ No tenés email configurado
@@ -89,7 +103,6 @@
                 value="{{ user.email or '' }}"
                 required />
             </label>
-            <br />
             <button type="submit" class="btn btn-primary w-full">
                 {% if user.email %}Actualizar Email{% else %}Agregar Email{% endif %}
             </button>
@@ -102,12 +115,15 @@
                     Volver al inicio
                     </a>
                 </div>
-            <div>
-                <button
-                onclick="confirmDeleteAccount()"
-                class="link link-error text-sm cursor-pointer bg-transparent border-0 hover:underline">
-                Borrar cuenta
-                </button>
+                <br>
+                <div>
+                    <button
+                    onclick="confirmDeleteAccount()"
+                    class="link link-error text-sm cursor-pointer bg-transparent border-0 hover:underline"
+                    style="margin-bottom: 1rem;">
+                        Borrar cuenta
+                    </button>
+                </div>
             </div>
         </div>
     </div>
