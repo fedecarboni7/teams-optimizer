@@ -12,13 +12,15 @@ def test_post_signup(client, db):
     password = "Newpassword1*"
     email = "newuser1@example.com"
     response = client.post("/signup", data={"username": username, "password": password, "email": email}, follow_redirects=False)
-    assert response.status_code == 302
-    assert response.headers["location"] == "/home"
+    assert response.status_code == 200
+    assert response.template.name == "email_confirmation_pending.html"
 
     db_user = db.query(User).filter(User.username == username).first()
     assert db_user is not None
     assert db_user.verify_password(password)
     assert db_user.email == email
+    assert db_user.email_confirmed == 0
+    assert db_user.email_confirmation_token is not None
 
     # Test that the user cannot be created again
     response = client.post("/signup", data={"username": username, "password": password, "email": email}, follow_redirects=False)
@@ -50,9 +52,8 @@ def test_post_login(client, db):
     if existing_user:
         db.delete(existing_user)
         db.commit()
-    
-    # Create user with email
-    user = User(username=username, email=email)
+    # Create user with email and confirm it
+    user = User(username=username, email=email, email_confirmed=1)
     user.set_password(password)
     db.add(user)
     db.commit()
@@ -92,7 +93,7 @@ def token_user(db):
     # Check if user exists
     user = db.query(User).filter(User.username == username).first()
     if not user:
-        user = User(username=username, email=email)
+        user = User(username=username, email=email, email_confirmed=1)
         user.set_password(password)
         db.add(user)
         db.commit()
@@ -170,15 +171,15 @@ def test_signup_valid_email_formats(client, db):
         if existing_user:
             db.delete(existing_user)
             db.commit()
-            
         response = client.post("/signup", data={"username": username, "password": password, "email": email}, follow_redirects=False)
-        assert response.status_code == 302
-        assert response.headers["location"] == "/home"
+        assert response.status_code == 200
+        assert response.template.name == "email_confirmation_pending.html"
         
-        # Verify user was created with correct email
+        # Verify user was created with correct email but not confirmed
         db_user = db.query(User).filter(User.username == username).first()
         assert db_user is not None
         assert db_user.email == email
+        assert db_user.email_confirmed == 0
 
 
 # Test password reset functionality
@@ -193,7 +194,7 @@ def test_forgot_password_post_existing_email(client, db):
     # Create a user with email
     username = "resetuser"
     email = "resetuser@example.com"
-    user = User(username=username, email=email)
+    user = User(username=username, email=email, email_confirmed=1)
     user.set_password("Testpassword1*")
     db.add(user)
     db.commit()
@@ -218,10 +219,9 @@ def test_reset_password_get_valid_token(client, db):
     """Test reset password page with valid token"""
     # Create a user and a reset token
     from app.utils.email_service import PasswordResetService
-    
     username = "resetuser"
     email = "resetuser@example.com"
-    user = User(username=username, email=email)
+    user = User(username=username, email=email, email_confirmed=1)
     user.set_password("Oldpassword1*")
     db.add(user)
     db.commit()
@@ -249,8 +249,7 @@ def test_reset_password_post_valid_token(client, db):
     email = "resetuser2@example.com"
     old_password = "Oldpassword1*"
     new_password = "Newpassword1*"
-    
-    user = User(username=username, email=email)
+    user = User(username=username, email=email, email_confirmed=1)
     user.set_password(old_password)
     db.add(user)
     db.commit()
@@ -275,7 +274,7 @@ def test_reset_password_post_mismatched_passwords(client, db):
     
     username = "resetuser3"
     email = "resetuser3@example.com"
-    user = User(username=username, email=email)
+    user = User(username=username, email=email, email_confirmed=1)
     user.set_password("Oldpassword1*")
     db.add(user)
     db.commit()
@@ -303,8 +302,7 @@ def test_profile_update_email(client, db):
     username = "profileuser"
     old_email = "old@example.com"
     new_email = "new@example.com"
-    
-    user = User(username=username, email=old_email)
+    user = User(username=username, email=old_email, email_confirmed=1)
     user.set_password("Testpassword1*")
     db.add(user)
     db.commit()
@@ -324,9 +322,9 @@ def test_profile_update_email(client, db):
 def test_profile_update_email_duplicate(client, db):
     """Test updating email to one that already exists"""
     # Create two users
-    user1 = User(username="user1", email="user1@example.com")
+    user1 = User(username="user1", email="user1@example.com", email_confirmed=1)
     user1.set_password("Testpassword1*")
-    user2 = User(username="user2", email="user2@example.com")
+    user2 = User(username="user2", email="user2@example.com", email_confirmed=1)
     user2.set_password("Testpassword1*")
     
     db.add_all([user1, user2])
@@ -341,3 +339,171 @@ def test_profile_update_email_duplicate(client, db):
     assert response.status_code == 200
     assert "error" in response.context
     assert "ya está registrado" in response.context["error"]
+
+# Test email confirmation functionality
+def test_login_with_unconfirmed_email(client, db):
+    """Test that users with unconfirmed email cannot login"""
+    username = "unconfirmed_user"
+    password = "Testpassword1*"
+    email = "unconfirmed@example.com"
+    
+    # Create user without confirming email
+    user = User(username=username, email=email, email_confirmed=0)
+    user.set_password(password)
+    db.add(user)
+    db.commit()
+    
+    # Try to login - should fail
+    response = client.post("/login", data={"username": username, "password": password}, follow_redirects=False)
+    assert response.status_code == 401
+    assert response.template.name == "login.html"
+    assert "Debes confirmar tu email" in response.context["error"]
+    assert response.context["email_not_confirmed"] == True
+    assert response.context["user_email"] == email
+
+def test_confirm_email_with_valid_token(client, db):
+    """Test email confirmation with valid token"""
+    from app.utils.security import create_email_confirmation_token
+    
+    username = "confirm_user"
+    email = "confirm@example.com"
+    
+    # Create user with unconfirmed email
+    user = User(username=username, email=email, email_confirmed=0)
+    user.set_password("Testpassword1*")
+    db.add(user)
+    db.commit()
+    
+    # Create confirmation token
+    token = create_email_confirmation_token(db, user)
+    
+    # Confirm email
+    response = client.get(f"/confirm-email/{token}", follow_redirects=False)
+    assert response.status_code == 200
+    assert response.template.name == "login.html"
+    assert "Email confirmado exitosamente" in response.context["success"]
+    
+    # Verify user is now confirmed
+    db.refresh(user)
+    assert user.email_confirmed == 1
+    assert user.email_confirmation_token is None
+
+def test_confirm_email_with_invalid_token(client):
+    """Test email confirmation with invalid token"""
+    response = client.get("/confirm-email/invalid-token", follow_redirects=False)
+    assert response.status_code == 200
+    assert response.template.name == "signup.html"
+    assert "no es válido o ha expirado" in response.context["error"]
+    assert response.context["invalid_token"] == True
+
+def test_resend_confirmation_email(client, db):
+    """Test resending confirmation email"""
+    username = "resend_user"
+    email = "resend@example.com"
+    
+    # Create user with unconfirmed email
+    user = User(username=username, email=email, email_confirmed=0)
+    user.set_password("Testpassword1*")
+    db.add(user)
+    db.commit()
+    
+    # Resend confirmation email
+    response = client.post("/resend-confirmation", data={"email": email}, follow_redirects=False)
+    assert response.status_code == 200
+    assert response.template.name == "email_confirmation_pending.html"
+    assert "recibirás un nuevo enlace" in response.context["success"]
+
+def test_resend_confirmation_email_nonexistent(client):
+    """Test resending confirmation to non-existent email"""
+    response = client.post("/resend-confirmation", data={"email": "nonexistent@example.com"}, follow_redirects=False)
+    assert response.status_code == 200
+    assert response.template.name == "email_confirmation_pending.html"
+    assert "recibirás un nuevo enlace" in response.context["success"]  # Security: don't reveal if email exists
+
+def test_resend_confirmation_already_confirmed(client, db):
+    """Test resending confirmation to already confirmed email"""
+    username = "confirmed_user"
+    email = "confirmed@example.com"
+    
+    # Create user with confirmed email
+    user = User(username=username, email=email, email_confirmed=1)
+    user.set_password("Testpassword1*")
+    db.add(user)
+    db.commit()
+    
+    # Try to resend confirmation
+    response = client.post("/resend-confirmation", data={"email": email}, follow_redirects=False)
+    assert response.status_code == 200
+    assert response.template.name == "email_confirmation_pending.html"
+    assert "recibirás un nuevo enlace" in response.context["success"]  # Security: same message for all cases
+
+def test_profile_resend_email_confirmation(client, db):
+    """Test resending email confirmation from profile page"""
+    username = "profile_resend_user"
+    email = "profileresend@example.com"
+    
+    # Create user with unconfirmed email
+    user = User(username=username, email=email, email_confirmed=0)
+    user.set_password("Testpassword1*")
+    db.add(user)
+    db.commit()
+    
+    # Manually confirm email to allow login, then revert it back
+    user.email_confirmed = 1
+    db.commit()
+    
+    # Login the user
+    response = client.post("/login", data={"username": username, "password": "Testpassword1*"}, follow_redirects=False)
+    assert response.status_code == 302
+    
+    # Set email back to unconfirmed to test resend functionality
+    user.email_confirmed = 0
+    db.commit()
+    
+    # Try to resend confirmation from profile
+    response = client.post("/profile/resend-email-confirmation", follow_redirects=False)
+    assert response.status_code == 200
+    assert response.template.name == "profile.html"
+    assert "Email de confirmación reenviado exitosamente" in response.context["success"]
+    assert response.context["email_pending_confirmation"] == True
+
+def test_profile_resend_email_confirmation_no_email(client, db):
+    """Test resending confirmation from profile when user has no email"""
+    username = "no_email_user"
+    
+    # Create user without email (legacy user)
+    user = User(username=username)
+    user.set_password("Testpassword1*")
+    db.add(user)
+    db.commit()
+    
+    # Login the user (should work for legacy users)
+    response = client.post("/login", data={"username": username, "password": "Testpassword1*"}, follow_redirects=False)
+    assert response.status_code == 302
+    
+    # Try to resend confirmation from profile
+    response = client.post("/profile/resend-email-confirmation", follow_redirects=False)
+    assert response.status_code == 200
+    assert response.template.name == "profile.html"
+    assert "No tienes un email configurado" in response.context["error"]
+
+def test_profile_resend_email_confirmation_already_confirmed(client, db):
+    """Test resending confirmation from profile when email is already confirmed"""
+    username = "confirmed_profile_user"
+    email = "confirmedprofile@example.com"
+    
+    # Create user with confirmed email
+    user = User(username=username, email=email, email_confirmed=1)
+    user.set_password("Testpassword1*")
+    db.add(user)
+    db.commit()
+    
+    # Login the user
+    response = client.post("/login", data={"username": username, "password": "Testpassword1*"}, follow_redirects=False)
+    assert response.status_code == 302
+    
+    # Try to resend confirmation from profile
+    response = client.post("/profile/resend-email-confirmation", follow_redirects=False)
+    assert response.status_code == 200
+    assert response.template.name == "profile.html"
+    assert "Tu email ya está confirmado" in response.context["error"]
