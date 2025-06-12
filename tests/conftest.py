@@ -50,7 +50,7 @@ def client(db):
 def authenticated_client(client, db):
     test_user = db.query(User).filter(User.username == "testuser").first()
     if not test_user:
-        test_user = User(username="testuser", email="testuser@example.com", email_confirmed=True)
+        test_user = User(username="testuser", email="testuser@example.com", email_confirmed=1)
         test_user.set_password("testpassword")
         db.add(test_user)
         db.commit()
