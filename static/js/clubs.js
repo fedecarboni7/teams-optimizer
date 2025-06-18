@@ -329,13 +329,6 @@ function loadPlayersForClub() {
   const select = document.getElementById('club-select');
   const selectedValue = select.value;
 
-  const allowedValues = ['create-club', 'my-players', 'club1', 'club2']; // Example whitelist
-  if (!allowedValues.includes(selectedValue)) {
-    alert('Valor no válido seleccionado.');
-    select.value = clubId || 'my-players'; // Revert to a safe default
-    return;
-  }
-
   if (selectedValue === 'create-club') {
     // Restaurar el valor anterior del select
     select.value = clubId || 'my-players';
