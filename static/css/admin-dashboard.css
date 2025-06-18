@@ -1,0 +1,247 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #581c87 50%, #0f172a 100%);
+    min-height: 100vh;
+    color: white;
+}
+
+.loading-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.spinner {
+    width: 128px;
+    height: 128px;
+    border: 2px solid transparent;
+    border-bottom: 2px solid #a855f7;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.header {
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header-content {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.875rem;
+    font-weight: bold;
+}
+
+.header-subtitle {
+    color: #c4b5fd;
+    margin-top: 0.25rem;
+}
+
+.status-badge {
+    background: rgba(34, 197, 94, 0.2);
+    color: #86efac;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pulse-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    background: #4ade80;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.back-button {
+    background: rgba(147, 51, 234, 0.8);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(147, 51, 234, 0.5);
+}
+
+.back-button:hover {
+    background: rgba(147, 51, 234, 1);
+    transform: translateY(-1px);
+}
+
+.container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.metric-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(16px);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.metric-card:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.metric-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.metric-icon {
+    width: 2rem;
+    height: 2rem;
+    color: #60a5fa;
+}
+
+.metric-icon.green {
+    color: #4ade80;
+}
+
+.metric-icon.yellow {
+    color: #fbbf24;
+}
+
+.metric-icon.purple {
+    color: #a855f7;
+}
+
+.metric-emoji {
+    font-size: 2rem;
+}
+
+.metric-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.metric-value {
+    font-size: 1.875rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.metric-subtitle {
+    font-size: 0.875rem;
+}
+
+.recent-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.insights {
+    text-align: center;
+}
+
+.insights-card {
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(16px);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.insights-title {
+    font-size: 1.125rem;
+    font-weight: bold;
+    margin-bottom: 0.75rem;
+}
+
+.insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    font-size: 0.875rem;
+}
+
+.insight-purple {
+    color: #d8b4fe;
+}
+
+.insight-green {
+    color: #86efac;
+}
+
+.insight-yellow {
+    color: #fde047;
+}
+
+@media (max-width: 768px) {
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .container {
+        padding: 1rem;
+    }
+
+    .header-content {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+}
