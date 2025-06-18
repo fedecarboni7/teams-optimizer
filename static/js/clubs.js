@@ -342,5 +342,5 @@ function loadPlayersForClub() {
   }
 
   // Navegar al club seleccionado
-  window.location.href = '/home?club_id=' + selectedValue;
+  window.location.href = '/home?club_id=' + encodeURIComponent(selectedValue);
 }
