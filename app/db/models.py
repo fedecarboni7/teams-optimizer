@@ -4,6 +4,15 @@ from passlib.hash import pbkdf2_sha256
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Boolean
 from sqlalchemy.orm import DeclarativeBase, relationship
 
+from app.config.settings import Settings
+
+
+# Función helper para obtener datetime con timezone argentino
+def get_argentina_now():
+    """Obtiene la fecha y hora actual en timezone de Argentina"""
+    settings = Settings()
+    return datetime.now(settings.arg_timezone)
+
 
 class Base(DeclarativeBase):
     pass 
@@ -18,8 +27,9 @@ class User(Base):
     email_confirmed = Column(Integer, default=0, nullable=False)  # 0=nuevo sin confirmar, -1=legacy sin confirmar, 1=confirmado
     email_confirmation_token = Column(String, nullable=True)
     email_confirmation_expires = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=get_argentina_now)
 
-    players = relationship("Player", back_populates="user")
+    players = relationship("Player", foreign_keys="[Player.user_id]", back_populates="user")
     skill_votes = relationship("SkillVote", back_populates="voter")
     club_users = relationship("ClubUser", back_populates="user")
     
@@ -62,8 +72,11 @@ class Player(Base):
     vision = Column(Integer)
     user_id = Column(Integer, ForeignKey("users.id"))
     club_id = Column(Integer, ForeignKey("clubs.id"))
+    updated_at = Column(DateTime, default=get_argentina_now, onupdate=get_argentina_now)
+    last_modified_by = Column(Integer, ForeignKey("users.id"), nullable=True)
 
-    user = relationship("User", back_populates="players")
+    user = relationship("User", foreign_keys=[user_id], back_populates="players")
+    last_modifier = relationship("User", foreign_keys=[last_modified_by])
     club = relationship("Club", back_populates="players")
     skill_votes = relationship("SkillVote", back_populates="player")
 
@@ -82,7 +95,7 @@ class SkillVote(Base):
     habilidad_arquero = Column(Integer)
     fuerza_cuerpo = Column(Integer)
     vision = Column(Integer)
-    vote_date = Column(DateTime, default=datetime.now)
+    vote_date = Column(DateTime, default=get_argentina_now)
 
     player = relationship("Player", back_populates="skill_votes")
     voter = relationship("User", back_populates="skill_votes")
@@ -92,7 +105,7 @@ class Club(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
-    creation_date = Column(DateTime, default=datetime.now)
+    creation_date = Column(DateTime, default=get_argentina_now)
 
     members = relationship("ClubUser", back_populates="club")
     players = relationship("Player", back_populates="club")
@@ -123,7 +136,7 @@ class ClubInvitation(Base):
     invited_user_id = Column(Integer, ForeignKey("users.id"))
     inviter_id = Column(Integer, ForeignKey("users.id"))
     status = Column(String, default=InvitationStatus.PENDING.value)
-    creation_date = Column(DateTime, default=datetime.now)
+    creation_date = Column(DateTime, default=get_argentina_now)
     expiration_date = Column(DateTime)
     
     club = relationship("Club", backref="invitations")
@@ -136,7 +149,7 @@ class PasswordResetToken(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     token = Column(String, unique=True, index=True)
-    created_at = Column(DateTime, default=datetime.now)
+    created_at = Column(DateTime, default=get_argentina_now)
     expires_at = Column(DateTime)
     used = Column(Boolean, default=False)
     

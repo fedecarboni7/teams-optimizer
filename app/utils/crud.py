@@ -3,6 +3,7 @@ from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.db import models, schemas
+from app.db.models import get_argentina_now
 from app.utils.auth import get_current_user
 
 
@@ -97,7 +98,7 @@ def create_skill_vote(player_id: int, skill_vote: schemas.PlayerSkillsVote, db: 
         # Actualizar el voto existente
         for attr, value in skill_vote.model_dump().items():
             setattr(old_vote, attr, value)
-        old_vote.vote_date = datetime.now()
+        old_vote.vote_date = get_argentina_now()
         db.commit()
         db.refresh(old_vote)
         return old_vote
@@ -238,7 +239,7 @@ def invite_user_to_club(
         club_id=club_id,
         invited_user_id=invited_user.id,
         inviter_id=inviter_id,
-        expiration_date=datetime.now() + timedelta(days=expiration_days)
+        expiration_date=get_argentina_now() + timedelta(days=expiration_days)
     )
     db.add(invitation)
     db.commit()
@@ -254,7 +255,7 @@ def accept_club_invitation(db: Session, invitation_id: int, user_id: int):
     if not invitation:
         raise ValueError("Invitación no encontrada o no válida")
     
-    if invitation.expiration_date < datetime.now():
+    if invitation.expiration_date < get_argentina_now():
         invitation.status = models.InvitationStatus.EXPIRED.value
         db.commit()
         raise ValueError("La invitación ha expirado")
@@ -295,7 +296,7 @@ def get_user_pending_invitations(db: Session, user_id: int):
     ).filter(
         models.ClubInvitation.invited_user_id == user_id,
         models.ClubInvitation.status == models.InvitationStatus.PENDING.value,
-        models.ClubInvitation.expiration_date > datetime.now()
+        models.ClubInvitation.expiration_date > get_argentina_now()
     ).all()
 
     # Convert to dictionary and include club name

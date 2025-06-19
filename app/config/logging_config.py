@@ -3,6 +3,8 @@ import os
 
 import colorlog
 
+from app.config.settings import Settings
+
 # Configuración del colorlog
 handler = colorlog.StreamHandler()
 formatter = colorlog.ColoredFormatter(
@@ -19,7 +21,7 @@ handler.setFormatter(formatter)
 
 # Configuración básica del logging
 logger = logging.getLogger()
-logging_level = os.getenv('LOGGING_LEVEL', 'INFO').upper()
+logging_level = Settings().logging_level.upper()
 
 try:
     logger.setLevel(getattr(logging, logging_level))

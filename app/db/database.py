@@ -5,6 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.config.logging_config import logger
+from app.config.settings import Settings
 from app.db.models import Base
 
 from dotenv import load_dotenv
@@ -16,7 +17,7 @@ load_dotenv()
 TESTING = 'pytest' in sys.modules
 
 if not TESTING:
-    DATABASE_URL = os.getenv("DATABASE_URL")
+    DATABASE_URL = Settings().database_url
     logger.info(f"Connecting to database at {DATABASE_URL}")
     
     engine = create_engine(DATABASE_URL, connect_args={'check_same_thread': False})

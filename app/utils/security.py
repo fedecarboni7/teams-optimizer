@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta, timezone
-import os
 import secrets
 from typing import Optional
 
@@ -9,8 +8,9 @@ import jwt
 from sqlalchemy.orm import Session
 
 from app.db.models import User
+from app.config.settings import Settings
 
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = Settings().secret_key
 ALGORITHM = "HS256"
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -47,8 +47,6 @@ def generate_email_confirmation_token() -> str:
 
 def create_email_confirmation_token(db: Session, user: User) -> str:
     """Create and assign an email confirmation token to user"""
-    from app.db.models import User as UserModel
-    
     # Generate token
     token = generate_email_confirmation_token()
     expires_at = datetime.now(timezone.utc) + timedelta(hours=24)  # 24 hours expiration

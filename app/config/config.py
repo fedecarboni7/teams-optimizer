@@ -9,6 +9,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.sessions import SessionMiddleware
 
 from app.config.logging_config import configure_logging
+from app.config.settings import Settings
 from app.db.models import User
 from app.utils.auth import get_current_user
 from app.utils.security import verify_admin_user
@@ -19,7 +20,7 @@ def create_app() -> FastAPI:
     # Configuración de logging
     configure_logging()
 
-    secret_key = os.getenv("SECRET_KEY")
+    secret_key = Settings().secret_key
 
     app = FastAPI(title="Armar Equipos", docs_url=None, redoc_url=None, openapi_url=None)
 
