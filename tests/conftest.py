@@ -1,5 +1,4 @@
 import pytest
-from unittest.mock import Mock, patch
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
@@ -41,20 +40,11 @@ def client(db):
             yield db
         finally:
             pass
-    
-    # Mock EmailService to always return True for email sending
-    # This prevents tests from failing in CI/CD environments where email services are not available
-    with patch('app.utils.email_service.EmailService') as mock_email_service:
-        mock_instance = Mock()
-        # Mock all email sending methods to return success
-        mock_instance.send_password_reset_email.return_value = True
-        mock_instance.send_email_confirmation.return_value = True
-        mock_email_service.return_value = mock_instance
         
-        app.dependency_overrides[get_db] = override_get_db
-        with TestClient(app) as client:
-            yield client
-        app.dependency_overrides.clear()
+    app.dependency_overrides[get_db] = override_get_db
+    with TestClient(app) as client:
+        yield client
+    app.dependency_overrides.clear()
 
 @pytest.fixture
 def authenticated_client(client, db):
