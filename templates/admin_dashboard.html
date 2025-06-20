@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>App Usage Analytics - Armar Equipos</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="../static/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../static/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../static/favicon/favicon-16x16.png">
+    <link rel="manifest" href="../static/favicon/site.webmanifest">
     <link rel="stylesheet" href="/static/css/admin-dashboard.css">
 </head>
 <body>
@@ -17,10 +21,9 @@
     <script>
         // Inicializar datos del dashboard
         const stats = {{ stats|tojson }};
-        const clubs = {{ clubs_data|tojson }};
         
         // Pasar los datos al script externo
-        initializeDashboard(stats, clubs);
+        initializeDashboard(stats);
     </script>
 </body>
 </html>
