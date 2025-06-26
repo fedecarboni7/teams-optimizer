@@ -51,20 +51,16 @@ class PlayerChangeTracker {
 
         return playerData;
     }
-
     setupChangeListeners() {
-        // Escuchar cambios en las estrellas (habilidades)
-        document.addEventListener('click', (event) => {
-            if (event.target.classList.contains('star')) {
+        // Escuchar cambios en los sliders (habilidades)
+        document.addEventListener('input', (event) => {
+            if (event.target.classList.contains('skill-slider')) {
                 // Pequeño delay para permitir que el valor se actualice
                 setTimeout(() => {
                     this.checkForChanges();
                 }, 10);
             }
-        });
-
-        // Escuchar cambios en los nombres de jugadores
-        document.addEventListener('input', (event) => {
+            // Escuchar cambios en los nombres de jugadores
             if (event.target.name === 'names') {
                 this.checkForChanges();
             }

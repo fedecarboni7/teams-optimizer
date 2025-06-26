@@ -1,48 +1,16 @@
-function updateStars(stars, value) {
-        stars.forEach(star => {
-            if (star.getAttribute('data-value') <= value) {
-                star.classList.add('active');
-            } else {
-                star.classList.remove('active');
+// Aplicar funcionalidad a los sliders
+function applySliderEffect(container) {
+    container.addEventListener('input', function(event) {
+        if (event.target.classList.contains('skill-slider')) {
+            const sliderRating = event.target.closest('.slider-rating');
+            const hiddenInput = sliderRating.querySelector('input[type="hidden"]');
+            const valueDisplay = sliderRating.querySelector('.slider-value');
+            const value = event.target.value;
+
+            hiddenInput.value = value;
+            if (valueDisplay) {
+                valueDisplay.textContent = value;
             }
-        });
-    }
-
-// Aplicar efecto hover a las estrellas
-function applyHoverEffect(container) {
-    container.addEventListener('mouseover', function(event) {
-        if (event.target.classList.contains('star')) {
-            const starRating = event.target.closest('.star-rating');
-            const stars = starRating.querySelectorAll('.star');
-            const hoverValue = parseInt(event.target.getAttribute('data-value'));
-
-            stars.forEach(star => {
-                const starValue = parseInt(star.getAttribute('data-value'));
-                if (starValue <= hoverValue) {
-                    star.classList.add('hover');
-                    star.classList.remove('active');
-                } else {
-                    star.classList.remove('hover');
-                    star.classList.remove('active');
-                }
-            });
-        }
-    });
-
-    container.addEventListener('mouseout', function(event) {
-        if (event.target.classList.contains('star')) {
-            const starRating = event.target.closest('.star-rating');
-            const stars = starRating.querySelectorAll('.star');
-            const selectedValue = parseInt(starRating.querySelector('input[type="hidden"]').value);
-
-            stars.forEach(star => {
-                star.classList.remove('hover');
-                if (parseInt(star.getAttribute('data-value')) <= selectedValue) {
-                    star.classList.add('active');
-                } else {
-                    star.classList.remove('active');
-                }
-            });
         }
     });
 }

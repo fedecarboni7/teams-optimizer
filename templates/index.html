@@ -195,100 +195,73 @@
                     <div class="skills-container">
                         <div class="skill-entry">
                             <label>Velocidad:</label>
-                            <div class="star-rating" data-skill="velocidad">
-                                <span class="star" data-value="1">&#9733;</span>
-                                <span class="star" data-value="2">&#9733;</span>
-                                <span class="star" data-value="3">&#9733;</span>
-                                <span class="star" data-value="4">&#9733;</span>
-                                <span class="star" data-value="5">&#9733;</span>
+                            <div class="slider-rating" data-skill="velocidad">
+                                <input type="range" class="skill-slider" min="1" max="5" value="{{ player.velocidad }}" step="1">
+                                <span class="slider-value">{{ player.velocidad }}</span>
                                 <input type="hidden" name="velocidad" value="{{ player.velocidad }}">
                             </div>
                         </div>
                         <div class="skill-entry">
                             <label>Resistencia:</label>
-                            <div class="star-rating" data-skill="resistencia">
-                                <span class="star" data-value="1">&#9733;</span>
-                                <span class="star" data-value="2">&#9733;</span>
-                                <span class="star" data-value="3">&#9733;</span>
-                                <span class="star" data-value="4">&#9733;</span>
-                                <span class="star" data-value="5">&#9733;</span>
+                            <div class="slider-rating" data-skill="resistencia">
+                                <input type="range" class="skill-slider" min="1" max="5" value="{{ player.resistencia }}" step="1">
+                                <span class="slider-value">{{ player.resistencia }}</span>
                                 <input type="hidden" name="resistencia" value="{{ player.resistencia }}">
                             </div>
                         </div>
                         <div class="skill-entry">
                             <label>Control:</label>
-                            <div class="star-rating" data-skill="control">
-                                <span class="star" data-value="1">&#9733;</span>
-                                <span class="star" data-value="2">&#9733;</span>
-                                <span class="star" data-value="3">&#9733;</span>
-                                <span class="star" data-value="4">&#9733;</span>
-                                <span class="star" data-value="5">&#9733;</span>
+                            <div class="slider-rating" data-skill="control">
+                                <input type="range" class="skill-slider" min="1" max="5" value="{{ player.control }}" step="1">
+                                <span class="slider-value">{{ player.control }}</span>
                                 <input type="hidden" name="control" value="{{ player.control }}">
                             </div>
                         </div>
                         <div class="skill-entry">
                             <label>Pases:</label>
-                            <div class="star-rating" data-skill="pases">
-                                <span class="star" data-value="1">&#9733;</span>
-                                <span class="star" data-value="2">&#9733;</span>
-                                <span class="star" data-value="3">&#9733;</span>
-                                <span class="star" data-value="4">&#9733;</span>
-                                <span class="star" data-value="5">&#9733;</span>
+                            <div class="slider-rating" data-skill="pases">
+                                <input type="range" class="skill-slider" min="1" max="5" value="{{ player.pases }}" step="1">
+                                <span class="slider-value">{{ player.pases }}</span>
                                 <input type="hidden" name="pases" value="{{ player.pases }}">
                             </div>
                         </div>
                         <div class="skill-entry">
                             <label>Tiro:</label>
-                            <div class="star-rating" data-skill="tiro">
-                                <span class="star" data-value="1">&#9733;</span>
-                                <span class="star" data-value="2">&#9733;</span>
-                                <span class="star" data-value="3">&#9733;</span>
-                                <span class="star" data-value="4">&#9733;</span>
-                                <span class="star" data-value="5">&#9733;</span>
+                            <div class="slider-rating" data-skill="tiro">
+                                <input type="range" class="skill-slider" min="1" max="5" value="{{ player.tiro }}" step="1">
+                                <span class="slider-value">{{ player.tiro }}</span>
                                 <input type="hidden" name="tiro" value="{{ player.tiro }}">
                             </div>
                         </div>
                         <div class="skill-entry">
                             <label>Defensa:</label>
-                            <div class="star-rating" data-skill="defensa">
-                                <span class="star" data-value="1">&#9733;</span>
-                                <span class="star" data-value="2">&#9733;</span>
-                                <span class="star" data-value="3">&#9733;</span>
-                                <span class="star" data-value="4">&#9733;</span>
-                                <span class="star" data-value="5">&#9733;</span>
+                            <div class="slider-rating" data-skill="defensa">
+                                <input type="range" class="skill-slider" min="1" max="5" value="{{ player.defensa }}" step="1">
+                                <span class="slider-value">{{ player.defensa }}</span>
                                 <input type="hidden" name="defensa" value="{{ player.defensa }}">
                             </div>
                         </div>
                         <div class="skill-entry">
                             <label>Hab. arquero:</label>
-                            <div class="star-rating" data-skill="habilidad_arquero">
-                                <span class="star" data-value="1">&#9733;</span>
-                                <span class="star" data-value="2">&#9733;</span>
-                                <span class="star" data-value="3">&#9733;</span>
-                                <span class="star" data-value="4">&#9733;</span>
-                                <span class="star" data-value="5">&#9733;</span>
+                            <div class="slider-rating" data-skill="habilidad_arquero">
+                                <input type="range" class="skill-slider" min="1" max="5" value="{{ player.habilidad_arquero }}" step="1">
+                                <span class="slider-value">{{ player.habilidad_arquero }}</span>
                                 <input type="hidden" name="habilidad_arquero" value="{{ player.habilidad_arquero }}">
                             </div>
                         </div>
                         <div class="skill-entry">
                             <label>Fuerza cuerpo:</label>
-                            <div class="star-rating" data-skill="fuerza_cuerpo">
-                                <span class="star" data-value="1">&#9733;</span>
-                                <span class="star" data-value="2">&#9733;</span>
-                                <span class="star" data-value="3">&#9733;</span>
-                                <span class="star" data-value="4">&#9733;</span>
-                                <span class="star" data-value="5">&#9733;</span>
+                            <div class="slider-rating" data-skill="fuerza_cuerpo">
+                                <input type="range" class="skill-slider" min="1" max="5" value="{{ player.fuerza_cuerpo }}" step="1">
+                                <span class="slider-value">{{ player.fuerza_cuerpo }}</span>
                                 <input type="hidden" name="fuerza_cuerpo" value="{{ player.fuerza_cuerpo }}">
                             </div>
                         </div>
                         <div class="skill-entry">
                             <label>Visión:</label>
-                            <div class="star-rating" data-skill="vision">
-                                <span class="star" data-value="1">&#9733;</span>
-                                <span class="star" data-value="2">&#9733;</span>
-                                <span class="star" data-value="3">&#9733;</span>
-                                <span class="star" data-value="4">&#9733;</span>
-                                <span class="star" data-value="5">&#9733;</span>
+                            <div class="slider-rating" data-skill="vision">
+                                <input type="range" class="skill-slider" min="1" max="5" value="{{ player.vision }}" step="1">
+                                <span class="slider-value">{{ player.vision }}</span>
                                 <input type="hidden" name="vision" value="{{ player.vision }}">
                             </div>
                         </div>

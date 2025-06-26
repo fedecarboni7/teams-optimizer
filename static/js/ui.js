@@ -22,38 +22,33 @@ document.addEventListener('DOMContentLoaded', function () {
             updateToggleButtonText();
         });
     });
-
-    // Puntuar habilidades de los jugadores con estrellas
-    const starRatings = document.querySelectorAll('.star-rating');
+    // Puntuar habilidades de los jugadores con sliders
+    const sliderRatings = document.querySelectorAll('.slider-rating');
     
-    starRatings.forEach(rating => {
-        const stars = rating.querySelectorAll('.star');
+    sliderRatings.forEach(rating => {
+        const slider = rating.querySelector('.skill-slider');
         const input = rating.querySelector('input[type="hidden"]');
+        const valueDisplay = rating.querySelector('.slider-value');
         
-        updateStars(stars, input.value);
+        if (input.value) {
+            slider.value = input.value;
+            if (valueDisplay) {
+                valueDisplay.textContent = input.value;
+            }
+        }
         
-        stars.forEach(star => {
-            star.addEventListener('click', function() {
-                const value = this.getAttribute('data-value');
-                input.value = value;
-                updateStars(stars, value);
-            });
-        });
-    });
-    
-    function updateStars(stars, value) {
-        stars.forEach(star => {
-            if (star.getAttribute('data-value') <= value) {
-                star.classList.add('active');
-            } else {
-                star.classList.remove('active');
+        slider.addEventListener('input', function() {
+            const value = this.value;
+            input.value = value;
+            if (valueDisplay) {
+                valueDisplay.textContent = value;
             }
         });
-    }
+    });
 
     const existingSkillsContainers = document.querySelectorAll('.skills-container');
     existingSkillsContainers.forEach(container => {
-        applyHoverEffect(container);
+        applySliderEffect(container);
     });
 
     // Inicializar el estado del botón de scroll al cargar la página
@@ -247,55 +242,52 @@ function addPlayer() {
     skills.forEach(skill => {
         const skillEntry = document.createElement("div");
         skillEntry.className = "skill-entry";
-
         const label = document.createElement("label");
         label.textContent = skill.charAt(0).toUpperCase() + skill.slice(1).replace('_', ' ') + ":";
         label.textContent = label.textContent.replace('Habilidad arquero', 'Hab. Arquero');
+        const sliderRating = document.createElement("div");
+        sliderRating.className = "slider-rating";
+        sliderRating.setAttribute("data-skill", skill);
 
-        const starRating = document.createElement("div");
-        starRating.className = "star-rating";
-        starRating.setAttribute("data-skill", skill);
+        const slider = document.createElement("input");
+        slider.type = "range";
+        slider.className = "skill-slider";
+        slider.min = "1";
+        slider.max = "5";
+        slider.value = "1";
+        slider.step = "1";
 
-        for (let i = 1; i <= 5; i++) {
-            const star = document.createElement("span");
-            star.className = "star";
-            star.textContent = "★";
-            star.setAttribute("data-value", i);
-            starRating.appendChild(star);
-        }
+        const valueDisplay = document.createElement("span");
+        valueDisplay.className = "slider-value";
+        valueDisplay.textContent = "1";
 
         const hiddenInput = document.createElement("input");
         hiddenInput.type = "hidden";
         hiddenInput.name = skill;
         hiddenInput.required = true;
+        hiddenInput.value = "1";
 
-        starRating.appendChild(hiddenInput);
-
+        sliderRating.appendChild(slider);
+        sliderRating.appendChild(valueDisplay);
+        sliderRating.appendChild(hiddenInput);
         skillEntry.appendChild(label);
-        skillEntry.appendChild(starRating);
+        skillEntry.appendChild(sliderRating);
         skillsContainer.appendChild(skillEntry);
     });
 
     detailsContainer.appendChild(skillsContainer);
     playerDiv.appendChild(detailsContainer);
-
-    // Agregar funcionalidad a las estrellas
-    skillsContainer.addEventListener('click', function(event) {
-        if (event.target.classList.contains('star')) {
-            const starRating = event.target.closest('.star-rating');
-            const stars = starRating.querySelectorAll('.star');
-            const hiddenInput = starRating.querySelector('input[type="hidden"]');
-            const value = event.target.getAttribute('data-value');
+    
+    // Agregar funcionalidad a los sliders
+    skillsContainer.addEventListener('input', function(event) {
+        if (event.target.classList.contains('skill-slider')) {
+            const sliderRating = event.target.closest('.slider-rating');
+            const hiddenInput = sliderRating.querySelector('input[type="hidden"]');
+            const valueDisplay = sliderRating.querySelector('.slider-value');
+            const value = event.target.value;
 
             hiddenInput.value = value;
-
-            stars.forEach(star => {
-                if (star.getAttribute('data-value') <= value) {
-                    star.classList.add('active');
-                } else {
-                    star.classList.remove('active');
-                }
-            });
+            valueDisplay.textContent = value;
         }
     });
 
@@ -316,7 +308,7 @@ function addPlayer() {
 
     container.appendChild(playerDiv);
 
-    applyHoverEffect(skillsContainer);
+    applySliderEffect(skillsContainer);
     updateSelectedCount();
     
     // Configurar listeners del tracker para el nuevo jugador si está disponible
