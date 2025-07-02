@@ -7,8 +7,8 @@ from requests import Session
 
 from app.config.config import templates
 from app.db.database import get_db
-from app.db.database_utils import execute_with_retries, query_club_members, query_club_players, query_clubs, query_players
-from app.db.models import Player, User
+from app.db.database_utils import execute_with_retries, query_club_members, query_club_players, query_clubs, query_players, query_club_players_v2, query_players_v2
+from app.db.models import User
 from app.db.schemas import PlayerCreate
 from app.utils.ai_formations import create_formations
 from app.utils.auth import get_current_user
@@ -27,7 +27,8 @@ async def get_form(
         request: Request,
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user),
-        club_id: int = None
+        club_id: int = None,
+        scale: str = "1-5"
     ):
     if not current_user:
         request.session.clear()
@@ -40,9 +41,15 @@ async def get_form(
     
     try:
         if not club_id:
-            players = execute_with_retries(query_players, db, current_user_id)
+            if scale == "1-10":
+                players = execute_with_retries(query_players_v2, db, current_user_id)
+            else:
+                players = execute_with_retries(query_players, db, current_user_id)
         elif club_id in clubs_ids:
-            players = execute_with_retries(query_club_players, db, club_id)
+            if scale == "1-10":
+                players = execute_with_retries(query_club_players_v2, db, club_id)
+            else:
+                players = execute_with_retries(query_club_players, db, club_id)
             # Obtener los miembros del club actual y sus roles
             club_members = execute_with_retries(query_club_members, db, club_id)
             # Convertir a diccionario para el template
@@ -68,6 +75,7 @@ async def get_form(
         "players": players,
         "userClubs": clubs,
         "clubId": club_id,
+        "scale": scale,
         "currentUser": {
             "userId": current_user_id,
             "userName": current_user.username,
@@ -88,12 +96,13 @@ async def submit_form(
     if not current_user:
         request.session.clear()
         return RedirectResponse("/", status_code=302)
-
+    
     current_user_id = current_user.id
     form_data = await request.form()
     list_players = form_data._list
     club_id: int = form_data.get("clubId")
-    list_players = [tupla for tupla in list_players if tupla is not None and tupla[0] != "clubId"]
+    scale: str = form_data.get("scale", "1-5")
+    list_players = [tupla for tupla in list_players if tupla is not None and tupla[0] not in ["clubId", "scale"]]
 
     cant_jug = sum(1 for tupla in list_players if tupla[0] == "names")
 
@@ -120,9 +129,15 @@ async def submit_form(
     # Get player data for selected players
     try:
         if club_id:
-            existing_players = execute_with_retries(query_club_players, db, club_id)
+            if scale == "1-10":
+                existing_players = execute_with_retries(query_club_players_v2, db, club_id)
+            else:
+                existing_players = execute_with_retries(query_club_players, db, club_id)
         else:
-            existing_players = execute_with_retries(query_players, db, current_user_id)
+            if scale == "1-10":
+                existing_players = execute_with_retries(query_players_v2, db, current_user_id)
+            else:
+                existing_players = execute_with_retries(query_players, db, current_user_id)
     except OperationalError:
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
 

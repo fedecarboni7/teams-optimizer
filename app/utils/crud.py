@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -188,6 +188,27 @@ def remove_player_from_club(db: Session, club_id: int, player_id: int, current_u
 
     # Verificar que el jugador existe
     player = db.query(models.Player).filter(models.Player.id == player_id).first()
+    if not player:
+        raise HTTPException(status_code=404, detail="Player not found")
+    
+    # Eliminar el jugador del club
+    player.club_id = None
+    db.commit()
+    return player
+
+def remove_player_v2_from_club(db: Session, club_id: int, player_id: int, current_user: models.User = Depends(get_current_user)):
+    # Verificar que el club existe
+    club = db.query(models.Club).filter(models.Club.id == club_id).first()
+    if not club:
+        raise HTTPException(status_code=404, detail="Club not found")
+    
+    # Verificar que el usuario actual tiene rol de "owner" o "admin"
+    club_user = db.query(models.ClubUser).filter(models.ClubUser.club_id == club_id, models.ClubUser.user_id == current_user.id).first()
+    if not club_user or club_user.role not in ["admin", "owner"]:
+        raise HTTPException(status_code=403, detail="You don't have permission to remove players from this club")
+
+    # Verificar que el jugador existe
+    player = db.query(models.PlayerV2).filter(models.PlayerV2.id == player_id).first()
     if not player:
         raise HTTPException(status_code=404, detail="Player not found")
     

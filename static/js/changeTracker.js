@@ -51,20 +51,16 @@ class PlayerChangeTracker {
 
         return playerData;
     }
-
     setupChangeListeners() {
-        // Escuchar cambios en las estrellas (habilidades)
-        document.addEventListener('click', (event) => {
-            if (event.target.classList.contains('star')) {
+        // Escuchar cambios en los sliders (habilidades)
+        document.addEventListener('input', (event) => {
+            if (event.target.classList.contains('skill-slider')) {
                 // Pequeño delay para permitir que el valor se actualice
                 setTimeout(() => {
                     this.checkForChanges();
                 }, 10);
             }
-        });
-
-        // Escuchar cambios en los nombres de jugadores
-        document.addEventListener('input', (event) => {
+            // Escuchar cambios en los nombres de jugadores
             if (event.target.name === 'names') {
                 this.checkForChanges();
             }
@@ -341,7 +337,10 @@ function validateUnsavedChanges() {
     } else if (modifiedPlayers.length > 0) {
         message = `Tenés cambios sin guardar en: ${modifiedPlayers.join(', ')}.\n\n¿Querés guardar los cambios antes de armar los equipos?`;
     }
-    
+    else {
+        return false; // No hay cambios relevantes
+    }
+
     const shouldSave = confirm(message);
     if (shouldSave) {
         // Marcar que debe auto-enviar después de guardar
