@@ -123,8 +123,9 @@ function savePlayers() {
     spinner.className = 'spinner';
     saveBtn.appendChild(spinner);
     
-    // Create URL for the API endpoint
-    let url = '/players';
+    // Create URL for the API endpoint based on current scale
+    const currentScale = getCurrentScale();
+    let url = currentScale === '1-10' ? '/players-v2' : '/players';
     let fetchParams = {
         method: 'POST',
         headers: {
@@ -135,7 +136,7 @@ function savePlayers() {
     
     // Add club_id as query parameter if it exists
     if (clubId) {
-        url = `/players?club_id=${clubId}`;
+        url += `?club_id=${clubId}`;
     }
     
     // Send the data to the server
@@ -211,11 +212,16 @@ function deletePlayer(button) {
         if (trashIcon) {
             trashIcon.style.display = 'none';
         }
-        
-        button.appendChild(spinner);
+          button.appendChild(spinner);
 
         if (clubId && clubId !== 'None' && clubId !== 'null' && playerId !== null) {
-            fetch(`/clubs/${clubId}/players/${playerId}`, { method: 'DELETE' })
+            // Determinar la URL correcta basada en la escala actual
+            const currentScale = getCurrentScale();
+            const deleteUrl = currentScale === '1-10' ? 
+                `/clubs/${clubId}/players-v2/${playerId}` : 
+                `/clubs/${clubId}/players/${playerId}`;
+            
+            fetch(deleteUrl, { method: 'DELETE' })
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Error al eliminar el jugador del club');
@@ -248,7 +254,11 @@ function deletePlayer(button) {
                     }
                 });
         } else if (playerId !== null) {
-            fetch(`/player/${playerId}`, { method: 'DELETE' })
+            // Determinar la URL correcta basada en la escala actual
+            const currentScale = getCurrentScale();
+            const deleteUrl = currentScale === '1-10' ? `/player-v2/${playerId}` : `/player/${playerId}`;
+            
+            fetch(deleteUrl, { method: 'DELETE' })
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Error al eliminar el jugador');
@@ -332,9 +342,15 @@ function deleteSelectedPlayers() {
                 // Simular click en el botón de eliminar pero sin confirmación
                 const playerId = deleteButton.getAttribute('id');
                 const clubId = deleteButton.getAttribute('club-id');
+                const currentScale = getCurrentScale();
                 
                 if (clubId && clubId !== 'None' && clubId !== 'null' && playerId !== null) {
-                    fetch(`/clubs/${clubId}/players/${playerId}`, { method: 'DELETE' })
+                    // Usar URL correcta según la escala
+                    const deleteUrl = currentScale === '1-10' ? 
+                        `/clubs/${clubId}/players-v2/${playerId}` : 
+                        `/clubs/${clubId}/players/${playerId}`;
+                    
+                    fetch(deleteUrl, { method: 'DELETE' })
                         .then(response => {
                             if (!response.ok) {
                                 throw new Error('Error al eliminar el jugador del club');
@@ -354,7 +370,10 @@ function deleteSelectedPlayers() {
                             alert('Error al eliminar algunos jugadores: ' + error.message);
                         });
                 } else if (playerId !== null) {
-                    fetch(`/player/${playerId}`, { method: 'DELETE' })
+                    // Usar URL correcta según la escala
+                    const deleteUrl = currentScale === '1-10' ? `/player-v2/${playerId}` : `/player/${playerId}`;
+                    
+                    fetch(deleteUrl, { method: 'DELETE' })
                         .then(response => {
                             if (!response.ok) {
                                 throw new Error('Error al eliminar el jugador');

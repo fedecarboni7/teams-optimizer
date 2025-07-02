@@ -28,6 +28,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="/static/css/formations.css">
     <link rel="stylesheet" type="text/css" href="/static/css/clubs.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/scale-toggle.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -40,6 +41,7 @@
     <script src="/static/js/main.js"></script>
     <script src="/static/js/formations.js"></script>
     <script src="/static/js/clubs.js"></script>
+    <script src="/static/js/scaleManager.js"></script>
     <link rel="canonical" href="https://armarequipos.lat/home" />
 </head>
 <body>
@@ -174,10 +176,23 @@
         <i class="fas fa-search search-icon"></i>
     </div>
 
+    <!-- Toggle para escala de habilidades -->
+    <div class="scale-toggle-container" style="text-align: center; margin: 20px 0;">
+        <label class="scale-toggle-label">
+            <span class="scale-text">Escala 1-5</span>
+            <label class="switch">
+                <input type="checkbox" id="scaleToggle" {% if scale == "1-10" %}checked{% endif %} onchange="toggleScale()">
+                <span class="slider-switch"></span>
+            </label>
+            <span class="scale-text">Escala 1-10</span>
+        </label>
+    </div>
+
     <form action="/submit" method="post" onsubmit="return validateForm(event)">
         {% if clubId is not none %}
         <input type="hidden" name="clubId" value="{{ clubId }}">
         {% endif %}
+        <input type="hidden" name="scale" value="{{ scale }}">
         <div id="players-container" class="player-container">
             {% for player in players %}
             <div class="player-entry">
@@ -196,7 +211,7 @@
                         <div class="skill-entry">
                             <label>Velocidad:</label>
                             <div class="slider-rating" data-skill="velocidad">
-                                <input type="range" class="skill-slider" min="1" max="5" value="{{ player.velocidad }}" step="1">
+                                <input type="range" class="skill-slider" min="1" max="{% if scale == '1-10' %}10{% else %}5{% endif %}" value="{{ player.velocidad }}" step="1">
                                 <span class="slider-value">{{ player.velocidad }}</span>
                                 <input type="hidden" name="velocidad" value="{{ player.velocidad }}">
                             </div>
@@ -204,7 +219,7 @@
                         <div class="skill-entry">
                             <label>Resistencia:</label>
                             <div class="slider-rating" data-skill="resistencia">
-                                <input type="range" class="skill-slider" min="1" max="5" value="{{ player.resistencia }}" step="1">
+                                <input type="range" class="skill-slider" min="1" max="{% if scale == '1-10' %}10{% else %}5{% endif %}" value="{{ player.resistencia }}" step="1">
                                 <span class="slider-value">{{ player.resistencia }}</span>
                                 <input type="hidden" name="resistencia" value="{{ player.resistencia }}">
                             </div>
@@ -212,7 +227,7 @@
                         <div class="skill-entry">
                             <label>Control:</label>
                             <div class="slider-rating" data-skill="control">
-                                <input type="range" class="skill-slider" min="1" max="5" value="{{ player.control }}" step="1">
+                                <input type="range" class="skill-slider" min="1" max="{% if scale == '1-10' %}10{% else %}5{% endif %}" value="{{ player.control }}" step="1">
                                 <span class="slider-value">{{ player.control }}</span>
                                 <input type="hidden" name="control" value="{{ player.control }}">
                             </div>
@@ -220,7 +235,7 @@
                         <div class="skill-entry">
                             <label>Pases:</label>
                             <div class="slider-rating" data-skill="pases">
-                                <input type="range" class="skill-slider" min="1" max="5" value="{{ player.pases }}" step="1">
+                                <input type="range" class="skill-slider" min="1" max="{% if scale == '1-10' %}10{% else %}5{% endif %}" value="{{ player.pases }}" step="1">
                                 <span class="slider-value">{{ player.pases }}</span>
                                 <input type="hidden" name="pases" value="{{ player.pases }}">
                             </div>
@@ -228,7 +243,7 @@
                         <div class="skill-entry">
                             <label>Tiro:</label>
                             <div class="slider-rating" data-skill="tiro">
-                                <input type="range" class="skill-slider" min="1" max="5" value="{{ player.tiro }}" step="1">
+                                <input type="range" class="skill-slider" min="1" max="{% if scale == '1-10' %}10{% else %}5{% endif %}" value="{{ player.tiro }}" step="1">
                                 <span class="slider-value">{{ player.tiro }}</span>
                                 <input type="hidden" name="tiro" value="{{ player.tiro }}">
                             </div>
@@ -236,7 +251,7 @@
                         <div class="skill-entry">
                             <label>Defensa:</label>
                             <div class="slider-rating" data-skill="defensa">
-                                <input type="range" class="skill-slider" min="1" max="5" value="{{ player.defensa }}" step="1">
+                                <input type="range" class="skill-slider" min="1" max="{% if scale == '1-10' %}10{% else %}5{% endif %}" value="{{ player.defensa }}" step="1">
                                 <span class="slider-value">{{ player.defensa }}</span>
                                 <input type="hidden" name="defensa" value="{{ player.defensa }}">
                             </div>
@@ -244,7 +259,7 @@
                         <div class="skill-entry">
                             <label>Hab. arquero:</label>
                             <div class="slider-rating" data-skill="habilidad_arquero">
-                                <input type="range" class="skill-slider" min="1" max="5" value="{{ player.habilidad_arquero }}" step="1">
+                                <input type="range" class="skill-slider" min="1" max="{% if scale == '1-10' %}10{% else %}5{% endif %}" value="{{ player.habilidad_arquero }}" step="1">
                                 <span class="slider-value">{{ player.habilidad_arquero }}</span>
                                 <input type="hidden" name="habilidad_arquero" value="{{ player.habilidad_arquero }}">
                             </div>
@@ -252,7 +267,7 @@
                         <div class="skill-entry">
                             <label>Fuerza cuerpo:</label>
                             <div class="slider-rating" data-skill="fuerza_cuerpo">
-                                <input type="range" class="skill-slider" min="1" max="5" value="{{ player.fuerza_cuerpo }}" step="1">
+                                <input type="range" class="skill-slider" min="1" max="{% if scale == '1-10' %}10{% else %}5{% endif %}" value="{{ player.fuerza_cuerpo }}" step="1">
                                 <span class="slider-value">{{ player.fuerza_cuerpo }}</span>
                                 <input type="hidden" name="fuerza_cuerpo" value="{{ player.fuerza_cuerpo }}">
                             </div>
@@ -260,7 +275,7 @@
                         <div class="skill-entry">
                             <label>Visión:</label>
                             <div class="slider-rating" data-skill="vision">
-                                <input type="range" class="skill-slider" min="1" max="5" value="{{ player.vision }}" step="1">
+                                <input type="range" class="skill-slider" min="1" max="{% if scale == '1-10' %}10{% else %}5{% endif %}" value="{{ player.vision }}" step="1">
                                 <span class="slider-value">{{ player.vision }}</span>
                                 <input type="hidden" name="vision" value="{{ player.vision }}">
                             </div>

@@ -101,9 +101,10 @@ class PlayerV2(Base):
     updated_at = Column(DateTime, default=get_argentina_now, onupdate=get_argentina_now)
     last_modified_by = Column(Integer, ForeignKey("users.id"), nullable=True)
 
-    user = relationship("User", foreign_keys=[user_id])
+    user = relationship("User", foreign_keys=[user_id], back_populates="players_v2")
     last_modifier = relationship("User", foreign_keys=[last_modified_by])
-    club = relationship("Club")
+    club = relationship("Club", back_populates="players_v2")
+    skill_votes_v2 = relationship("SkillVoteV2", back_populates="player")
 
 class SkillVote(Base):
     __tablename__ = "skill_votes"
@@ -142,8 +143,8 @@ class SkillVoteV2(Base):
     vision = Column(Integer)
     vote_date = Column(DateTime, default=get_argentina_now)
 
-    player = relationship("PlayerV2")
-    voter = relationship("User")
+    player = relationship("PlayerV2", back_populates="skill_votes_v2")
+    voter = relationship("User", back_populates="skill_votes_v2")
 
 class Club(Base):
     __tablename__ = "clubs"
@@ -154,6 +155,7 @@ class Club(Base):
 
     members = relationship("ClubUser", back_populates="club")
     players = relationship("Player", back_populates="club")
+    players_v2 = relationship("PlayerV2", back_populates="club")
 
 class ClubUser(Base):
     __tablename__ = "club_users"

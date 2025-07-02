@@ -14,13 +14,28 @@ def calculate_difference(team1_score, team2_score):
 
 
 def find_best_combination(scores):
-    all_combinations = list(combinations(range(len(scores)), 2 if len(scores) // 2 == 1 else len(scores) // 2))
+    # Validar que haya al menos 3 jugadores según la lógica de negocio
+    if len(scores) < 3:
+        raise ValueError("Se requieren al menos 3 jugadores para formar equipos")
+    
+    # Calcular tamaño del equipo (división entera para equipos equilibrados)
+    team_size = len(scores) // 2
+    all_combinations = list(combinations(range(len(scores)), team_size))
+    
     min_difference = float("inf")
     min_difference_total = float("inf")
     mejores_equipos = list()
-    number_of_combinations = len(all_combinations) // 2
-    if len(all_combinations) % 2 == 1:
-        number_of_combinations += 1
+    
+    # Solo evaluar la mitad si los equipos tienen el mismo tamaño (evitar duplicados simétricos)
+    # Si tienen tamaños diferentes, evaluar todas las combinaciones
+    if len(scores) % 2 == 0:
+        # Número par de jugadores = equipos del mismo tamaño
+        number_of_combinations = len(all_combinations) // 2
+        if len(all_combinations) % 2 == 1:
+            number_of_combinations += 1
+    else:
+        # Número impar de jugadores = equipos de tamaños diferentes
+        number_of_combinations = len(all_combinations)
 
     for i in range(number_of_combinations):
         team1_indices = all_combinations[i]
@@ -39,9 +54,6 @@ def find_best_combination(scores):
                 mejores_equipos = [(team1_indices, team2_indices)]
         elif difference == min_difference:
             if difference_total == min_difference_total:
-                mejores_equipos.append((team1_indices, team2_indices))
+                mejores_equipos.append((team1_indices, team2_indices))   
 
-    if len(mejores_equipos) > 1 and len(scores) > 3:
-        mejores_equipos = mejores_equipos[: int(len(mejores_equipos) / 2)]
-    
     return (mejores_equipos, min_difference_total)

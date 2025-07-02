@@ -134,17 +134,6 @@ function validateForm(event) {
         return false;
     }
     
-    // for (let entry of playerEntries) {
-    //     let inputs = entry.getElementsByTagName('input');
-    //     let nameInput = entry.querySelector('input[name="names"]');
-    //     for (let input of inputs) {
-    //         if (input.type !== 'checkbox' && input.value.trim() === '') {
-    //             alert('Por favor, completá todos los campos. Para el jugador: ' + nameInput.value + ',' + ' el campo: ' + input.name + '.');
-    //             return false;
-    //         }
-    //     }
-    // }
-    
     let selectedPlayers = document.querySelectorAll('input[name="selectedPlayers"]:checked');
     if (selectedPlayers.length < 3) {
         alert('Por favor, selecciona al menos tres jugadores.');
@@ -248,12 +237,14 @@ function addPlayer() {
         const sliderRating = document.createElement("div");
         sliderRating.className = "slider-rating";
         sliderRating.setAttribute("data-skill", skill);
-
+        
         const slider = document.createElement("input");
         slider.type = "range";
         slider.className = "skill-slider";
         slider.min = "1";
-        slider.max = "5";
+        // Determinar el máximo basado en la escala actual
+        const currentScale = getCurrentScale();
+        slider.max = currentScale === '1-10' ? "10" : "5";
         slider.value = "1";
         slider.step = "1";
 

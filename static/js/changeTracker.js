@@ -337,7 +337,10 @@ function validateUnsavedChanges() {
     } else if (modifiedPlayers.length > 0) {
         message = `Tenés cambios sin guardar en: ${modifiedPlayers.join(', ')}.\n\n¿Querés guardar los cambios antes de armar los equipos?`;
     }
-    
+    else {
+        return false; // No hay cambios relevantes
+    }
+
     const shouldSave = confirm(message);
     if (shouldSave) {
         // Marcar que debe auto-enviar después de guardar
