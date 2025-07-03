@@ -50,6 +50,11 @@ def get_club_players(club_id: int, db: Session = Depends(get_db), current_user: 
 def remove_player_from_club(club_id: int, player_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     return crud.remove_player_from_club(db, club_id=club_id, player_id=player_id, current_user=current_user)
 
+# Delete player V2 from a club
+@router.delete("/clubs/{club_id}/players-v2/{player_id}", response_model=schemas.PlayerResponse)
+def remove_player_v2_from_club(club_id: int, player_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    return crud.remove_player_v2_from_club(db, club_id=club_id, player_id=player_id, current_user=current_user)
+
 # Invite user to a club
 @router.post("/clubs/{club_id}/invite")
 def invite_to_club(

@@ -30,7 +30,9 @@ class User(Base):
     created_at = Column(DateTime, default=get_argentina_now)
 
     players = relationship("Player", foreign_keys="[Player.user_id]", back_populates="user")
+    players_v2 = relationship("PlayerV2", foreign_keys="[PlayerV2.user_id]")
     skill_votes = relationship("SkillVote", back_populates="voter")
+    skill_votes_v2 = relationship("SkillVoteV2")
     club_users = relationship("ClubUser", back_populates="user")
     
     def set_password(self, password):
@@ -80,6 +82,30 @@ class Player(Base):
     club = relationship("Club", back_populates="players")
     skill_votes = relationship("SkillVote", back_populates="player")
 
+class PlayerV2(Base):
+    __tablename__ = "players_v2"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+    velocidad = Column(Integer)
+    resistencia = Column(Integer)
+    control = Column(Integer)
+    pases = Column(Integer)
+    tiro = Column(Integer)
+    defensa = Column(Integer)
+    habilidad_arquero = Column(Integer)
+    fuerza_cuerpo = Column(Integer)
+    vision = Column(Integer)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    club_id = Column(Integer, ForeignKey("clubs.id"))
+    updated_at = Column(DateTime, default=get_argentina_now, onupdate=get_argentina_now)
+    last_modified_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+
+    user = relationship("User", foreign_keys=[user_id], back_populates="players_v2")
+    last_modifier = relationship("User", foreign_keys=[last_modified_by])
+    club = relationship("Club", back_populates="players_v2")
+    skill_votes_v2 = relationship("SkillVoteV2", back_populates="player")
+
 class SkillVote(Base):
     __tablename__ = "skill_votes"
 
@@ -100,6 +126,26 @@ class SkillVote(Base):
     player = relationship("Player", back_populates="skill_votes")
     voter = relationship("User", back_populates="skill_votes")
 
+class SkillVoteV2(Base):
+    __tablename__ = "skill_votes_v2"
+
+    id = Column(Integer, primary_key=True, index=True)
+    player_id = Column(Integer, ForeignKey("players_v2.id"))
+    voter_id = Column(Integer, ForeignKey("users.id"))
+    velocidad = Column(Integer)
+    resistencia = Column(Integer)
+    control = Column(Integer)
+    pases = Column(Integer)
+    tiro = Column(Integer)
+    defensa = Column(Integer)
+    habilidad_arquero = Column(Integer)
+    fuerza_cuerpo = Column(Integer)
+    vision = Column(Integer)
+    vote_date = Column(DateTime, default=get_argentina_now)
+
+    player = relationship("PlayerV2", back_populates="skill_votes_v2")
+    voter = relationship("User", back_populates="skill_votes_v2")
+
 class Club(Base):
     __tablename__ = "clubs"
 
@@ -109,6 +155,7 @@ class Club(Base):
 
     members = relationship("ClubUser", back_populates="club")
     players = relationship("Player", back_populates="club")
+    players_v2 = relationship("PlayerV2", back_populates="club")
 
 class ClubUser(Base):
     __tablename__ = "club_users"

@@ -336,11 +336,14 @@ function loadPlayersForClub() {
     return;
   }
 
+  // Obtener la escala actual
+  const currentScale = getCurrentScale();
+
   if (selectedValue === 'my-players') {
-    window.location.href = "/home";
+    window.location.href = `/home?scale=${currentScale}`;
     return;
   }
 
-  // Navegar al club seleccionado
-  window.location.href = '/home?club_id=' + encodeURIComponent(selectedValue);
+  // Navegar al club seleccionado preservando la escala
+  window.location.href = `/home?club_id=${encodeURIComponent(selectedValue)}&scale=${currentScale}`;
 }
