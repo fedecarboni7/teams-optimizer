@@ -2,6 +2,15 @@ let currentPlayerId = null;
 let players = [];
 let loading = false;
 
+// Función para obtener las iniciales de un nombre
+function getInitials(name) {
+    return name
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase())
+        .join('')
+        .slice(0, 2); // Máximo 2 iniciales
+}
+
 // Función para crear el radar chart
 function createRadarChart(canvasId, playerData) {
     const ctx = document.getElementById(canvasId).getContext('2d');
@@ -81,7 +90,7 @@ async function renderPlayers() {
         playerCard.innerHTML = `
             <div class="player-header">
                 <div class="player-avatar">
-                    ${player.image ? `<img src="${player.image}" alt="${player.name}">` : '👤'}
+                    <div class="avatar-initials">${getInitials(player.name)}</div>
                 </div>
                 <div class="player-info">
                     <h3>${player.name}</h3>
@@ -168,18 +177,10 @@ function openModal(playerId = null) {
         document.getElementById('control').value = player.control || player.skills?.control;
         document.getElementById('habilidad_arquero').value = player.habilidad_arquero || player.skills?.habilidad_arquero;
         document.getElementById('vision').value = player.vision || player.skills?.vision;
-
-        const imagePreview = document.getElementById('imagePreview');
-        if (player.image) {
-            imagePreview.innerHTML = `<img src="${player.image}" alt="Preview">`;
-        } else {
-            imagePreview.innerHTML = '📷';
-        }
     } else {
         // Modo creación
         modalTitle.textContent = 'Agregar Nuevo Jugador';
         form.reset();
-        document.getElementById('imagePreview').innerHTML = '📷';
         
         // Resetear valores por defecto
         ['velocidad', 'resistencia', 'pases', 'tiro', 'defensa', 'fuerza_cuerpo', 'control', 'habilidad_arquero', 'vision'].forEach(skill => {
@@ -193,21 +194,6 @@ function openModal(playerId = null) {
 // Función para cerrar el modal
 function closeModal() {
     document.getElementById('playerModal').style.display = 'none';
-}
-
-// Función para previsualizar imagen
-function previewImage(input) {
-    const preview = document.getElementById('imagePreview');
-    
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
-        };
-        
-        reader.readAsDataURL(input.files[0]);
-    }
 }
 
 // Función para editar jugador
@@ -232,7 +218,6 @@ document.getElementById('playerForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
     const formData = new FormData(this);
-    const imageFile = document.getElementById('playerImage').files[0];
     
     const playerData = {
         name: formData.get('name'),
@@ -249,22 +234,7 @@ document.getElementById('playerForm').addEventListener('submit', function(e) {
         }
     };
 
-    // Manejar imagen
-    if (imageFile) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            playerData.image = e.target.result;
-            savePlayer(playerData);
-        };
-        reader.readAsDataURL(imageFile);
-    } else {
-        // Mantener imagen existente si estamos editando
-        if (currentPlayerId) {
-            const existingPlayer = players.find(p => p.id === currentPlayerId);
-            playerData.image = existingPlayer.image;
-        }
         savePlayer(playerData);
-    }
 });
 
 // Función para cargar jugadores desde el backend
@@ -298,8 +268,7 @@ async function savePlayer(playerData) {
             fuerza_cuerpo: playerData.skills.fuerza_cuerpo,
             control: playerData.skills.control,
             habilidad_arquero: playerData.skills.habilidad_arquero,
-            vision: playerData.skills.vision,
-            image: playerData.image
+            vision: playerData.skills.vision
         };
 
         // Si estamos editando, preservar el ID
