@@ -22,6 +22,20 @@ async def landing_page(request: Request):
     return templates.TemplateResponse(request=request, name="landing-page.html")
 
 
+@router.get("/players_page", response_class=HTMLResponse, include_in_schema=False)
+async def players_page(
+        request: Request,
+        current_user: User = Depends(get_current_user)
+    ):
+    if not current_user:
+        return RedirectResponse("/login", status_code=302)
+    
+    return templates.TemplateResponse(request=request, name="players.html", context={
+        "request": request,
+        "user": current_user
+    })
+
+
 @router.get("/home", response_class=HTMLResponse, include_in_schema=False)
 async def get_form(
         request: Request,

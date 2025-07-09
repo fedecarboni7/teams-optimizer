@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfiles de Jugadores</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="../static/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../static/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../static/favicon/favicon-16x16.png">
+    <link rel="manifest" href="../static/favicon/site.webmanifest">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="/static/js/api.js" defer></script>
+    <script src="/static/js/players.js" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/players.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚽ Perfiles de Jugadores</h1>
+            <p>Gestiona los perfiles y habilidades de tus jugadores</p>
+        </div>
+
+        <div class="players-grid" id="playersGrid">
+            <!-- Los jugadores se cargarán aquí dinámicamente -->
+        </div>
+
+        <button class="add-player-btn" onclick="openModal()">
+            + Agregar Nuevo Jugador
+        </button>
+    </div>
+
+    <!-- Modal para editar/crear jugador -->
+    <div id="playerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">Editar Jugador</h2>
+            
+            <form id="playerForm">
+                <div class="form-group">
+                    <label for="playerName">Nombre del Jugador</label>
+                    <input type="text" id="playerName" name="name" required>
+                </div>
+
+                <div class="form-group image-upload">
+                    <label for="playerImage">Imagen de Perfil</label>
+                    <input type="file" id="playerImage" accept="image/*" onchange="previewImage(this)">
+                    <div class="image-preview" id="imagePreview">
+                        📷
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Habilidades (1-10)</label>
+                    <div class="skills-grid">
+                        <div class="skill-input">
+                            <label for="velocidad">Velocidad</label>
+                            <input type="number" id="velocidad" min="1" max="10" value="5">
+                        </div>
+                        <div class="skill-input">
+                            <label for="resistencia">Resistencia</label>
+                            <input type="number" id="resistencia" min="1" max="10" value="5">
+                        </div>
+                        <div class="skill-input">
+                            <label for="pases">Pases</label>
+                            <input type="number" id="pases" min="1" max="10" value="5">
+                        </div>
+                        <div class="skill-input">
+                            <label for="tiro">Tiro</label>
+                            <input type="number" id="tiro" min="1" max="10" value="5">
+                        </div>
+                        <div class="skill-input">
+                            <label for="defensa">Defensa</label>
+                            <input type="number" id="defensa" min="1" max="10" value="5">
+                        </div>
+                        <div class="skill-input">
+                            <label for="fuerza_cuerpo">Fuerza Cuerpo</label>
+                            <input type="number" id="fuerza_cuerpo" min="1" max="10" value="5">
+                        </div>
+                        <div class="skill-input">
+                            <label for="control">Control</label>
+                            <input type="number" id="control" min="1" max="10" value="5">
+                        </div>
+                        <div class="skill-input">
+                            <label for="habilidad_arquero">Habilidad Arquero</label>
+                            <input type="number" id="habilidad_arquero" min="1" max="10" value="5">
+                        </div>
+                        <div class="skill-input">
+                            <label for="vision">Visión</label>
+                            <input type="number" id="vision" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

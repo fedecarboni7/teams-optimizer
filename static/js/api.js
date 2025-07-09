@@ -2,6 +2,85 @@
 window.playerDataDict = {};
 window.teams = {};
 
+// API utilities for players backend communication
+class PlayersAPI {
+    constructor() {
+        this.baseUrl = '';
+    }
+
+    // Helper method to handle API responses
+    async handleResponse(response) {
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Error ${response.status}: ${errorText}`);
+        }
+        
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return await response.json();
+        }
+        return await response.text();
+    }
+
+    // Get all players
+    async getPlayers() {
+        try {
+            const response = await fetch('/players-v2', {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            return await this.handleResponse(response);
+        } catch (error) {
+            console.error('Error fetching players:', error);
+            throw error;
+        }
+    }
+
+    // Save players (create or update multiple)
+    async savePlayers(players) {
+        try {
+            const response = await fetch('/players-v2', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(players)
+            });
+            
+            return await this.handleResponse(response);
+        } catch (error) {
+            console.error('Error saving players:', error);
+            throw error;
+        }
+    }
+
+    // Delete a single player
+    async deletePlayer(playerId) {
+        try {
+            const response = await fetch(`/player-v2/${playerId}`, {
+                method: 'DELETE',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            return await this.handleResponse(response);
+        } catch (error) {
+            console.error('Error deleting player:', error);
+            throw error;
+        }
+    }
+}
+
+// Create a global instance
+const playersAPI = new PlayersAPI();
+
 function submitForm(formData) {
     const submitBtn = document.getElementById('submitBtn');
     const spinner = document.createElement('span');
