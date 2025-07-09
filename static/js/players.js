@@ -20,7 +20,7 @@ function createRadarChart(canvasId, playerData) {
         data: {
             labels: ['Velocidad', 'Resistencia', 'Pases', 'Tiro', 'Defensa', 'Fuerza Cuerpo', 'Control', 'Habilidad Arquero', 'Visión'],
             datasets: [{
-                label: 'Habilidades',
+                label: ' Puntos',
                 data: [
                     playerData.velocidad,
                     playerData.resistencia,
@@ -83,9 +83,22 @@ async function renderPlayers() {
         const playerCard = document.createElement('div');
         playerCard.className = 'player-card';
         
-        const averageSkill = Math.round(
-            Object.values(player.skills || player).filter(val => typeof val === 'number').reduce((a, b) => a + b, 0) / 9
-        );
+        const skillKeys = [
+            'velocidad',
+            'resistencia',
+            'control',
+            'pases',
+            'tiro',
+            'defensa',
+            'habilidad_arquero',
+            'fuerza_cuerpo',
+            'vision'
+        ];
+
+        const skillValues = skillKeys.map(key => player[key]).filter(val => typeof val === 'number');
+        const averageSkill = skillValues.length > 0 
+            ? (skillValues.reduce((a, b) => a + b, 0) / skillValues.length).toFixed(1)
+            : '0.0';
 
         playerCard.innerHTML = `
             <div class="player-header">
@@ -94,7 +107,7 @@ async function renderPlayers() {
                 </div>
                 <div class="player-info">
                     <h3>${player.name}</h3>
-                    <p>Promedio: ${averageSkill}/10</p>
+                    <p>Promedio: ${averageSkill}</p>
                 </div>
             </div>
             <div class="chart-container">
