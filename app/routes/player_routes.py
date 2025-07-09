@@ -114,7 +114,7 @@ def delete_player(
 def get_players(
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
-    ) -> list[PlayerCreate]:
+    ) -> list[PlayerResponse]:
     if not current_user:
         return HTMLResponse("No hay un usuario autenticado", status_code=401)
     try:
@@ -205,7 +205,7 @@ def save_players(
 def get_players_v2(
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
-    ) -> list[PlayerCreate]:
+    ) -> list[PlayerResponse]:
     if not current_user:
         return HTMLResponse("No hay un usuario autenticado", status_code=401)
     try:

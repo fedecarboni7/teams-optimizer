@@ -51,7 +51,6 @@ class PlayerResponse(BaseModel):
     vision: int
     user_id: Optional[int] = None
     club_id: Optional[int] = None
-    average_skill_ratings: Optional[dict] = None  # Diccionario con los promedios por habilidad
 
     class Config:
         from_attributes = True
