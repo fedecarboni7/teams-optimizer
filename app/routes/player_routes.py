@@ -304,3 +304,57 @@ def delete_player_v2(
         return HTMLResponse("Error al eliminar el jugador. Inténtalo de nuevo más tarde.", status_code=500)
 
     return HTMLResponse("Jugador eliminado correctamente")
+
+@router.post("/player-v2", response_model=PlayerResponse)
+def save_player_v2(
+        player: PlayerCreate,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user),
+        club_id: int = None
+    ) -> PlayerResponse:
+    """
+    Crear o actualizar un solo jugador.
+    Si el jugador tiene ID, se actualiza; si no, se crea uno nuevo.
+    """
+    if not current_user:
+        raise HTTPException(status_code=401, detail="No hay un usuario autenticado")
+    
+    try:
+        # Si el jugador tiene ID, intentamos actualizarlo
+        if hasattr(player, 'id') and player.id:
+            existing_player = execute_with_retries(query_player_v2, db, player.id, current_user.id)
+            if existing_player:
+                # Actualizar jugador existente
+                for key, value in player.model_dump(exclude={'id', 'image'}).items():
+                    if hasattr(existing_player, key):
+                        setattr(existing_player, key, value)
+                existing_player.last_modified_by = current_user.id
+                
+                def update_and_commit():
+                    db.commit()
+                    db.refresh(existing_player)
+                
+                execute_write_with_retries(update_and_commit)
+                return existing_player
+            else:
+                raise HTTPException(status_code=404, detail="Jugador no encontrado")
+        
+        # Si no tiene ID o no existe, crear nuevo jugador
+        player_data = player.model_dump(exclude={'id'})
+        
+        if club_id:
+            new_player = PlayerV2(**player_data, club_id=club_id, last_modified_by=current_user.id)
+        else:
+            new_player = PlayerV2(**player_data, user_id=current_user.id)
+        
+        db.add(new_player)
+        
+        def create_and_commit():
+            db.commit()
+            db.refresh(new_player)
+        
+        execute_write_with_retries(create_and_commit)
+        return new_player
+        
+    except OperationalError:
+        raise HTTPException(status_code=500, detail="Error al acceder a la base de datos. Inténtalo de nuevo más tarde.")

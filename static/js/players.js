@@ -234,7 +234,7 @@ document.getElementById('playerForm').addEventListener('submit', function(e) {
         }
     };
 
-        savePlayer(playerData);
+    savePlayer(playerData);
 });
 
 // Función para cargar jugadores desde el backend
@@ -276,8 +276,8 @@ async function savePlayer(playerData) {
             backendPlayerData.id = currentPlayerId;
         }
 
-        // Enviar como array al backend (el endpoint espera un array)
-        await playersAPI.savePlayers([backendPlayerData]);
+        // Usar el nuevo endpoint para jugador individual
+        await playersAPI.savePlayer(backendPlayerData);
         
         closeModal();
         await loadPlayers(); // Recargar la lista

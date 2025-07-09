@@ -26,6 +26,7 @@ class PasswordResetConfirm(BaseModel):
     new_password: str
 
 class PlayerCreate(BaseModel):
+    id: Optional[int] = None
     name: str
     velocidad: int
     resistencia: int

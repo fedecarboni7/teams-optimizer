@@ -59,6 +59,25 @@ class PlayersAPI {
         }
     }
 
+    // Save single player (create or update)
+    async savePlayer(player) {
+        try {
+            const response = await fetch('/player-v2', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(player)
+            });
+            
+            return await this.handleResponse(response);
+        } catch (error) {
+            console.error('Error saving player:', error);
+            throw error;
+        }
+    }
+
     // Delete a single player
     async deletePlayer(playerId) {
         try {
