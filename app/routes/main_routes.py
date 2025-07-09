@@ -260,3 +260,176 @@ async def show_formations(
 
     # Retornar las formaciones como respuesta JSON
     return JSONResponse(content=formations)
+
+@router.get("/armar_equipos", response_class=HTMLResponse, include_in_schema=False)
+async def armar_equipos_page(
+        request: Request,
+        current_user: User = Depends(get_current_user)
+    ):
+    if not current_user:
+        return RedirectResponse("/login", status_code=302)
+    
+    return templates.TemplateResponse(request=request, name="armar_equipos.html", context={
+        "request": request,
+        "user": current_user
+    })
+
+
+@router.get("/api/players", response_class=JSONResponse)
+async def get_players_api(
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user),
+        club_id: int = None,
+        scale: str = "1-5"
+    ):
+    if not current_user:
+        return JSONResponse(content={"error": "No autenticado"}, status_code=401)
+    
+    current_user_id = current_user.id
+    
+    try:
+        if not club_id:
+            if scale == "1-10":
+                players = execute_with_retries(query_players_v2, db, current_user_id)
+            else:
+                players = execute_with_retries(query_players, db, current_user_id)
+        else:
+            clubs = execute_with_retries(query_clubs, db, current_user_id)
+            clubs_ids = [club.id for club in clubs]
+            
+            if club_id not in clubs_ids:
+                return JSONResponse(content={"error": "No tienes acceso a este club"}, status_code=403)
+            
+            if scale == "1-10":
+                players = execute_with_retries(query_club_players_v2, db, club_id)
+            else:
+                players = execute_with_retries(query_club_players, db, club_id)
+    except OperationalError:
+        return JSONResponse(content={"error": "Error al acceder a la base de datos"}, status_code=500)
+
+    # Convertir players a formato JSON serializable
+    players_data = []
+    for player in players:
+        players_data.append({
+            "id": player.id,
+            "name": player.name,
+            "velocidad": player.velocidad,
+            "resistencia": player.resistencia,
+            "control": player.control,
+            "pases": player.pases,
+            "tiro": player.tiro,
+            "defensa": player.defensa,
+            "habilidad_arquero": player.habilidad_arquero,
+            "fuerza_cuerpo": player.fuerza_cuerpo,
+            "vision": player.vision,
+        })
+
+    return JSONResponse(content={"players": players_data})
+
+
+@router.post("/api/build-teams", response_class=JSONResponse)
+async def build_teams_api(
+        request: Request,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+    ):
+    if not current_user:
+        return JSONResponse(content={"error": "No autenticado"}, status_code=401)
+    
+    try:
+        data = await request.json()
+        selected_player_ids = data.get('selected_player_ids', [])
+        
+        if len(selected_player_ids) < 4:
+            return JSONResponse(content={"error": "Necesitas al menos 4 jugadores para armar equipos"}, status_code=400)
+        
+        # Obtener datos de los jugadores seleccionados
+        current_user_id = current_user.id
+        club_id = data.get('club_id')
+        scale = data.get('scale', '1-5')
+        
+        if club_id:
+            if scale == "1-10":
+                all_players = execute_with_retries(query_club_players_v2, db, club_id)
+            else:
+                all_players = execute_with_retries(query_club_players, db, club_id)
+        else:
+            if scale == "1-10":
+                all_players = execute_with_retries(query_players_v2, db, current_user_id)
+            else:
+                all_players = execute_with_retries(query_players, db, current_user_id)
+        
+        # Filtrar solo jugadores seleccionados
+        selected_players = [p for p in all_players if p.id in selected_player_ids]
+        
+        if len(selected_players) != len(selected_player_ids):
+            return JSONResponse(content={"error": "Algunos jugadores no fueron encontrados"}, status_code=400)
+        
+        # Preparar datos para el algoritmo
+        player_names = [p.name for p in selected_players]
+        player_scores = [
+            [
+                p.velocidad,
+                p.resistencia,
+                p.control,
+                p.pases,
+                p.tiro,
+                p.defensa,
+                p.habilidad_arquero,
+                p.fuerza_cuerpo,
+                p.vision,
+            ]
+            for p in selected_players
+        ]
+        
+        # Generar equipos
+        mejores_equipos, min_difference_total = find_best_combination(player_scores)
+        
+        # Formatear respuesta
+        teams_options = []
+        for equipos in mejores_equipos:
+            team1_players = [selected_players[i] for i in equipos[0]]
+            team2_players = [selected_players[i] for i in equipos[1]]
+            
+            teams_options.append({
+                "team1": [
+                    {
+                        "id": p.id,
+                        "name": p.name,
+                        "velocidad": p.velocidad,
+                        "resistencia": p.resistencia,
+                        "control": p.control,
+                        "pases": p.pases,
+                        "tiro": p.tiro,
+                        "defensa": p.defensa,
+                        "habilidad_arquero": p.habilidad_arquero,
+                        "fuerza_cuerpo": p.fuerza_cuerpo,
+                        "vision": p.vision
+                    }
+                    for p in team1_players
+                ],
+                "team2": [
+                    {
+                        "id": p.id,
+                        "name": p.name,
+                        "velocidad": p.velocidad,
+                        "resistencia": p.resistencia,
+                        "control": p.control,
+                        "pases": p.pases,
+                        "tiro": p.tiro,
+                        "defensa": p.defensa,
+                        "habilidad_arquero": p.habilidad_arquero,
+                        "fuerza_cuerpo": p.fuerza_cuerpo,
+                        "vision": p.vision
+                    }
+                    for p in team2_players
+                ]
+            })
+        
+        return JSONResponse(content={
+            "teams": teams_options,
+            "difference": min_difference_total
+        })
+        
+    except Exception as e:
+        return JSONResponse(content={"error": f"Error al armar equipos: {str(e)}"}, status_code=500)

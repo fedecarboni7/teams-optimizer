@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Armador de Equipos</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="../static/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../static/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../static/favicon/favicon-16x16.png">
+    <link rel="manifest" href="../static/favicon/site.webmanifest">
+    <script src="/static/js/api.js" defer></script>
+    <script src="/static/js/armar_equipos.js" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/armar_equipos.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚽ Armador de Equipos</h1>
+            <p>Selecciona los jugadores y arma los equipos más equilibrados</p>
+        </div>
+
+        <div class="main-content">
+            <div class="section">
+                <h2>Jugadores Disponibles</h2>
+                <div class="players-grid" id="availablePlayers">
+                    <!-- Jugadores se cargarán aquí -->
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Jugadores Seleccionados</h2>
+                <div class="selected-players">
+                    <h3>Jugadores para el partido</h3>
+                    <div class="selected-list" id="selectedList">
+                        <p style="color: #666; font-style: italic;">Selecciona jugadores de la lista</p>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <div class="player-count">
+                        <span id="playerCount">0</span> jugadores seleccionados
+                    </div>
+                    <button class="btn btn-primary" id="buildTeamsBtn" onclick="buildTeams()" disabled>
+                        🏆 Armar Equipos
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearSelection()">
+                        🗑️ Limpiar Selección
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="teams-section" id="teamsSection">
+            <h2 style="text-align: center; margin-bottom: 30px;">Equipos Generados</h2>
+            
+            <div class="teams-options" id="teamsOptions">
+                <!-- Opciones de equipos se cargarán aquí -->
+            </div>
+
+            <div id="teamsDisplay">
+                <!-- Equipos se mostrarán aquí -->
+            </div>
+        </div>
+    </div>
+</body>
+</html>
