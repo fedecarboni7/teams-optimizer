@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import HTMLResponse
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
+from typing import Union, List
 
 from app.db.database import get_db
 from app.db.database_utils import execute_with_retries, execute_write_with_retries, query_player, query_players, query_player_v2, query_players_v2
@@ -10,6 +11,17 @@ from app.db.schemas import PlayerCreate, PlayerResponse
 from app.utils.auth import get_current_user
 
 router = APIRouter()
+
+def get_player_model(scale: str):
+    """Retorna el modelo correcto según la escala"""
+    return PlayerV2 if scale == "1-10" else Player
+
+def get_query_function(scale: str, single: bool = False):
+    """Retorna la función de query correcta según la escala"""
+    if scale == "1-10":
+        return query_player_v2 if single else query_players_v2
+    else:
+        return query_player if single else query_players
 
 @router.get("/reset", response_class=HTMLResponse)
 async def reset_players(
@@ -358,3 +370,117 @@ def save_player_v2(
         
     except OperationalError:
         raise HTTPException(status_code=500, detail="Error al acceder a la base de datos. Inténtalo de nuevo más tarde.")
+
+# ===== ENDPOINTS UNIFICADOS (NUEVOS) =====
+
+@router.get("/api/players")
+def get_players_unified(
+        scale: str = Query("1-5", regex="^(1-5|1-10)$"),
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+    ) -> List[PlayerResponse]:
+    """Obtener jugadores según la escala especificada"""
+    if not current_user:
+        raise HTTPException(status_code=401, detail="No hay un usuario autenticado")
+    
+    try:
+        query_func = get_query_function(scale, single=False)
+        players = execute_with_retries(query_func, db, current_user.id)
+        return players
+    except OperationalError:
+        raise HTTPException(status_code=500, detail="Error al acceder a la base de datos. Inténtalo de nuevo más tarde.")
+
+@router.post("/api/players")
+def save_players_unified(
+        players_data: Union[PlayerCreate, List[PlayerCreate]],
+        scale: str = Query("1-5", regex="^(1-5|1-10)$"),
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user),
+        club_id: int = Query(None)
+    ) -> List[PlayerResponse]:
+    """Crear o actualizar jugadores (individual o múltiple) según la escala"""
+    if not current_user:
+        raise HTTPException(status_code=401, detail="No hay un usuario autenticado")
+    
+    # Convertir a lista si es un solo jugador
+    if isinstance(players_data, PlayerCreate):
+        players_list = [players_data]
+    else:
+        players_list = players_data
+    
+    try:
+        PlayerModel = get_player_model(scale)
+        query_func = get_query_function(scale, single=False)
+        
+        # Obtener jugadores existentes
+        if club_id:
+            existing_players = db.query(PlayerModel).filter(PlayerModel.club_id == club_id).all()
+        else:
+            existing_players = execute_with_retries(query_func, db, current_user.id)
+            
+        # Crear diccionario de jugadores existentes por nombre
+        existing_players_dict = {player.name: player for player in existing_players}
+        
+        players_to_add = []
+        updated_players = []
+        
+        for player_data in players_list:
+            existing_player = existing_players_dict.get(player_data.name)
+            
+            if existing_player:
+                # Actualizar jugador existente
+                for key, value in player_data.model_dump(exclude={'id'}).items():
+                    if hasattr(existing_player, key):
+                        setattr(existing_player, key, value)
+                existing_player.last_modified_by = current_user.id
+                updated_players.append(existing_player)
+            else:
+                # Crear nuevo jugador
+                player_dict = player_data.model_dump(exclude={'id'})
+                if club_id:
+                    players_to_add.append(PlayerModel(**player_dict, club_id=club_id, last_modified_by=current_user.id))
+                else:
+                    players_to_add.append(PlayerModel(**player_dict, user_id=current_user.id))
+        
+        # Guardar cambios
+        if players_to_add:
+            db.add_all(players_to_add)
+        
+        db.commit()
+        
+        # Refrescar objetos
+        for player in updated_players + players_to_add:
+            db.refresh(player)
+            
+        return updated_players + players_to_add
+        
+    except OperationalError:
+        raise HTTPException(status_code=500, detail="Error al acceder a la base de datos. Inténtalo de nuevo más tarde.")
+
+@router.delete("/api/players/{player_id}")
+def delete_player_unified(
+        player_id: int,
+        scale: str = Query("1-5", regex="^(1-5|1-10)$"),
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+    ):
+    """Eliminar un jugador según la escala especificada"""
+    if not current_user:
+        raise HTTPException(status_code=401, detail="No hay un usuario autenticado")
+
+    try:
+        query_func = get_query_function(scale, single=True)
+        player = execute_with_retries(query_func, db, player_id, current_user.id)
+        
+        if player is None:
+            raise HTTPException(status_code=404, detail="Jugador no encontrado")
+        
+        def delete_operation():
+            db.delete(player)
+            db.commit()
+
+        execute_write_with_retries(delete_operation)
+        return {"message": "Jugador eliminado correctamente"}
+        
+    except OperationalError:
+        raise HTTPException(status_code=500, detail="Error al eliminar el jugador. Inténtalo de nuevo más tarde.")
