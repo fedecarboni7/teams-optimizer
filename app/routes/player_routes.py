@@ -418,14 +418,17 @@ def save_players_unified(
         else:
             existing_players = execute_with_retries(query_func, db, current_user.id)
             
-        # Crear diccionario de jugadores existentes por nombre
-        existing_players_dict = {player.name: player for player in existing_players}
+        # Crear diccionario de jugadores existentes por id
+        existing_players_dict = {player.id: player for player in existing_players}
         
         players_to_add = []
         updated_players = []
         
         for player_data in players_list:
-            existing_player = existing_players_dict.get(player_data.name)
+            # Buscar por id si está presente
+            existing_player = None
+            if hasattr(player_data, 'id') and player_data.id:
+                existing_player = existing_players_dict.get(player_data.id)
             
             if existing_player:
                 # Actualizar jugador existente
