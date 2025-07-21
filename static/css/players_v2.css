@@ -38,28 +38,94 @@ body {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-.user-info {
+.club-selector-navbar {
     display: flex;
     align-items: center;
-    gap: 10px;
+    flex: 1;
+    justify-content: center;
 }
 
-.user-avatar {
-    width: 32px;
-    height: 32px;
-    background-color: #666;
-    border-radius: 50%;
+.current-context {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 8px 16px;
+    border-radius: 24px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.current-context:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.context-icon {
+    font-size: 18px;
+    min-width: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
-    font-size: 14px;
-    color: white;
+    transition: transform 0.3s ease;
 }
 
-.username {
-    font-weight: 500;
+.current-context:hover .context-icon {
+    transform: scale(1.1);
+}
+
+.club-dropdown {
+    background: transparent;
+    border: none;
     color: #ffffff;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+    padding: 4px 8px;
+    border-radius: 6px;
+    min-width: 140px;
+    transition: all 0.3s ease;
+}
+
+.club-dropdown:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.club-dropdown:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.club-dropdown option {
+    background-color: #2d2d2d;
+    color: #ffffff;
+    padding: 12px 16px;
+    border: none;
+    font-weight: 500;
+}
+
+.club-dropdown option:hover {
+    background-color: #3d3d3d;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+    .current-context {
+        padding: 6px 12px;
+    }
+    
+    .club-dropdown {
+        min-width: 100px;
+        font-size: 13px;
+    }
+    
+    .context-icon {
+        font-size: 16px;
+    }
 }
 
 .logo {

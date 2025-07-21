@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from typing import Union, List
 
 from app.db.database import get_db
-from app.db.database_utils import execute_with_retries, execute_write_with_retries, query_player, query_players, query_player_v2, query_players_v2
+from app.db.database_utils import execute_with_retries, execute_write_with_retries, query_player, query_players, query_player_v2, query_players_v2, query_clubs
 from app.db.models import Player, PlayerV2, User
 from app.db.schemas import PlayerCreate, PlayerResponse
 from app.utils.auth import get_current_user
@@ -487,3 +487,30 @@ def delete_player_unified(
         
     except OperationalError:
         raise HTTPException(status_code=500, detail="Error al eliminar el jugador. Inténtalo de nuevo más tarde.")
+
+
+@router.get("/api/user-clubs")
+async def get_user_clubs(
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+    ):
+    """Obtener los clubes del usuario autenticado"""
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Usuario no autenticado")
+    
+    try:
+        clubs = execute_with_retries(query_clubs, db, current_user.id)
+        
+        # Convertir a formato JSON
+        clubs_data = [
+            {
+                "id": club.id,
+                "name": club.name
+            }
+            for club in clubs
+        ]
+        
+        return clubs_data
+        
+    except OperationalError:
+        raise HTTPException(status_code=500, detail="Error al obtener los clubes del usuario")

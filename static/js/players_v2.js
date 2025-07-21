@@ -28,29 +28,7 @@ function calculateAverage(player) {
 
 // Función para cargar jugadores desde el backend
 async function loadPlayers() {
-    try {
-        loading = true;
-        renderPlayers(); // Mostrar loading
-        
-        // Usar endpoint unificado con parámetro de escala
-        const scale = currentScale === 5 ? '1-5' : '1-10';
-        const response = await fetch(`/api/players?scale=${scale}`, {
-            method: 'GET',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' }
-        });
-        
-        if (!response.ok) throw new Error(`Error ${response.status}`);
-        players = await response.json();
-        
-        loading = false;
-        renderPlayers();
-    } catch (error) {
-        loading = false;
-        console.error('Error loading players:', error);
-        const playersList = document.getElementById('players-list');
-        playersList.innerHTML = '<div class="error" style="text-align: center; color: red; padding: 20px;">Error al cargar jugadores. Por favor, recarga la página.</div>';
-    }
+    await loadPlayersForContext(currentClubId);
 }
 
 // Función para renderizar la lista de jugadores
@@ -58,14 +36,27 @@ function renderPlayers() {
     const playersList = document.getElementById('players-list');
     
     if (loading) {
-        playersList.innerHTML = '<div style="text-align: center; padding: 20px;">Cargando jugadores...</div>';
+        playersList.innerHTML = `
+            <div style="text-align: center; padding: 40px;">
+                <div style="font-size: 18px; color: #aaa; margin-bottom: 10px;">⚽ Cargando jugadores...</div>
+                <div style="font-size: 14px; color: #666;">Esto puede tomar unos segundos</div>
+            </div>
+        `;
         return;
     }
     
     playersList.innerHTML = '';
 
     if (players.length === 0) {
-        playersList.innerHTML = '<div style="text-align: center; padding: 20px;">No hay jugadores registrados. ¡Agrega tu primer jugador!</div>';
+        const contextName = currentClubId === 'my-players' ? 'personales' : 
+                          userClubs.find(club => club.id == currentClubId)?.name || 'de este club';
+        
+        playersList.innerHTML = `
+            <div style="text-align: center; padding: 40px;">
+                <div style="font-size: 18px; color: #aaa; margin-bottom: 10px;">👤 No hay jugadores ${contextName}</div>
+                <div style="font-size: 14px; color: #666;">¡Agrega tu primer jugador para comenzar!</div>
+            </div>
+        `;
         return;
     }
 
@@ -292,7 +283,142 @@ window.onclick = function(event) {
     }
 }
 
+// Variables para el contexto actual
+let currentClubId = 'my-players';
+let userClubs = [];
+
+// Cargar clubes del usuario
+async function loadUserClubs() {
+    try {
+        const response = await fetch('/api/user-clubs', {
+            method: 'GET',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (response.ok) {
+            userClubs = await response.json();
+            populateClubSelector();
+        } else {
+            console.error('Error loading user clubs:', response.status);
+            // Si falla, al menos mantener "Mis jugadores"
+            populateClubSelector();
+        }
+    } catch (error) {
+        console.error('Error loading user clubs:', error);
+        // Si falla, al menos mantener "Mis jugadores"
+        populateClubSelector();
+    }
+}
+
+// Poblar el selector de clubes
+function populateClubSelector() {
+    const selector = document.getElementById('club-select-navbar');
+    const contextIcon = document.getElementById('contextIcon');
+    
+    // Limpiar opciones existentes excepto "Mis jugadores"
+    selector.innerHTML = '<option value="my-players">Mis jugadores</option>';
+    
+    // Agregar clubes del usuario
+    userClubs.forEach(club => {
+        const option = document.createElement('option');
+        option.value = club.id;
+        option.textContent = club.name;
+        selector.appendChild(option);
+    });
+    
+    // Agregar opción para crear nuevo club
+    const createOption = document.createElement('option');
+    createOption.value = 'create-club';
+    createOption.textContent = '+ Crear nuevo club';
+    selector.appendChild(createOption);
+    
+    // Actualizar icono según contexto actual
+    updateContextIcon();
+}
+
+// Actualizar el icono según el contexto actual
+function updateContextIcon() {
+    const contextIcon = document.getElementById('contextIcon');
+    const selector = document.getElementById('club-select-navbar');
+    
+    if (selector.value === 'my-players') {
+        contextIcon.textContent = '👤'; // Icono de usuario personal
+    } else {
+        contextIcon.textContent = '⚽'; // Icono de club
+    }
+}
+
+// Cambiar contexto (club o personal)
+async function switchContext() {
+    const selector = document.getElementById('club-select-navbar');
+    const selectedValue = selector.value;
+    
+    if (selectedValue === 'create-club') {
+        // Restaurar el valor anterior
+        selector.value = currentClubId;
+        // TODO: Abrir modal para crear club
+        alert('Función para crear club en desarrollo');
+        return;
+    }
+    
+    // Mostrar feedback visual mientras cambia el contexto
+    const originalText = selector.options[selector.selectedIndex].text;
+    selector.disabled = true;
+    
+    try {
+        currentClubId = selectedValue;
+        updateContextIcon();
+        
+        // Recargar jugadores según el nuevo contexto
+        await loadPlayersForContext(selectedValue);
+        
+        // Mostrar mensaje de éxito brevemente
+        const contextInfo = selectedValue === 'my-players' ? 'Mis jugadores' : 
+                          userClubs.find(club => club.id == selectedValue)?.name || 'Club desconocido';
+        
+    } catch (error) {
+        // Si hay error, restaurar la selección anterior y mostrar error
+        console.error('Error switching context:', error);
+        alert('Error al cambiar el contexto. Intenta de nuevo.');
+    } finally {
+        selector.disabled = false;
+    }
+}
+
+// Cargar jugadores según el contexto (personal o club)
+async function loadPlayersForContext(contextId) {
+    try {
+        loading = true;
+        renderPlayers(); // Mostrar loading
+        
+        const scale = currentScale === 5 ? '1-5' : '1-10';
+        let url = `/api/players?scale=${scale}`;
+        
+        if (contextId !== 'my-players') {
+            url += `&club_id=${contextId}`;
+        }
+        
+        const response = await fetch(url, {
+            method: 'GET',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (!response.ok) throw new Error(`Error ${response.status}`);
+        players = await response.json();
+        
+        loading = false;
+        renderPlayers();
+    } catch (error) {
+        loading = false;
+        console.error('Error loading players for context:', error);
+        renderPlayers(); // Mostrar error
+    }
+}
+
 // Inicializar la aplicación
 document.addEventListener('DOMContentLoaded', function() {
+    loadUserClubs();
     loadPlayers();
 });
