@@ -7,7 +7,7 @@ from requests import Session
 
 from app.config.config import templates
 from app.db.database import get_db
-from app.db.database_utils import execute_with_retries, query_club_members, query_club_players, query_clubs, query_players, query_club_players_v2, query_players_v2
+from app.db.database_utils import execute_with_retries, query_club_members, query_clubs, query_players
 from app.db.models import User
 from app.db.schemas import PlayerCreate
 from app.utils.ai_formations import create_formations
@@ -22,7 +22,7 @@ async def landing_page(request: Request):
     return templates.TemplateResponse(request=request, name="landing-page.html")
 
 
-@router.get("/players_page", response_class=HTMLResponse, include_in_schema=False)
+@router.get("/jugadores", response_class=HTMLResponse, include_in_schema=False)
 async def players_page(
         request: Request,
         current_user: User = Depends(get_current_user)

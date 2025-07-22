@@ -37,6 +37,7 @@ class PlayerCreate(BaseModel):
     habilidad_arquero: int
     fuerza_cuerpo: int
     vision: int
+    club_id: Optional[int] = None
 
 class PlayerResponse(BaseModel):
     id: int

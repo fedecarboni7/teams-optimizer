@@ -1,9 +1,11 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
 
 from app.db import models, schemas
 from app.db.database import get_db
+from app.db.database_utils import execute_with_retries, query_clubs
 from app.utils import crud
 from app.utils.auth import get_current_user
 
@@ -126,3 +128,30 @@ def leave_club(club_id: int, current_user: models.User = Depends(get_current_use
     db.delete(club_user)
     db.commit()
     return {"status": "success", "message": "Has salido del club"}
+
+# Get clubs of the authenticated user
+@router.get("/api/user-clubs")
+async def get_user_clubs(
+        db: Session = Depends(get_db),
+        current_user: models.User = Depends(get_current_user)
+    ):
+    """Obtener los clubes del usuario autenticado"""
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Usuario no autenticado")
+    
+    try:
+        clubs = execute_with_retries(query_clubs, db, current_user.id)
+        
+        # Convertir a formato JSON
+        clubs_data = [
+            {
+                "id": club.id,
+                "name": club.name
+            }
+            for club in clubs
+        ]
+        
+        return clubs_data
+        
+    except OperationalError:
+        raise HTTPException(status_code=500, detail="Error al obtener los clubes del usuario")

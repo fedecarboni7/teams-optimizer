@@ -53,7 +53,7 @@ function renderPlayers() {
         
         playersList.innerHTML = `
             <div style="text-align: center; padding: 40px;">
-                <div style="font-size: 18px; color: #aaa; margin-bottom: 10px;">👤 No hay jugadores ${contextName}</div>
+                <div style="font-size: 18px; color: #aaa; margin-bottom: 10px;">👤 No hay jugadores en ${contextName}</div>
                 <div style="font-size: 14px; color: #666;">¡Agrega tu primer jugador para comenzar!</div>
             </div>
         `;
@@ -105,16 +105,14 @@ function viewPlayer(id) {
     if (player) {
         const details = document.getElementById('player-details');
         const average = calculateAverage(player);
-        const createdDate = player.created_at || new Date();
-        const lastModified = player.updated_at || player.created_at || new Date();
-        
+        const lastModified = player.updated_at || new Date();
+
         details.innerHTML = `
             <p><strong>Nombre:</strong> ${player.name}</p>
             <p><strong>Promedio General:</strong> ${average}/${currentScale}</p>
-            <p><strong>Fecha de Creación:</strong> ${formatDate(createdDate)}</p>
             <p><strong>Última Modificación:</strong> ${formatDate(lastModified)}</p>
             <br>
-            <h4>Habilidades Detalladas (1-10):</h4>
+            <h4>Habilidades Detalladas:</h4>
             <p><strong>Velocidad:</strong> ${player.velocidad}</p>
             <p><strong>Resistencia:</strong> ${player.resistencia}</p>
             <p><strong>Pases:</strong> ${player.pases}</p>
@@ -140,7 +138,7 @@ function addPlayer() {
 }
 
 // Función para abrir modal de edición/creación
-function openPlayerModal(playerId = null) {
+function openPlayerModal() {
     // Por ahora simulamos con prompt hasta que implementemos el modal completo
     // TODO: Implementar modal completo con todas las habilidades
     const name = prompt('Ingresa el nombre del jugador:');
@@ -161,10 +159,13 @@ function openPlayerModal(playerId = null) {
             vision: defaultValue
         };
         
-        if (playerId) {
-            playerData.id = playerId;
+        if (currentClubId !== 'my-players') {
+            playerData.club_id = currentClubId;
         }
-        
+        else {
+            playerData.club_id = null;
+        }
+
         savePlayer(playerData);
     }
 }
@@ -172,13 +173,12 @@ function openPlayerModal(playerId = null) {
 // Función para guardar jugador
 async function savePlayer(playerData) {
     try {
-        // Usar endpoint unificado con parámetro de escala
         const scale = currentScale === 5 ? '1-5' : '1-10';
-        const response = await fetch(`/api/players?scale=${scale}`, {
-            method: 'POST',
+        const response = await fetch(`/api/player?scale=${scale}`, {
+            method: playerData.id ? 'PUT' : 'POST', // Usar POST para crear y PUT para editar
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(playerData) // Enviar como objeto individual
+            body: JSON.stringify(playerData)
         });
         
         if (!response.ok) throw new Error(`Error ${response.status}`);
@@ -208,7 +208,8 @@ function editPlayer(id) {
                 fuerza_cuerpo: player.fuerza_cuerpo,
                 control: player.control,
                 habilidad_arquero: player.habilidad_arquero,
-                vision: player.vision
+                vision: player.vision,
+                club_id: player.club_id || null // Mantener club_id si existe
             };
             
             savePlayer(playerData);
