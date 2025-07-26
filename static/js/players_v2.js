@@ -66,7 +66,7 @@ function renderPlayers() {
         
         const initial = player.name.charAt(0).toUpperCase();
         const score = calculateAverage(player);
-        const lastModified = player.updated_at || player.created_at || new Date();
+        const lastModified = player.updated_at;
         
         playerRow.innerHTML = `
             <div class="player-name">
@@ -105,7 +105,7 @@ function viewPlayer(id) {
     if (player) {
         const details = document.getElementById('player-details');
         const average = calculateAverage(player);
-        const lastModified = player.updated_at || new Date();
+        const lastModified = player.updated_at;
 
         details.innerHTML = `
             <p><strong>Nombre:</strong> ${player.name}</p>

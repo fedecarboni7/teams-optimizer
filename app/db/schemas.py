@@ -51,6 +51,7 @@ class PlayerResponse(BaseModel):
     habilidad_arquero: int
     fuerza_cuerpo: int
     vision: int
+    updated_at: datetime
     user_id: Optional[int] = None
     club_id: Optional[int] = None
 
