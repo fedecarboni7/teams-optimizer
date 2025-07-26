@@ -5,6 +5,9 @@ let currentScale = 5;
 let players = [];
 let loading = false;
 
+// Variables para ordenamiento
+let currentSort = { column: 'name', direction: 'asc' };
+
 // Función para formatear fecha
 function formatDate(date) {
     if (typeof date === 'string') {
@@ -26,6 +29,50 @@ function calculateAverage(player) {
     return Math.round(average * 10) / 10; // Redondear a 1 decimal
 }
 
+// Función para ordenar jugadores
+function sortPlayers(column) {
+    // Si ya estamos ordenando por esta columna, cambiar dirección
+    if (currentSort.column === column) {
+        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+    } else {
+        // Nueva columna, empezar con ascendente
+        currentSort.column = column;
+        currentSort.direction = 'asc';
+    }
+    
+    players.sort((a, b) => {
+        let valueA, valueB;
+        
+        switch (column) {
+            case 'name':
+                valueA = a.name.toLowerCase();
+                valueB = b.name.toLowerCase();
+                break;
+            case 'score':
+                valueA = calculateAverage(a);
+                valueB = calculateAverage(b);
+                break;
+            case 'date':
+                valueA = new Date(a.updated_at);
+                valueB = new Date(b.updated_at);
+                break;
+            default:
+                return 0;
+        }
+        
+        if (valueA < valueB) {
+            return currentSort.direction === 'asc' ? -1 : 1;
+        }
+        if (valueA > valueB) {
+            return currentSort.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+    });
+    
+    loading = false; // Asegurar que no esté en estado de loading
+    renderPlayers();
+}
+
 // Función para cargar jugadores desde el backend
 async function loadPlayers() {
     await loadPlayersForContext(currentClubId);
@@ -34,6 +81,9 @@ async function loadPlayers() {
 // Función para renderizar la lista de jugadores
 function renderPlayers() {
     const playersList = document.getElementById('players-list');
+    
+    // Actualizar indicadores de ordenamiento en el header
+    updateSortIndicators();
     
     if (loading) {
         playersList.innerHTML = `
@@ -79,6 +129,39 @@ function renderPlayers() {
         `;
         playersList.appendChild(playerRow);
     });
+}
+
+// Función para actualizar los indicadores de ordenamiento
+function updateSortIndicators() {
+    // Limpiar todos los indicadores existentes
+    document.querySelectorAll('.sort-indicator').forEach(indicator => {
+        indicator.remove();
+    });
+    
+    // Agregar indicador a la columna actual
+    const headers = document.querySelectorAll('.table-header > div');
+    let targetHeader;
+    
+    switch (currentSort.column) {
+        case 'name':
+            targetHeader = headers[0];
+            break;
+        case 'score':
+            targetHeader = headers[1];
+            break;
+        case 'date':
+            targetHeader = headers[2];
+            break;
+    }
+    
+    if (targetHeader) {
+        const indicator = document.createElement('span');
+        indicator.className = 'sort-indicator';
+        indicator.textContent = currentSort.direction === 'asc' ? ' ↑' : ' ↓';
+        indicator.style.color = '#007bff';
+        indicator.style.fontSize = '14px';
+        targetHeader.appendChild(indicator);
+    }
 }
 
 // Función para cambiar escala
@@ -714,8 +797,13 @@ async function loadPlayersForContext(contextId) {
         if (!response.ok) throw new Error(`Error ${response.status}`);
         players = await response.json();
         
-        loading = false;
-        renderPlayers();
+        // Aplicar ordenamiento actual
+        if (players.length > 0) {
+            sortPlayers(currentSort.column);
+        } else {
+            loading = false;
+            renderPlayers();
+        }
     } catch (error) {
         loading = false;
         console.error('Error loading players for context:', error);

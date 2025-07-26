@@ -308,6 +308,28 @@ body {
     letter-spacing: 0.5px;
 }
 
+.header-cell {
+    cursor: pointer;
+    padding: 4px 0;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+}
+
+.header-cell:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.sort-indicator {
+    margin-left: 5px;
+    font-weight: bold;
+}
+
 .player-row {
     padding: 16px 20px;
     display: grid;
@@ -651,6 +673,11 @@ body {
     .player-row {
         grid-template-columns: 1fr 80px 120px;
         gap: 10px;
+    }
+    
+    .header-cell {
+        font-size: 12px;
+        padding: 2px 0;
     }
     
     .container {
