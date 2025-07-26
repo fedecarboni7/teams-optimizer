@@ -116,11 +116,11 @@ function createRadarChart(canvasId, playerData) {
                     playerData.habilidad_arquero,
                     playerData.vision
                 ],
-                backgroundColor: 'rgba(0, 123, 255, 0.2)',
-                borderColor: 'rgba(0, 123, 255, 1)',
+                backgroundColor: 'rgba(200, 200, 200, 0.3)',
+                borderColor: 'rgba(180, 180, 180, 1)',
                 borderWidth: 2,
-                pointBackgroundColor: 'rgba(0, 123, 255, 1)',
-                pointBorderColor: '#fff',
+                pointBackgroundColor: 'rgba(220, 220, 220, 1)',
+                pointBorderColor: 'rgba(160, 160, 160, 1)',
                 pointBorderWidth: 2,
                 pointRadius: 6
             }]
@@ -134,7 +134,23 @@ function createRadarChart(canvasId, playerData) {
                     max: currentScale,
                     min: 0,
                     ticks: {
+                        display: false,
                         stepSize: currentScale === 5 ? 1 : 2
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.2)',
+                        lineWidth: 1
+                    },
+                    angleLines: {
+                        color: 'rgba(255, 255, 255, 0.2)',
+                        lineWidth: 1
+                    },
+                    pointLabels: {
+                        color: '#fff',
+                        font: {
+                            size: 13,
+                            weight: '500'
+                        }
                     }
                 }
             },
