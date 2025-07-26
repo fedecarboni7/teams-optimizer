@@ -294,6 +294,39 @@ function renderPlayerModal(player) {
     // Crear el radar chart después de que el elemento esté en el DOM
     setTimeout(() => {
         createRadarChart(`detail-chart-${player.id}`, player);
+        
+        // Agregar validación en tiempo real a los inputs de habilidades
+        if (isEditMode) {
+            const skillInputs = ['velocidad', 'resistencia', 'pases', 'tiro', 'defensa', 'fuerza_cuerpo', 'control', 'habilidad_arquero', 'vision'];
+            
+            skillInputs.forEach(skill => {
+                const input = document.getElementById(`edit-${skill}`);
+                if (input) {
+                    // Validar al cambiar el valor
+                    input.addEventListener('input', function() {
+                        let value = parseInt(this.value);
+                        
+                        // Corregir valores fuera del rango
+                        if (value < 1) {
+                            this.value = 1;
+                        } else if (value > currentScale) {
+                            this.value = currentScale;
+                        }
+                    });
+                    
+                    // Validar al perder el foco
+                    input.addEventListener('blur', function() {
+                        let value = parseInt(this.value);
+                        
+                        if (isNaN(value) || value < 1) {
+                            this.value = 1;
+                        } else if (value > currentScale) {
+                            this.value = currentScale;
+                        }
+                    });
+                }
+            });
+        }
     }, 100);
 }
 
@@ -309,31 +342,89 @@ function cancelEdit() {
     renderPlayerModal(currentEditingPlayer);
 }
 
+// Función para mostrar mensaje de éxito
+function showSuccessMessage(message) {
+    // Crear un toast o mensaje temporal
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: #28a745;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        z-index: 10000;
+        font-weight: 500;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+    `;
+    toast.textContent = message;
+    
+    document.body.appendChild(toast);
+    
+    // Animar entrada
+    setTimeout(() => {
+        toast.style.transform = 'translateX(-10px)';
+    }, 100);
+    
+    // Remover después de 3 segundos
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100px)';
+        setTimeout(() => {
+            if (toast.parentNode) {
+                document.body.removeChild(toast);
+            }
+        }, 300);
+    }, 3000);
+}
+
 // Función para guardar los cambios del jugador
 async function savePlayerEdits() {
     try {
-        const playerData = {
-            id: currentEditingPlayer.id,
-            name: document.getElementById('edit-player-name').value.trim(),
-            velocidad: parseInt(document.getElementById('edit-velocidad').value),
-            resistencia: parseInt(document.getElementById('edit-resistencia').value),
-            pases: parseInt(document.getElementById('edit-pases').value),
-            tiro: parseInt(document.getElementById('edit-tiro').value),
-            defensa: parseInt(document.getElementById('edit-defensa').value),
-            fuerza_cuerpo: parseInt(document.getElementById('edit-fuerza_cuerpo').value),
-            control: parseInt(document.getElementById('edit-control').value),
-            habilidad_arquero: parseInt(document.getElementById('edit-habilidad_arquero').value),
-            vision: parseInt(document.getElementById('edit-vision').value),
-            club_id: currentEditingPlayer.club_id || null
-        };
-
-        if (!playerData.name) {
+        // Validar nombre
+        const name = document.getElementById('edit-player-name').value.trim();
+        if (!name) {
             alert('El nombre del jugador es obligatorio');
             return;
         }
 
+        // Validar y obtener valores de habilidades
+        const skillValues = {};
+        const skillKeys = ['velocidad', 'resistencia', 'pases', 'tiro', 'defensa', 'fuerza_cuerpo', 'control', 'habilidad_arquero', 'vision'];
+        
+        for (const skill of skillKeys) {
+            const value = parseInt(document.getElementById(`edit-${skill}`).value);
+            
+            // Validar que el valor esté en el rango correcto
+            if (isNaN(value) || value < 1 || value > currentScale) {
+                alert(`El valor de ${skill.replace('_', ' ')} debe estar entre 1 y ${currentScale}`);
+                return;
+            }
+            
+            skillValues[skill] = value;
+        }
+
+        const playerData = {
+            id: currentEditingPlayer.id,
+            name: name,
+            ...skillValues,
+            club_id: currentEditingPlayer.club_id || null
+        };
+
         await savePlayer(playerData);
-        closeModal();
+        
+        // Actualizar el jugador actual con los nuevos datos
+        Object.assign(currentEditingPlayer, playerData);
+        
+        // Mostrar mensaje de éxito
+        showSuccessMessage('✓ Jugador guardado exitosamente');
+        
+        // Cambiar a modo vista sin cerrar el modal
+        isEditMode = false;
+        renderPlayerModal(currentEditingPlayer);
+        
     } catch (error) {
         alert('Error al guardar los cambios: ' + error.message);
     }
