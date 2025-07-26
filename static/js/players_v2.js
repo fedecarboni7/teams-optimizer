@@ -63,6 +63,7 @@ function renderPlayers() {
     players.forEach(player => {
         const playerRow = document.createElement('div');
         playerRow.className = 'player-row';
+        playerRow.onclick = () => viewPlayer(player.id);
         
         const initial = player.name.charAt(0).toUpperCase();
         const score = calculateAverage(player);
@@ -75,11 +76,6 @@ function renderPlayers() {
             </div>
             <div class="score">${score}/${currentScale}</div>
             <div class="last-modified">${formatDate(lastModified)}</div>
-            <div class="actions">
-                <button class="action-btn view-btn" onclick="viewPlayer(${player.id})" title="Ver detalles">👁️</button>
-                <button class="action-btn edit-btn" onclick="editPlayer(${player.id})" title="Editar">✏️</button>
-                <button class="action-btn delete-btn" onclick="deletePlayer(${player.id})" title="Eliminar">🗑️</button>
-            </div>
         `;
         playersList.appendChild(playerRow);
     });
@@ -99,36 +95,288 @@ function setScale(scale) {
     loadPlayers();
 }
 
+// Función para crear el radar chart
+function createRadarChart(canvasId, playerData) {
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    
+    return new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: ['Velocidad', 'Resistencia', 'Pases', 'Tiro', 'Defensa', 'Fuerza Cuerpo', 'Control', 'Habilidad Arquero', 'Visión'],
+            datasets: [{
+                label: ' Puntos',
+                data: [
+                    playerData.velocidad,
+                    playerData.resistencia,
+                    playerData.pases,
+                    playerData.tiro,
+                    playerData.defensa,
+                    playerData.fuerza_cuerpo,
+                    playerData.control,
+                    playerData.habilidad_arquero,
+                    playerData.vision
+                ],
+                backgroundColor: 'rgba(0, 123, 255, 0.2)',
+                borderColor: 'rgba(0, 123, 255, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(0, 123, 255, 1)',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    max: currentScale,
+                    min: 0,
+                    ticks: {
+                        stepSize: currentScale === 5 ? 1 : 2
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
+// Variables para el modo de edición
+let isEditMode = false;
+let currentEditingPlayer = null;
+
 // Función para ver detalles del jugador
 function viewPlayer(id) {
     const player = players.find(p => p.id === id);
     if (player) {
-        const details = document.getElementById('player-details');
-        const average = calculateAverage(player);
-        const lastModified = player.updated_at;
-
-        details.innerHTML = `
-            <p><strong>Nombre:</strong> ${player.name}</p>
-            <p><strong>Promedio General:</strong> ${average}/${currentScale}</p>
-            <p><strong>Última Modificación:</strong> ${formatDate(lastModified)}</p>
-            <br>
-            <h4>Habilidades Detalladas:</h4>
-            <p><strong>Velocidad:</strong> ${player.velocidad}</p>
-            <p><strong>Resistencia:</strong> ${player.resistencia}</p>
-            <p><strong>Pases:</strong> ${player.pases}</p>
-            <p><strong>Tiro:</strong> ${player.tiro}</p>
-            <p><strong>Defensa:</strong> ${player.defensa}</p>
-            <p><strong>Fuerza Cuerpo:</strong> ${player.fuerza_cuerpo}</p>
-            <p><strong>Control:</strong> ${player.control}</p>
-            <p><strong>Habilidad Arquero:</strong> ${player.habilidad_arquero}</p>
-            <p><strong>Visión:</strong> ${player.vision}</p>
-        `;
+        currentEditingPlayer = player;
+        isEditMode = false;
+        renderPlayerModal(player);
         document.getElementById('playerModal').style.display = 'block';
+    }
+}
+
+// Función para renderizar el modal del jugador
+function renderPlayerModal(player) {
+    const details = document.getElementById('player-details');
+    const average = calculateAverage(player);
+    const lastModified = player.updated_at;
+    const initial = player.name.charAt(0).toUpperCase();
+
+    details.innerHTML = `
+        <div class="player-detail-header">
+            <div class="player-detail-avatar">
+                <div class="avatar-initials">${initial}</div>
+            </div>
+            <div class="player-detail-info">
+                <h3>${player.name}</h3>
+                <p class="average-score">Promedio General: ${average}/${currentScale}</p>
+                <p class="last-modified">Última Modificación: ${formatDate(lastModified)}</p>
+            </div>
+        </div>
+        
+        <div class="chart-container-modal">
+            <canvas id="detail-chart-${player.id}" width="300" height="300"></canvas>
+        </div>
+        
+        <div id="view-mode" class="view-mode" style="display: ${isEditMode ? 'none' : 'block'}">
+            <div class="skills-detail-grid">
+                <div class="skill-detail-item">
+                    <span class="skill-detail-name">Velocidad</span>
+                    <span class="skill-detail-value">${player.velocidad}/${currentScale}</span>
+                </div>
+                <div class="skill-detail-item">
+                    <span class="skill-detail-name">Resistencia</span>
+                    <span class="skill-detail-value">${player.resistencia}/${currentScale}</span>
+                </div>
+                <div class="skill-detail-item">
+                    <span class="skill-detail-name">Pases</span>
+                    <span class="skill-detail-value">${player.pases}/${currentScale}</span>
+                </div>
+                <div class="skill-detail-item">
+                    <span class="skill-detail-name">Tiro</span>
+                    <span class="skill-detail-value">${player.tiro}/${currentScale}</span>
+                </div>
+                <div class="skill-detail-item">
+                    <span class="skill-detail-name">Defensa</span>
+                    <span class="skill-detail-value">${player.defensa}/${currentScale}</span>
+                </div>
+                <div class="skill-detail-item">
+                    <span class="skill-detail-name">Fuerza Cuerpo</span>
+                    <span class="skill-detail-value">${player.fuerza_cuerpo}/${currentScale}</span>
+                </div>
+                <div class="skill-detail-item">
+                    <span class="skill-detail-name">Control</span>
+                    <span class="skill-detail-value">${player.control}/${currentScale}</span>
+                </div>
+                <div class="skill-detail-item">
+                    <span class="skill-detail-name">Habilidad Arquero</span>
+                    <span class="skill-detail-value">${player.habilidad_arquero}/${currentScale}</span>
+                </div>
+                <div class="skill-detail-item">
+                    <span class="skill-detail-name">Visión</span>
+                    <span class="skill-detail-value">${player.vision}/${currentScale}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div id="edit-mode" class="edit-form" style="display: ${isEditMode ? 'block' : 'none'}">
+            <div class="form-group">
+                <label for="edit-player-name">Nombre del Jugador</label>
+                <input type="text" id="edit-player-name" value="${player.name}" />
+            </div>
+            
+            <div class="form-group">
+                <label>Habilidades (1-${currentScale})</label>
+                <div class="skills-edit-grid">
+                    <div class="skill-input">
+                        <label for="edit-velocidad">Velocidad</label>
+                        <input type="number" id="edit-velocidad" min="1" max="${currentScale}" value="${player.velocidad}" />
+                    </div>
+                    <div class="skill-input">
+                        <label for="edit-resistencia">Resistencia</label>
+                        <input type="number" id="edit-resistencia" min="1" max="${currentScale}" value="${player.resistencia}" />
+                    </div>
+                    <div class="skill-input">
+                        <label for="edit-pases">Pases</label>
+                        <input type="number" id="edit-pases" min="1" max="${currentScale}" value="${player.pases}" />
+                    </div>
+                    <div class="skill-input">
+                        <label for="edit-tiro">Tiro</label>
+                        <input type="number" id="edit-tiro" min="1" max="${currentScale}" value="${player.tiro}" />
+                    </div>
+                    <div class="skill-input">
+                        <label for="edit-defensa">Defensa</label>
+                        <input type="number" id="edit-defensa" min="1" max="${currentScale}" value="${player.defensa}" />
+                    </div>
+                    <div class="skill-input">
+                        <label for="edit-fuerza_cuerpo">Fuerza Cuerpo</label>
+                        <input type="number" id="edit-fuerza_cuerpo" min="1" max="${currentScale}" value="${player.fuerza_cuerpo}" />
+                    </div>
+                    <div class="skill-input">
+                        <label for="edit-control">Control</label>
+                        <input type="number" id="edit-control" min="1" max="${currentScale}" value="${player.control}" />
+                    </div>
+                    <div class="skill-input">
+                        <label for="edit-habilidad_arquero">Habilidad Arquero</label>
+                        <input type="number" id="edit-habilidad_arquero" min="1" max="${currentScale}" value="${player.habilidad_arquero}" />
+                    </div>
+                    <div class="skill-input">
+                        <label for="edit-vision">Visión</label>
+                        <input type="number" id="edit-vision" min="1" max="${currentScale}" value="${player.vision}" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal-actions">
+            <button class="btn btn-primary" id="edit-btn" onclick="toggleEditMode()" style="display: ${isEditMode ? 'none' : 'flex'}">
+                ✏️ Editar
+            </button>
+            <button class="btn btn-primary" id="save-btn" onclick="savePlayerEdits()" style="display: ${isEditMode ? 'flex' : 'none'}">
+                💾 Guardar
+            </button>
+            <button class="btn btn-secondary" id="cancel-btn" onclick="cancelEdit()" style="display: ${isEditMode ? 'flex' : 'none'}">
+                ❌ Cancelar
+            </button>
+            <button class="btn btn-danger" onclick="deletePlayerFromModal(${player.id})">
+                🗑️ Eliminar
+            </button>
+        </div>
+    `;
+    
+    // Crear el radar chart después de que el elemento esté en el DOM
+    setTimeout(() => {
+        createRadarChart(`detail-chart-${player.id}`, player);
+    }, 100);
+}
+
+// Función para toggle entre modo vista y edición
+function toggleEditMode() {
+    isEditMode = true;
+    renderPlayerModal(currentEditingPlayer);
+}
+
+// Función para cancelar la edición
+function cancelEdit() {
+    isEditMode = false;
+    renderPlayerModal(currentEditingPlayer);
+}
+
+// Función para guardar los cambios del jugador
+async function savePlayerEdits() {
+    try {
+        const playerData = {
+            id: currentEditingPlayer.id,
+            name: document.getElementById('edit-player-name').value.trim(),
+            velocidad: parseInt(document.getElementById('edit-velocidad').value),
+            resistencia: parseInt(document.getElementById('edit-resistencia').value),
+            pases: parseInt(document.getElementById('edit-pases').value),
+            tiro: parseInt(document.getElementById('edit-tiro').value),
+            defensa: parseInt(document.getElementById('edit-defensa').value),
+            fuerza_cuerpo: parseInt(document.getElementById('edit-fuerza_cuerpo').value),
+            control: parseInt(document.getElementById('edit-control').value),
+            habilidad_arquero: parseInt(document.getElementById('edit-habilidad_arquero').value),
+            vision: parseInt(document.getElementById('edit-vision').value),
+            club_id: currentEditingPlayer.club_id || null
+        };
+
+        if (!playerData.name) {
+            alert('El nombre del jugador es obligatorio');
+            return;
+        }
+
+        await savePlayer(playerData);
+        closeModal();
+    } catch (error) {
+        alert('Error al guardar los cambios: ' + error.message);
+    }
+}
+
+// Función para eliminar jugador desde el modal
+async function deletePlayerFromModal(id) {
+    const player = players.find(p => p.id === id);
+    if (player && confirm(`¿Estás seguro de que quieres eliminar a ${player.name}?`)) {
+        try {
+            const scale = currentScale === 5 ? '1-5' : '1-10';
+            const response = await fetch(`/api/players/${id}?scale=${scale}`, {
+                method: 'DELETE',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            
+            if (!response.ok) throw new Error(`Error ${response.status}`);
+            
+            closeModal();
+            await loadPlayers(); // Recargar la lista
+        } catch (error) {
+            alert('Error al eliminar el jugador: ' + error.message);
+        }
     }
 }
 
 // Función para cerrar modal
 function closeModal() {
+    // Limpiar cualquier chart existente
+    const details = document.getElementById('player-details');
+    const canvases = details.querySelectorAll('canvas');
+    canvases.forEach(canvas => {
+        const chart = Chart.getChart(canvas);
+        if (chart) {
+            chart.destroy();
+        }
+    });
+    
+    // Resetear modo de edición
+    isEditMode = false;
+    currentEditingPlayer = null;
+    
     document.getElementById('playerModal').style.display = 'none';
 }
 
@@ -185,56 +433,6 @@ async function savePlayer(playerData) {
         await loadPlayers(); // Recargar la lista
     } catch (error) {
         alert('Error al guardar el jugador: ' + error.message);
-    }
-}
-
-// Función para editar un jugador
-function editPlayer(id) {
-    const player = players.find(p => p.id === id);
-    if (player) {
-        // Por ahora simulamos con prompts hasta que implementemos el modal completo
-        // TODO: Implementar modal completo con todas las habilidades
-        const newName = prompt('Editar nombre:', player.name);
-        
-        if (newName && newName.trim()) {
-            const playerData = {
-                id: player.id,
-                name: newName.trim(),
-                velocidad: player.velocidad,
-                resistencia: player.resistencia,
-                pases: player.pases,
-                tiro: player.tiro,
-                defensa: player.defensa,
-                fuerza_cuerpo: player.fuerza_cuerpo,
-                control: player.control,
-                habilidad_arquero: player.habilidad_arquero,
-                vision: player.vision,
-                club_id: player.club_id || null // Mantener club_id si existe
-            };
-            
-            savePlayer(playerData);
-        }
-    }
-}
-
-// Función para eliminar un jugador
-async function deletePlayer(id) {
-    const player = players.find(p => p.id === id);
-    if (player && confirm(`¿Estás seguro de que quieres eliminar a ${player.name}?`)) {
-        try {
-            // Usar endpoint unificado con parámetro de escala
-            const scale = currentScale === 5 ? '1-5' : '1-10';
-            const response = await fetch(`/api/players/${id}?scale=${scale}`, {
-                method: 'DELETE',
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' }
-            });
-            
-            if (!response.ok) throw new Error(`Error ${response.status}`);
-            await loadPlayers(); // Recargar la lista
-        } catch (error) {
-            alert('Error al eliminar el jugador: ' + error.message);
-        }
     }
 }
 
