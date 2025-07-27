@@ -3,6 +3,8 @@ let currentScale = 5;
 
 // Variables globales
 let players = [];
+let filteredPlayers = []; // Nueva variable para jugadores filtrados
+let searchTerm = ''; // Nueva variable para el término de búsqueda
 let loading = false;
 
 // Variables para ordenamiento
@@ -40,10 +42,44 @@ function sortPlayers(column) {
         currentSort.direction = 'asc';
     }
     
-    players.sort((a, b) => {
+    // Aplicar ordenamiento a los jugadores filtrados
+    applySortToFilteredPlayers();
+    
+    loading = false; // Asegurar que no esté en estado de loading
+    renderPlayers();
+}
+
+// Función para cargar jugadores desde el backend
+async function loadPlayers() {
+    await loadPlayersForContext(currentClubId);
+}
+
+// Función para filtrar jugadores por nombre
+function filterPlayers() {
+    const searchInput = document.getElementById('player-search');
+    searchTerm = searchInput.value.toLowerCase().trim();
+    
+    if (searchTerm === '') {
+        // Si no hay término de búsqueda, mostrar todos los jugadores
+        filteredPlayers = [...players];
+    } else {
+        // Filtrar jugadores por nombre
+        filteredPlayers = players.filter(player => 
+            player.name.toLowerCase().includes(searchTerm)
+        );
+    }
+    
+    // Aplicar ordenamiento a los jugadores filtrados
+    applySortToFilteredPlayers();
+    renderPlayers();
+}
+
+// Función para aplicar ordenamiento a jugadores filtrados
+function applySortToFilteredPlayers() {
+    filteredPlayers.sort((a, b) => {
         let valueA, valueB;
         
-        switch (column) {
+        switch (currentSort.column) {
             case 'name':
                 valueA = a.name.toLowerCase();
                 valueB = b.name.toLowerCase();
@@ -68,14 +104,6 @@ function sortPlayers(column) {
         }
         return 0;
     });
-    
-    loading = false; // Asegurar que no esté en estado de loading
-    renderPlayers();
-}
-
-// Función para cargar jugadores desde el backend
-async function loadPlayers() {
-    await loadPlayersForContext(currentClubId);
 }
 
 // Función para renderizar la lista de jugadores
@@ -97,20 +125,32 @@ function renderPlayers() {
     
     playersList.innerHTML = '';
 
-    if (players.length === 0) {
+    // Usar filteredPlayers en lugar de players
+    const playersToShow = filteredPlayers.length > 0 || searchTerm === '' ? filteredPlayers : [];
+    
+    if (playersToShow.length === 0) {
         const contextName = currentClubId === 'my-players' ? 'personales' : 
                           userClubs.find(club => club.id == currentClubId)?.name || 'de este club';
         
+        // Mostrar mensaje diferente si es por búsqueda o por falta de jugadores
+        const message = searchTerm !== '' ? 
+            `🔍 No se encontraron jugadores con "${searchTerm}"` :
+            `👤 No hay jugadores en ${contextName}`;
+        
+        const subMessage = searchTerm !== '' ?
+            'Intenta con otro término de búsqueda' :
+            '¡Agrega tu primer jugador para comenzar!';
+        
         playersList.innerHTML = `
             <div style="text-align: center; padding: 40px;">
-                <div style="font-size: 18px; color: #aaa; margin-bottom: 10px;">👤 No hay jugadores en ${contextName}</div>
-                <div style="font-size: 14px; color: #666;">¡Agrega tu primer jugador para comenzar!</div>
+                <div style="font-size: 18px; color: #aaa; margin-bottom: 10px;">${message}</div>
+                <div style="font-size: 14px; color: #666;">${subMessage}</div>
             </div>
         `;
         return;
     }
 
-    players.forEach(player => {
+    playersToShow.forEach(player => {
         const playerRow = document.createElement('div');
         playerRow.className = 'player-row';
         playerRow.onclick = () => viewPlayer(player.id);
@@ -797,9 +837,21 @@ async function loadPlayersForContext(contextId) {
         if (!response.ok) throw new Error(`Error ${response.status}`);
         players = await response.json();
         
+        // Inicializar jugadores filtrados con todos los jugadores
+        filteredPlayers = [...players];
+        
+        // Limpiar el buscador cuando cambia el contexto
+        const searchInput = document.getElementById('player-search');
+        if (searchInput) {
+            searchInput.value = '';
+            searchTerm = '';
+        }
+        
         // Aplicar ordenamiento actual
         if (players.length > 0) {
-            sortPlayers(currentSort.column);
+            applySortToFilteredPlayers();
+            loading = false;
+            renderPlayers();
         } else {
             loading = false;
             renderPlayers();
@@ -807,6 +859,8 @@ async function loadPlayersForContext(contextId) {
     } catch (error) {
         loading = false;
         console.error('Error loading players for context:', error);
+        players = [];
+        filteredPlayers = [];
         renderPlayers(); // Mostrar error
     }
 }
