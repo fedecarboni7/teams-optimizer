@@ -612,40 +612,216 @@ function closeModal() {
 
 // Función para agregar un jugador
 function addPlayer() {
-    openPlayerModal();
+    openCreatePlayerModal();
 }
 
-// Función para abrir modal de edición/creación
-function openPlayerModal() {
-    // Por ahora simulamos con prompt hasta que implementemos el modal completo
-    // TODO: Implementar modal completo con todas las habilidades
-    const name = prompt('Ingresa el nombre del jugador:');
-    if (name && name.trim()) {
-        // Valores por defecto según la escala
-        const defaultValue = currentScale === 5 ? 3 : 5;
+// Función para abrir modal de creación de jugador
+function openCreatePlayerModal() {
+    const modal = document.getElementById('createPlayerModal');
+    const formContainer = document.getElementById('create-player-form');
+    
+    // Valores por defecto según la escala
+    const defaultValue = currentScale === 5 ? 3 : 5;
+    
+    formContainer.innerHTML = `
+        <div class="form-group">
+            <label for="create-player-name">Nombre del Jugador</label>
+            <input type="text" id="create-player-name" placeholder="Ingresa el nombre del jugador" required />
+        </div>
         
-        const playerData = {
-            name: name.trim(),
-            velocidad: defaultValue,
-            resistencia: defaultValue,
-            pases: defaultValue,
-            tiro: defaultValue,
-            defensa: defaultValue,
-            fuerza_cuerpo: defaultValue,
-            control: defaultValue,
-            habilidad_arquero: defaultValue,
-            vision: defaultValue
-        };
+        <div class="form-group">
+            <label>Habilidades (1-${currentScale})</label>
+            <div class="skills-edit-grid">
+                <div class="skill-input">
+                    <label for="create-velocidad">Velocidad</label>
+                    <input type="number" id="create-velocidad" min="1" max="${currentScale}" value="${defaultValue}" />
+                </div>
+                <div class="skill-input">
+                    <label for="create-resistencia">Resistencia</label>
+                    <input type="number" id="create-resistencia" min="1" max="${currentScale}" value="${defaultValue}" />
+                </div>
+                <div class="skill-input">
+                    <label for="create-pases">Pases</label>
+                    <input type="number" id="create-pases" min="1" max="${currentScale}" value="${defaultValue}" />
+                </div>
+                <div class="skill-input">
+                    <label for="create-tiro">Tiro</label>
+                    <input type="number" id="create-tiro" min="1" max="${currentScale}" value="${defaultValue}" />
+                </div>
+                <div class="skill-input">
+                    <label for="create-defensa">Defensa</label>
+                    <input type="number" id="create-defensa" min="1" max="${currentScale}" value="${defaultValue}" />
+                </div>
+                <div class="skill-input">
+                    <label for="create-fuerza_cuerpo">Fuerza Cuerpo</label>
+                    <input type="number" id="create-fuerza_cuerpo" min="1" max="${currentScale}" value="${defaultValue}" />
+                </div>
+                <div class="skill-input">
+                    <label for="create-control">Control</label>
+                    <input type="number" id="create-control" min="1" max="${currentScale}" value="${defaultValue}" />
+                </div>
+                <div class="skill-input">
+                    <label for="create-habilidad_arquero">Habilidad Arquero</label>
+                    <input type="number" id="create-habilidad_arquero" min="1" max="${currentScale}" value="${defaultValue}" />
+                </div>
+                <div class="skill-input">
+                    <label for="create-vision">Visión</label>
+                    <input type="number" id="create-vision" min="1" max="${currentScale}" value="${defaultValue}" />
+                </div>
+            </div>
+        </div>
         
-        if (currentClubId !== 'my-players') {
-            playerData.club_id = currentClubId;
-        }
-        else {
-            playerData.club_id = null;
-        }
+        <div class="modal-actions">
+            <button class="btn btn-primary" onclick="saveNewPlayer()">
+                💾 Crear Jugador
+            </button>
+            <button class="btn btn-secondary" onclick="closeCreateModal()">
+                ❌ Cancelar
+            </button>
+        </div>
+    `;
+    
+    // Mostrar el modal
+    modal.style.display = 'block';
+    
+    // Agregar validación en tiempo real a los inputs
+    addRealTimeValidation();
+    
+    // Enfocar en el campo de nombre
+    setTimeout(() => {
+        document.getElementById('create-player-name').focus();
+    }, 100);
+}
 
-        savePlayer(playerData);
+// Función para agregar validación en tiempo real
+function addRealTimeValidation() {
+    const skillInputs = ['velocidad', 'resistencia', 'pases', 'tiro', 'defensa', 'fuerza_cuerpo', 'control', 'habilidad_arquero', 'vision'];
+    
+    skillInputs.forEach(skill => {
+        const input = document.getElementById(`create-${skill}`);
+        if (input) {
+            // Validar al cambiar el valor
+            input.addEventListener('input', function() {
+                let value = parseInt(this.value);
+                
+                // Corregir valores fuera del rango
+                if (value < 1) {
+                    this.value = 1;
+                } else if (value > currentScale) {
+                    this.value = currentScale;
+                }
+                
+                // Eliminar clase de error si el valor es válido
+                if (value >= 1 && value <= currentScale) {
+                    this.classList.remove('error');
+                } else {
+                    this.classList.add('error');
+                }
+            });
+            
+            // Validar al perder el foco
+            input.addEventListener('blur', function() {
+                let value = parseInt(this.value);
+                if (isNaN(value) || value < 1) {
+                    this.value = 1;
+                } else if (value > currentScale) {
+                    this.value = currentScale;
+                }
+            });
+        }
+    });
+    
+    // Validación del nombre
+    const nameInput = document.getElementById('create-player-name');
+    if (nameInput) {
+        nameInput.addEventListener('input', function() {
+            if (this.value.trim().length < 2) {
+                this.classList.add('error');
+            } else {
+                this.classList.remove('error');
+            }
+        });
     }
+}
+
+// Función para guardar nuevo jugador
+async function saveNewPlayer() {
+    const name = document.getElementById('create-player-name').value.trim();
+    
+    // Validar nombre
+    if (!name || name.length < 2) {
+        alert('Por favor ingresa un nombre válido (mínimo 2 caracteres)');
+        document.getElementById('create-player-name').focus();
+        return;
+    }
+    
+    // Recopilar datos del formulario
+    const playerData = {
+        name: name,
+        velocidad: parseInt(document.getElementById('create-velocidad').value),
+        resistencia: parseInt(document.getElementById('create-resistencia').value),
+        pases: parseInt(document.getElementById('create-pases').value),
+        tiro: parseInt(document.getElementById('create-tiro').value),
+        defensa: parseInt(document.getElementById('create-defensa').value),
+        fuerza_cuerpo: parseInt(document.getElementById('create-fuerza_cuerpo').value),
+        control: parseInt(document.getElementById('create-control').value),
+        habilidad_arquero: parseInt(document.getElementById('create-habilidad_arquero').value),
+        vision: parseInt(document.getElementById('create-vision').value)
+    };
+    
+    // Validar todas las habilidades
+    const skillKeys = ['velocidad', 'resistencia', 'pases', 'tiro', 'defensa', 'fuerza_cuerpo', 'control', 'habilidad_arquero', 'vision'];
+    for (let skill of skillKeys) {
+        const value = playerData[skill];
+        if (isNaN(value) || value < 1 || value > currentScale) {
+            alert(`La habilidad ${skill} debe estar entre 1 y ${currentScale}`);
+            return;
+        }
+    }
+    
+    // Agregar club_id según el contexto
+    if (currentClubId !== 'my-players') {
+        playerData.club_id = currentClubId;
+    } else {
+        playerData.club_id = null;
+    }
+    
+    try {
+        const scale = currentScale === 5 ? '1-5' : '1-10';
+        const response = await fetch(`/api/player?scale=${scale}`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(playerData)
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || `Error ${response.status}`);
+        }
+        
+        // Cerrar modal y recargar lista
+        closeCreateModal();
+        await loadPlayers();
+        
+        // Mostrar mensaje de éxito
+        showSuccessMessage('Jugador creado exitosamente');
+        
+    } catch (error) {
+        alert('Error al crear el jugador: ' + error.message);
+    }
+}
+
+// Función para cerrar modal de creación
+function closeCreateModal() {
+    const modal = document.getElementById('createPlayerModal');
+    modal.style.display = 'none';
+}
+
+// Función para abrir modal de edición/creación (función legacy mantenida por compatibilidad)
+function openPlayerModal() {
+    // Redirigir a la nueva función de creación
+    openCreatePlayerModal();
 }
 
 // Función para guardar jugador
@@ -707,8 +883,14 @@ function navigateTo(page) {
 // Cerrar modal al hacer clic fuera
 window.onclick = function(event) {
     const modal = document.getElementById('playerModal');
+    const createModal = document.getElementById('createPlayerModal');
+    
     if (event.target === modal) {
         closeModal();
+    }
+    
+    if (event.target === createModal) {
+        closeCreateModal();
     }
 }
 

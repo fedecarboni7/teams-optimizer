@@ -671,6 +671,25 @@ body {
     border-color: #dc3545;
 }
 
+.form-group input.error {
+    border-color: #dc3545 !important;
+    background-color: rgba(220, 53, 69, 0.1) !important;
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2);
+}
+
+.form-group input.error:focus {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.3);
+}
+
+.form-group input:required {
+    border-left: 3px solid #007bff;
+}
+
+.form-group input:required:invalid {
+    border-left: 3px solid #dc3545;
+}
+
 .form-group input[type="number"] {
     appearance: textfield;
     -moz-appearance: textfield;
