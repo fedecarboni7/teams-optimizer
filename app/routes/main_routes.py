@@ -30,7 +30,7 @@ async def players_page(
     if not current_user:
         return RedirectResponse("/login", status_code=302)
     
-    return templates.TemplateResponse(request=request, name="players_v2.html", context={
+    return templates.TemplateResponse(request=request, name="players.html", context={
         "request": request,
         "user": current_user
     })
