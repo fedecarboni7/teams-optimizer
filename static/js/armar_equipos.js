@@ -1,306 +1,223 @@
-let selectedPlayers = [];
-let teamsData = [];
-let currentTeamOption = 0;
+// Mock data - simulating API response
+const mockPlayers = [
+    { name: "Añay", rating: 75 },
+    { name: "Dani Rincón", rating: 75 },
+    { name: "Eze Blanco", rating: 75 },
+    { name: "Nano", rating: 75 },
+    { name: "Fede", rating: 75 },
+    { name: "Fede H", rating: 75 },
+    { name: "Gastón", rating: 75 },
+    { name: "Kim", rating: 75 },
+    { name: "Lucas", rating: 75 },
+    { name: "Mati", rating: 75 },
+    { name: "Mike", rating: 72 }
+];
+
 let players = [];
+let selectedPlayers = new Set();
+let teamA = [];
+let teamB = [];
+let availablePlayers = [];
+let filteredPlayers = [];
 
-// Función para cargar jugadores desde el backend
-async function loadPlayers() {
+// Initialize app
+async function init() {
     try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const clubId = urlParams.get('club_id');
-        const scale = urlParams.get('scale') || '1-5';
-        
-        const data = await TeamsAPI.getPlayers(clubId, scale);
-        players = data.players;
-        renderAvailablePlayers();
+        // Simulate API call
+        await loadPlayers();
+        setupEventListeners();
+        renderPlayers();
+        updateManualMode();
     } catch (error) {
-        console.error('Error al cargar jugadores:', error);
-        showError('Error al cargar la lista de jugadores');
+        console.error('Error initializing app:', error);
     }
 }
 
-// Función para mostrar errores
-function showError(message) {
-    const container = document.getElementById('availablePlayers');
-    container.innerHTML = `<div class="error">${message}</div>`;
+// Simulate API call to load players
+async function loadPlayers() {
+    // Simulating network delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    players = [...mockPlayers];
+    filteredPlayers = [...players];
+    availablePlayers = [...players];
 }
 
-// Función para calcular el promedio de habilidades
-function calculateAverage(player) {
-    const skills = [
-        player.velocidad, player.resistencia, player.control,
-        player.pases, player.tiro, player.defensa,
-        player.habilidad_arquero, player.fuerza_cuerpo, player.vision
-    ];
-    return Math.round(skills.reduce((a, b) => a + b, 0) / skills.length);
-}
+function setupEventListeners() {
+    // Mode selector
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            
+            const mode = e.target.dataset.mode;
+            document.getElementById('automatic-mode').classList.toggle('hidden', mode !== 'automatic');
+            document.getElementById('manual-mode').classList.toggle('hidden', mode !== 'manual');
+        });
+    });
 
-// Función para renderizar jugadores disponibles
-function renderAvailablePlayers() {
-    const container = document.getElementById('availablePlayers');
-    container.innerHTML = '';
-
-    if (players.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: #666;">No hay jugadores disponibles</p>';
-        return;
-    }
-
-    players.forEach(player => {
-        const isSelected = selectedPlayers.some(p => p.id === player.id);
-        const average = calculateAverage(player);
-        
-        const playerCard = document.createElement('div');
-        playerCard.className = `player-card ${isSelected ? 'selected' : ''}`;
-        playerCard.onclick = () => togglePlayer(player);
-        
-        playerCard.innerHTML = `
-            <div class="player-info">
-                <div class="player-avatar">
-                    ${'👤'}
-                </div>
-                <div class="player-details">
-                    <h4>${player.name}</h4>
-                    <p>Promedio: ${average}/10</p>
-                </div>
-            </div>
-            <div class="skills-mini">
-                <div class="skill-mini">
-                    <div>Vel</div>
-                    <div>${player.velocidad}</div>
-                </div>
-                <div class="skill-mini">
-                    <div>Res</div>
-                    <div>${player.resistencia}</div>
-                </div>
-                <div class="skill-mini">
-                    <div>Con</div>
-                    <div>${player.control}</div>
-                </div>
-                <div class="skill-mini">
-                    <div>Pas</div>
-                    <div>${player.pases}</div>
-                </div>
-                <div class="skill-mini">
-                    <div>Tir</div>
-                    <div>${player.tiro}</div>
-                </div>
-                <div class="skill-mini">
-                    <div>Def</div>
-                    <div>${player.defensa}</div>
-                </div>
-                <div class="skill-mini">
-                    <div>Arq</div>
-                    <div>${player.habilidad_arquero}</div>
-                </div>
-                <div class="skill-mini">
-                    <div>Fue</div>
-                    <div>${player.fuerza_cuerpo}</div>
-                </div>
-                <div class="skill-mini">
-                    <div>Vis</div>
-                    <div>${player.vision}</div>
-                </div>
-            </div>
-        `;
-        
-        container.appendChild(playerCard);
+    // Search functionality
+    document.getElementById('search-input').addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        filteredPlayers = players.filter(player => 
+            player.name.toLowerCase().includes(searchTerm)
+        );
+        renderPlayers();
     });
 }
 
-// Función para togglear selección de jugador
-function togglePlayer(player) {
-    const index = selectedPlayers.findIndex(p => p.id === player.id);
-    
-    if (index === -1) {
-        selectedPlayers.push(player);
+function renderPlayers() {
+    const playersList = document.getElementById('players-list');
+    playersList.innerHTML = '';
+
+    filteredPlayers.forEach(player => {
+        const playerItem = document.createElement('div');
+        playerItem.className = 'player-item';
+        
+        const isSelected = selectedPlayers.has(player.name);
+        
+        playerItem.innerHTML = `
+            <div class="player-info">
+                <div class="checkbox ${isSelected ? 'checked' : ''}" data-player="${player.name}"></div>
+                <span class="player-name">${player.name}</span>
+            </div>
+            <span class="player-rating">${player.rating}</span>
+        `;
+        
+        // Add click event to checkbox
+        const checkbox = playerItem.querySelector('.checkbox');
+        checkbox.addEventListener('click', (e) => {
+            e.stopPropagation();
+            togglePlayerSelection(player.name);
+        });
+        
+        playersList.appendChild(playerItem);
+    });
+
+    updatePlayersCount();
+}
+
+function togglePlayerSelection(playerName) {
+    if (selectedPlayers.has(playerName)) {
+        selectedPlayers.delete(playerName);
     } else {
-        selectedPlayers.splice(index, 1);
+        selectedPlayers.add(playerName);
     }
-    
-    updateSelectedDisplay();
+    renderPlayers();
+}
+
+function updatePlayersCount() {
+    const count = selectedPlayers.size;
+    document.getElementById('players-count').textContent = `Seleccionados: ${count} players`;
+}
+
+// Manual mode functions
+function updateManualMode() {
     renderAvailablePlayers();
+    renderTeamPlayers();
+    updateTeamCounts();
 }
 
-// Función para actualizar la visualización de jugadores seleccionados
-function updateSelectedDisplay() {
-    const selectedList = document.getElementById('selectedList');
-    const playerCount = document.getElementById('playerCount');
-    const buildBtn = document.getElementById('buildTeamsBtn');
+function renderAvailablePlayers() {
+    const container = document.getElementById('available-players-list');
+    container.innerHTML = '';
+
+    availablePlayers.forEach(player => {
+        const playerDiv = document.createElement('div');
+        playerDiv.className = 'available-player';
+        playerDiv.innerHTML = `
+            <div class="player-info">
+                <span class="player-name">👤 ${player.name}</span>
+                <span class="player-rating">${player.rating}</span>
+            </div>
+            <div class="add-buttons">
+                <button class="add-btn" onclick="addToTeam('A', '${player.name}')">+</button>
+                <button class="add-btn team-b" onclick="addToTeam('B', '${player.name}')">+</button>
+            </div>
+        `;
+        container.appendChild(playerDiv);
+    });
+}
+
+function renderTeamPlayers() {
+    renderTeam('A', teamA, 'team-a-players');
+    renderTeam('B', teamB, 'team-b-players');
+}
+
+function renderTeam(teamName, team, containerId) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+
+    team.forEach(player => {
+        const playerDiv = document.createElement('div');
+        playerDiv.className = 'team-player';
+        playerDiv.innerHTML = `
+            <div class="player-info">
+                <span class="player-name">👤 ${player.name}</span>
+                <span class="player-rating">${player.rating}</span>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <button class="swap-btn" onclick="swapTeam('${teamName}', '${player.name}')">🔃</button>
+                <button class="remove-btn" onclick="removeFromTeam('${teamName}', '${player.name}')">−</button>
+            </div>
+        `;
+        container.appendChild(playerDiv);
+    });
+}
+
+function updateTeamCounts() {
+    document.getElementById('team-a-count').textContent = `${teamA.length} players`;
+    document.getElementById('team-b-count').textContent = `${teamB.length} players`;
+    document.getElementById('available-count').textContent = `${availablePlayers.length} players`;
+}
+
+function addToTeam(teamName, playerName) {
+    const player = availablePlayers.find(p => p.name === playerName);
+    if (!player) return;
+
+    if (teamName === 'A') {
+        teamA.push(player);
+    } else {
+        teamB.push(player);
+    }
+
+    availablePlayers = availablePlayers.filter(p => p.name !== playerName);
+    updateManualMode();
+}
+
+function removeFromTeam(teamName, playerName) {
+    let player;
     
-    playerCount.textContent = selectedPlayers.length;
-    buildBtn.disabled = selectedPlayers.length < 4; // Mínimo 4 jugadores para 2 equipos
-    
-    if (selectedPlayers.length === 0) {
-        selectedList.innerHTML = '<p style="color: #666; font-style: italic;">Selecciona jugadores de la lista</p>';
-        return;
+    if (teamName === 'A') {
+        player = teamA.find(p => p.name === playerName);
+        teamA = teamA.filter(p => p.name !== playerName);
+    } else {
+        player = teamB.find(p => p.name === playerName);
+        teamB = teamB.filter(p => p.name !== playerName);
+    }
+
+    if (player) {
+        availablePlayers.push(player);
+        availablePlayers.sort((a, b) => a.name.localeCompare(b.name));
     }
     
-    selectedList.innerHTML = selectedPlayers.map(player => `
-        <div class="selected-player">
-            <span>${player.name}</span>
-            <button class="remove-player" onclick="removePlayer(${player.id})">×</button>
-        </div>
-    `).join('');
+    updateManualMode();
 }
 
-// Función para remover jugador
-function removePlayer(playerId) {
-    selectedPlayers = selectedPlayers.filter(p => p.id !== playerId);
-    updateSelectedDisplay();
-    renderAvailablePlayers();
-}
-
-// Función para limpiar selección
-function clearSelection() {
-    selectedPlayers = [];
-    updateSelectedDisplay();
-    renderAvailablePlayers();
-    document.getElementById('teamsSection').classList.remove('show');
-}
-
-// Función para armar equipos
-async function buildTeams() {
-    const buildBtn = document.getElementById('buildTeamsBtn');
-    const teamsSection = document.getElementById('teamsSection');
+function swapTeam(currentTeam, playerName) {
+    let player;
     
-    buildBtn.disabled = true;
-    buildBtn.innerHTML = '<div class="spinner"></div> Armando equipos...';
-    
-    try {
-        const response = await callBuildTeamsAPI();
-        teamsData = response.teams;
-        currentTeamOption = 0;
-        
-        displayTeamsOptions();
-        displayTeams();
-        teamsSection.classList.add('show');
-        
-    } catch (error) {
-        console.error('Error al armar equipos:', error);
-        alert('Error al armar equipos. Por favor, intenta de nuevo.');
-    } finally {
-        buildBtn.disabled = false;
-        buildBtn.innerHTML = '🏆 Armar Equipos';
-    }
-}
-
-// Función para llamar al API de armar equipos
-async function callBuildTeamsAPI() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const clubId = urlParams.get('club_id');
-    const scale = urlParams.get('scale') || '1-5';
-    
-    const selectedPlayerIds = selectedPlayers.map(p => p.id);
-    
-    return await TeamsAPI.buildTeams(selectedPlayerIds, clubId, scale);
-}
-
-// Función para mostrar opciones de equipos
-function displayTeamsOptions() {
-    const optionsContainer = document.getElementById('teamsOptions');
-    
-    if (teamsData.length <= 1) {
-        optionsContainer.style.display = 'none';
-        return;
+    if (currentTeam === 'A') {
+        player = teamA.find(p => p.name === playerName);
+        teamA = teamA.filter(p => p.name !== playerName);
+        teamB.push(player);
+    } else {
+        player = teamB.find(p => p.name === playerName);
+        teamB = teamB.filter(p => p.name !== playerName);
+        teamA.push(player);
     }
     
-    optionsContainer.style.display = 'block';
-    optionsContainer.innerHTML = `
-        <h3 style="text-align: center; margin-bottom: 15px;">Opciones de Equipos</h3>
-        <div class="option-selector">
-            ${teamsData.map((_, index) => `
-                <button class="option-btn ${index === currentTeamOption ? 'active' : ''}" 
-                        onclick="selectTeamOption(${index})">
-                    Opción ${index + 1}
-                </button>
-            `).join('')}
-        </div>
-    `;
+    updateManualMode();
 }
 
-// Función para seleccionar opción de equipo
-function selectTeamOption(optionIndex) {
-    currentTeamOption = optionIndex;
-    displayTeamsOptions();
-    displayTeams();
-}
-
-// Función para mostrar equipos
-function displayTeams() {
-    const teamsDisplay = document.getElementById('teamsDisplay');
-    const currentTeams = teamsData[currentTeamOption];
-    
-    if (!currentTeams) return;
-    
-    teamsDisplay.innerHTML = `
-        <div class="teams-display">
-            <div class="team">
-                <h3>🔴 Equipo 1</h3>
-                ${renderTeam(currentTeams.team1)}
-            </div>
-            <div class="team">
-                <h3>🔵 Equipo 2</h3>
-                ${renderTeam(currentTeams.team2)}
-            </div>
-        </div>
-    `;
-}
-
-// Función para renderizar un equipo
-function renderTeam(teamPlayers) {
-    const teamStats = calculateTeamStats(teamPlayers);
-    
-    return `
-        <div class="team-stats">
-            <div class="stat-item">
-                <div class="stat-label">Promedio</div>
-                <div class="stat-value">${teamStats.average}</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-label">Ataque</div>
-                <div class="stat-value">${teamStats.attack}</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-label">Defensa</div>
-                <div class="stat-value">${teamStats.defense}</div>
-            </div>
-        </div>
-        <div class="team-players">
-            ${teamPlayers.map(player => `
-                <div class="team-player">
-                    <div class="team-player-avatar">
-                        ${'👤'}
-                    </div>
-                    <div class="team-player-info">
-                        <div class="team-player-name">${player.name}</div>
-                        <div class="team-player-skills">
-                            Prom: ${calculateAverage(player)} | 
-                            Tir: ${player.tiro} | 
-                            Def: ${player.defensa} | 
-                            Pas: ${player.pases}
-                        </div>
-                    </div>
-                </div>
-            `).join('')}
-        </div>
-    `;
-}
-
-// Función para calcular estadísticas del equipo
-function calculateTeamStats(teamPlayers) {
-    const averages = teamPlayers.map(calculateAverage);
-    const attacks = teamPlayers.map(p => (p.tiro + p.velocidad + p.control) / 3);
-    const defenses = teamPlayers.map(p => (p.defensa + p.fuerza_cuerpo + p.resistencia) / 3);
-    
-    return {
-        average: Math.round(averages.reduce((a, b) => a + b, 0) / averages.length),
-        attack: Math.round(attacks.reduce((a, b) => a + b, 0) / attacks.length),
-        defense: Math.round(defenses.reduce((a, b) => a + b, 0) / defenses.length)
-    };
-}
-
-// Inicializar la aplicación
-document.addEventListener('DOMContentLoaded', function() {
-    loadPlayers();
-    updateSelectedDisplay();
-});
+// Initialize app when DOM is loaded
+document.addEventListener('DOMContentLoaded', init);
