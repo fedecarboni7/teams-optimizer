@@ -513,3 +513,15 @@ function toggleSort() {
     playersContainer.innerHTML = '';
     players.forEach(player => playersContainer.appendChild(player));
 }
+
+function navigateTo(page) {
+    const routes = {
+        'jugadores': '/jugadores',
+        'equipos': '/armar_equipos',
+        'configuracion': '/profile'
+    };
+    
+    if (routes[page]) {
+        window.location.href = routes[page];
+    }
+}

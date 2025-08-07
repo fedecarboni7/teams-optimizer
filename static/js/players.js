@@ -856,30 +856,6 @@ function toggleSidebar() {
     }
 }
 
-// Función para navegación
-function navigateTo(page) {
-    // Actualizar elementos activos
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
-    });
-    event.target.classList.add('active');
-    
-    // Simular navegación
-    switch(page) {
-        case 'jugadores':
-            // Ya estamos en esta página
-            break;
-        case 'equipos':
-            alert('Función de "Armar Equipos" pendiente de implementación');
-            break;
-        case 'configuracion':
-            alert('Función de "Configuración" pendiente de implementación');
-            break;
-    }
-    
-    toggleSidebar();
-}
-
 // Cerrar modal al hacer clic fuera
 window.onclick = function(event) {
     const modal = document.getElementById('playerModal');
