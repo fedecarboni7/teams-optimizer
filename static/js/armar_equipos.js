@@ -393,6 +393,7 @@ function updateManualMode() {
     renderAvailablePlayers();
     renderTeamPlayers();
     updateTeamCounts();
+    renderManualComparison();
 }
 
 function renderAvailablePlayers() {
@@ -440,6 +441,122 @@ function renderTeam(teamName, team, containerId) {
         `;
         container.appendChild(playerDiv);
     });
+}
+
+// Renderizar gráficos de comparación en modo manual reutilizando el layout de results
+function renderManualComparison() {
+    // Crear contenedor si no existe
+    let comparison = document.getElementById('manual-comparison');
+    if (!comparison) {
+        const manualMode = document.getElementById('manual-mode');
+        comparison = document.createElement('div');
+        comparison.id = 'manual-comparison';
+        comparison.className = 'stats-container';
+        manualMode.appendChild(comparison);
+    }
+
+    // Si no hay jugadores en ambos equipos, ocultar
+    const teamSize = Math.min(teamA.length, teamB.length);
+    if (teamSize === 0) {
+        comparison.style.display = 'none';
+        comparison.innerHTML = '';
+        return;
+    }
+
+    // Construir tabla de habilidades y contenedores de gráficos como en results
+    const skills = [
+        ['velocidad', 'Velocidad'],
+        ['resistencia', 'Resistencia'],
+        ['control', 'Control'],
+        ['pases', 'Pases'],
+        ['fuerza_cuerpo', 'Fuerza cuerpo'],
+        ['habilidad_arquero', 'Hab. Arquero'],
+        ['defensa', 'Defensa'],
+        ['tiro', 'Tiro'],
+        ['vision', 'Visión'],
+    ];
+
+    // Calcular totales por equipo
+    const totalsA = Object.fromEntries(skills.map(([k]) => [k, 0]));
+    const totalsB = Object.fromEntries(skills.map(([k]) => [k, 0]));
+    teamA.forEach(p => skills.forEach(([k]) => totalsA[k] += p[k] || 0));
+    teamB.forEach(p => skills.forEach(([k]) => totalsB[k] += p[k] || 0));
+    const totalA = Object.values(totalsA).reduce((a,b)=>a+b,0);
+    const totalB = Object.values(totalsB).reduce((a,b)=>a+b,0);
+
+    comparison.style.display = 'block';
+    comparison.innerHTML = `
+        <div class="button-container">
+            <button type="button" id="mostrarDetallesManual" class="details-btn">
+                <i class="fas fa-chart-bar" style="padding-right: 5px;"></i>
+                <span>Mostrar detalles</span>
+            </button>
+        </div>
+        <div class="content-container" id="content-containerManual" data-players-count="${teamSize}" style="display: none;">
+            <div class="swiper">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                        <div class="table-container">
+                            <table id="skills-tableManual">
+                                <thead>
+                                    <tr>
+                                        <th>Habilidad</th>
+                                        <th>Equipo 1</th>
+                                        <th>Equipo 2</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${skills.map(([k, label]) => `
+                                        <tr>
+                                            <td>${label}</td>
+                                            <td>${totalsA[k]}</td>
+                                            <td>${totalsB[k]}</td>
+                                        </tr>
+                                    `).join('')}
+                                    <tr>
+                                        <td>Total</td>
+                                        <td>${totalA}</td>
+                                        <td>${totalB}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="chart-container">
+                            <canvas></canvas>
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="bar-chart-container">
+                            <canvas></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="swiper-button-prev"></div>
+                <div class="swiper-button-next"></div>
+            </div>
+        </div>
+    `;
+
+    // Wire up toggle
+    const btn = document.getElementById('mostrarDetallesManual');
+    btn.onclick = () => {
+        const container = document.getElementById('content-containerManual');
+        const textSpan = btn.querySelector('span');
+        if (container.style.display === 'none' || container.style.display === '') {
+            container.style.display = 'flex';
+            textSpan.textContent = 'Ocultar detalles';
+            // Pasar conteo de jugadores para escalar gráficos
+            container.dataset.playersCount = String(teamSize);
+            createRadarChart(container);
+            createBarChart(container);
+            createSwiper();
+        } else {
+            container.style.display = 'none';
+            textSpan.textContent = 'Mostrar detalles';
+        }
+    };
 }
 
 function updateTeamCounts() {
@@ -813,8 +930,8 @@ function displayTeamsResults(data) {
     resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
     
     // Initialize components that might be needed for the results view
-    if (typeof initializeSwiper === 'function') {
-        initializeSwiper();
+    if (typeof createSwiper === 'function') {
+        createSwiper();
     }
 }
 

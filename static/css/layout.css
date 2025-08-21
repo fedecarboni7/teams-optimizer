@@ -68,3 +68,18 @@
     justify-content: center;
     align-items: center;
 }
+
+/* Overrides for results/manual comparison tables inside stats-container */
+.stats-container .table-container {
+    width: 100%;
+    max-width: none;  /* use full available width */
+    padding: 16px;    /* remove huge side paddings */
+    overflow-x: auto; /* allow horizontal scroll if ever needed */
+    margin: 0 auto;   /* center within slide */
+    box-sizing: border-box;
+}
+
+.stats-container .table-container table {
+    width: 100%;
+    border-collapse: collapse;
+}

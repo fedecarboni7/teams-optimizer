@@ -14,10 +14,36 @@ body {
 }
 
 .container {
-    max-width: 800px;
+    max-width: 1128px; /* ancho cómodo de desktop */
     margin: 0 auto;
-    padding: 20px;
+    padding: 24px 24px;
     margin-top: 20px; /* Espacio para el navbar */
+}
+
+@media (min-width: 1280px) {
+    .container {
+        max-width: 1200px; /* ampliar un poco más en pantallas grandes */
+        padding-left: 32px;
+        padding-right: 32px;
+    }
+}
+
+/* Page-scoped overrides to guarantee wide layout on desktop */
+body.armar-equipos .container {
+    max-width: 1200px !important;
+    width: 100% !important;
+}
+
+/* Fix base body flex affecting width on this page */
+body.armar-equipos {
+    display: block !important; /* override base.css body flex */
+}
+
+/* Ensure results container follows the same width and centering */
+body.armar-equipos #teams-results {
+    width: 100%;
+    max-width: 1200px;
+    margin: 20px auto 0 auto;
 }
 
 h1 {
@@ -35,6 +61,10 @@ h1 {
     margin-bottom: 30px;
     border: 1px solid #555;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .mode-btn {
@@ -66,6 +96,10 @@ h1 {
     padding: 30px;
     border: 1px solid #404040;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .section-title {

@@ -6,22 +6,26 @@ document.addEventListener('DOMContentLoaded', function () {
     const toggleButton = document.getElementById('toggle-select-button');
     const checkboxes = document.querySelectorAll('input[name="selectedPlayers"]');
     
-    toggleButton.addEventListener('click', function () {
-        const checkboxes = document.querySelectorAll('input[name="selectedPlayers"]');
-        const allSelected = Array.from(checkboxes).every(checkbox => checkbox.checked);
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = !allSelected;
-        });
-        updateSelectedCount();
-        updateToggleButtonText();
-    });
-
-    checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function () {
+    if (toggleButton) {
+        toggleButton.addEventListener('click', function () {
+            const checkboxes = document.querySelectorAll('input[name="selectedPlayers"]');
+            const allSelected = Array.from(checkboxes).every(checkbox => checkbox.checked);
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = !allSelected;
+            });
             updateSelectedCount();
             updateToggleButtonText();
         });
-    });
+    }
+
+    if (checkboxes && checkboxes.length) {
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function () {
+                updateSelectedCount();
+                updateToggleButtonText();
+            });
+        });
+    }
     // Puntuar habilidades de los jugadores con sliders
     const sliderRatings = document.querySelectorAll('.slider-rating');
     
@@ -53,31 +57,34 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Inicializar el estado del botón de scroll al cargar la página
     const scrollButton = document.getElementById('scroll-button');
-    if (window.scrollY + window.innerHeight >= document.body.scrollHeight) {
-        scrollButton.style.display = 'none';
-    } else {
-        scrollButton.style.display = 'block';
+    if (scrollButton) {
+        if (window.scrollY + window.innerHeight >= document.body.scrollHeight) {
+            scrollButton.style.display = 'none';
+        } else {
+            scrollButton.style.display = 'block';
+        }
     }
 
     // Mostrar/Ocultar la lista de jugadores seleccionados al hacer clic en el botón flotante
     const floatingButton = document.getElementById('floating-button');
     const playersList = document.getElementById('selected-players-list');
+    if (floatingButton && playersList) {
+        floatingButton.addEventListener('click', function (event) {
+            event.stopPropagation();
+            if (playersList.style.display === 'block') {
+                playersList.style.display = 'none';
+            } else {
+                playersList.style.display = 'block';
+            }
+        });
 
-    floatingButton.addEventListener('click', function (event) {
-        event.stopPropagation();
-        if (playersList.style.display === 'block') {
-            playersList.style.display = 'none';
-        } else {
-            playersList.style.display = 'block';
-        }
-    });
-
-    // Cerrar la lista si se hace clic fuera de ella
-    document.addEventListener('click', function (event) {
-        if (!floatingButton.contains(event.target) && !playersList.contains(event.target)) {
-            playersList.style.display = 'none';
-        }
-    });
+        // Cerrar la lista si se hace clic fuera de ella
+        document.addEventListener('click', function (event) {
+            if (!floatingButton.contains(event.target) && !playersList.contains(event.target)) {
+                playersList.style.display = 'none';
+            }
+        });
+    }
 
     // Mostrar el pop-up si el usuario no lo ha visto
     const popup = document.getElementById("popup");
@@ -414,6 +421,9 @@ function scrollToSubmit() {
 window.addEventListener('scroll', function() {
     const scrollButton = document.getElementById('scroll-button');
     const submitBtn = document.getElementById('submitBtn');
+    if (!scrollButton || !submitBtn) {
+        return;
+    }
     const submitBtnPosition = submitBtn.getBoundingClientRect().top + window.scrollY;
     const windowBottom = window.scrollY + window.innerHeight;
 
