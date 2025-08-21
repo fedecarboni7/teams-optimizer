@@ -497,5 +497,326 @@ function swapTeam(currentTeam, playerName) {
     updateManualMode();
 }
 
+// Generate optimized teams function
+async function generateTeams() {
+    const generateBtn = document.querySelector('.generate-btn');
+    
+    // Validate that there are selected players
+    if (selectedPlayers.size < 4) {
+        alert('Necesitas seleccionar al menos 4 jugadores para armar equipos');
+        return;
+    }
+    
+    // Get player IDs from selected player names
+    const selectedPlayerIds = Array.from(selectedPlayers).map(playerName => {
+        const player = players.find(p => p.name === playerName);
+        return player ? player.id : null;
+    }).filter(id => id !== null);
+    
+    if (selectedPlayerIds.length !== selectedPlayers.size) {
+        alert('Error: No se pudieron encontrar algunos jugadores seleccionados');
+        return;
+    }
+    
+    // Show loading state
+    const originalText = generateBtn.innerHTML;
+    generateBtn.innerHTML = '⚽ Generando equipos...';
+    generateBtn.disabled = true;
+    
+    try {
+        // Prepare data for API call
+        const requestData = {
+            selected_player_ids: selectedPlayerIds,
+            club_id: currentClubId !== 'my-players' ? parseInt(currentClubId) : null,
+            scale: currentScale === 5 ? '1-5' : '1-10'
+        };
+        
+        // Call the backend API
+        const response = await fetch('/api/build-teams', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify(requestData)
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Error al generar equipos');
+        }
+        
+        const data = await response.json();
+        
+        // Transform API response to format expected by results template
+        const transformedData = transformTeamsData(data);
+        
+        // Render the results
+        displayTeamsResults(transformedData);
+        
+    } catch (error) {
+        console.error('Error generating teams:', error);
+        alert('Error al generar equipos: ' + error.message);
+    } finally {
+        // Restore button state
+        generateBtn.innerHTML = originalText;
+        generateBtn.disabled = false;
+    }
+}
+
+// Transform API response to format expected by results template
+function transformTeamsData(apiData) {
+    const teams = [];
+    const skills = {
+        "velocidad": "Velocidad", 
+        "resistencia": "Resistencia", 
+        "control": "Control", 
+        "pases": "Pases", 
+        "fuerza_cuerpo": "Fuerza cuerpo", 
+        "habilidad_arquero": "Hab. Arquero", 
+        "defensa": "Defensa", 
+        "tiro": "Tiro", 
+        "vision": "Visión"
+    };
+    
+    // Create player data dictionary for global access
+    window.playerDataDict = {};
+    
+    apiData.teams.forEach((teamOption, optionIndex) => {
+        // Process team 1
+        const team1Players = teamOption.team1.map(p => p.name);
+        const team1Skills = calculateTeamSkills(teamOption.team1);
+        teams.push([team1Players, team1Skills]);
+        
+        // Process team 2  
+        const team2Players = teamOption.team2.map(p => p.name);
+        const team2Skills = calculateTeamSkills(teamOption.team2);
+        teams.push([team2Players, team2Skills]);
+        
+        // Add players to global dictionary
+        [...teamOption.team1, ...teamOption.team2].forEach(player => {
+            window.playerDataDict[player.name] = {
+                id: player.id,
+                velocidad: player.velocidad,
+                resistencia: player.resistencia,
+                control: player.control,
+                pases: player.pases,
+                fuerza_cuerpo: player.fuerza_cuerpo,
+                habilidad_arquero: player.habilidad_arquero,
+                defensa: player.defensa,
+                tiro: player.tiro,
+                vision: player.vision
+            };
+        });
+    });
+    
+    // Store teams in global variable for other functions
+    window.teams = teams;
+    
+    return {
+        teams: teams,
+        skills: skills,
+        min_difference_total: apiData.difference,
+        len_teams: teams.length
+    };
+}
+
+// Calculate team skills totals and averages
+function calculateTeamSkills(teamPlayers) {
+    const teamSkills = {
+        "velocidad": {"total": 0, "avg": 0},
+        "resistencia": {"total": 0, "avg": 0},
+        "control": {"total": 0, "avg": 0},
+        "pases": {"total": 0, "avg": 0},
+        "tiro": {"total": 0, "avg": 0},
+        "defensa": {"total": 0, "avg": 0},
+        "habilidad_arquero": {"total": 0, "avg": 0},
+        "fuerza_cuerpo": {"total": 0, "avg": 0},
+        "vision": {"total": 0, "avg": 0}
+    };
+    
+    // Sum all skills
+    teamPlayers.forEach(player => {
+        Object.keys(teamSkills).forEach(skill => {
+            teamSkills[skill]["total"] += player[skill] || 0;
+        });
+    });
+    
+    // Calculate averages
+    const numPlayers = teamPlayers.length;
+    Object.keys(teamSkills).forEach(skill => {
+        teamSkills[skill]["avg"] = String(Math.round((teamSkills[skill]["total"] / numPlayers) * 100) / 100).replace(".", ",");
+    });
+    
+    // Calculate total skills
+    const totalSkills = Object.values(teamSkills).reduce((sum, skill) => sum + skill["total"], 0);
+    const avgSkills = String(Math.round((totalSkills / numPlayers) * 100) / 100).replace(".", ",");
+    
+    return [teamSkills, totalSkills, avgSkills];
+}
+
+// Display the teams results using the results template format
+function displayTeamsResults(data) {
+    const resultsContainer = document.getElementById('teams-results');
+    
+    // Generate HTML similar to results.html template
+    let html = `
+        <div class="results-section">
+            <h2>Resultados de Equipos Optimizados</h2>
+            <p>Diferencia mínima entre equipos: ${data.min_difference_total}</p>
+            <p>Mejores combinaciones posibles: ${Math.floor(data.len_teams / 2)}</p>
+            <hr>
+    `;
+    
+    // Generate team options
+    for (let i = 0; i < data.len_teams - 1; i += 2) {
+        const optionNumber = Math.floor(i / 2) + 1;
+        
+        if (data.len_teams > 2) {
+            html += `<p>Opción ${optionNumber}</p>`;
+        }
+        
+        html += `
+            <div id="popup" class="popup">
+                <div class="popup-content">
+                <button type="button" class="swap-button"><i class="fa-solid fa-right-left"></i></button>
+                <p>Ahora podés intercambiar jugadores entre equipos usando este botón y ver las nuevas estadísticas de cada equipo. Para restaurar la disposición óptima de los equipos, volvé a tocar el botón "Armar Equipos".</p>
+                <button id="closeButton">Cerrar</button>
+                </div>
+            </div>
+            <div class="team-container" id="resultados-equipos${optionNumber}">
+                <div class="team">
+                    <h2>Equipo 1</h2>
+                    <ul class="team-list" data-index="${i}">
+        `;
+        
+        // Add team 1 players
+        data.teams[i][0].forEach((player, index) => {
+            html += `
+                <li class="player-item">
+                    <span class="player-number">${index + 1}.</span>
+                    <span class="player-name">${player}</span>
+                    <button type="button" class="swap-button" onclick="swapPlayer('${player}', '${i}', '${i + 1}')"><i class="fa-solid fa-right-left"></i></button>
+                </li>
+            `;
+        });
+        
+        html += `
+                    </ul>
+                </div>
+                <div class="team">
+                    <h2>Equipo 2</h2>
+                    <ul class="team-list" data-index="${i + 1}">
+        `;
+        
+        // Add team 2 players
+        data.teams[i + 1][0].forEach((player, index) => {
+            html += `
+                <li class="player-item">
+                    <span class="player-number">${index + 1}.</span>
+                    <span class="player-name">${player}</span>
+                    <button type="button" class="swap-button" onclick="swapPlayer('${player}', '${i + 1}', '${i}')"><i class="fa-solid fa-right-left"></i></button>
+                </li>
+            `;
+        });
+        
+        html += `
+                    </ul>
+                </div>
+                <div class="stats-container">
+                    <div class="button-container">
+                        <button type="button" id="mostrarDetalles${optionNumber}" onclick="toggleStats(this)">
+                            <i class="fas fa-chart-bar" style="padding-right: 5px;"></i>
+                            <span>Mostrar detalles</span>
+                        </button>
+                        <button type="button" id="shareButton${optionNumber}" onclick="compartirEquipos(this)">
+                            <i class="fas fa-share" style="padding-right: 5px;"></i> Enviar equipos
+                        </button>
+                        <button type="button" id="generarFormaciones${optionNumber}" onclick="generarFormaciones(this)">
+                            <i class="fa-solid fa-wand-magic-sparkles" style="padding-right: 5px;"></i>
+                            Generar formaciones
+                        </button>
+                    </div>
+                    <div class="content-container" id="content-container${optionNumber}" style="display: none;">
+                        <!-- Slider main container -->
+                        <div class="swiper">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide">
+                                    <div class="table-container">
+                                        <table id="skills-table${optionNumber}">
+                                            <thead>
+                                                <tr>
+                                                    <th>Habilidad</th>
+                                                    <th>Equipo 1</th>
+                                                    <th>Equipo 2</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+        `;
+        
+        // Add skills rows
+        Object.entries(data.skills).forEach(([key, value]) => {
+            html += `
+                <tr>
+                    <td>${value}</td>
+                    <td>${data.teams[i][1][0][key]["total"]}</td>
+                    <td>${data.teams[i + 1][1][0][key]["total"]}</td>
+                </tr>
+            `;
+        });
+        
+        html += `
+                                                <tr>
+                                                    <td>Total</td>
+                                                    <td>${data.teams[i][1][1]}</td>
+                                                    <td>${data.teams[i + 1][1][1]}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="chart-container">
+                                        <canvas></canvas>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="bar-chart-container">
+                                        <canvas></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="swiper-button-prev"></div>
+                            <div class="swiper-button-next"></div>
+                        </div>
+                        <!-- Formations container -->
+                        <div id="formations-container${optionNumber}" style="display: none;">
+                            <div class="field-container">
+                                <div id="soccer-field${optionNumber}" class="soccer-field">
+                                    <!-- Players will be positioned here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    html += '</div>';
+    
+    // Set the HTML and show the results
+    resultsContainer.innerHTML = html;
+    resultsContainer.style.display = 'block';
+    
+    // Scroll to results
+    resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    
+    // Initialize components that might be needed for the results view
+    if (typeof initializeSwiper === 'function') {
+        initializeSwiper();
+    }
+}
+
 // Initialize app when DOM is loaded
 document.addEventListener('DOMContentLoaded', init);

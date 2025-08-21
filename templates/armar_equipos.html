@@ -9,9 +9,24 @@
     <link rel="icon" type="image/png" sizes="16x16" href="../static/favicon/favicon-16x16.png">
     <link rel="manifest" href="../static/favicon/site.webmanifest">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="/static/js/utils.js" defer></script>
     <script src="/static/js/ui.js" defer></script>
     <script src="/static/js/api.js" defer></script>
+    <script src="/static/js/teamLogic.js" defer></script>
+    <script src="/static/js/charts.js" defer></script>
+    <script src="/static/js/formations.js" defer></script>
     <script src="/static/js/armar_equipos.js" defer></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/base.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/components.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/pages.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/responsive.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/animations.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/utilities.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/formations.css">
     <link rel="stylesheet" type="text/css" href="/static/css/players.css">
     <link rel="stylesheet" type="text/css" href="/static/css/armar_equipos.css">
 </head>
@@ -121,6 +136,11 @@
                     <!-- Los jugadores disponibles se mostrarán aquí -->
                 </div>
             </div>
+        </div>
+        
+        <!-- Results container for generated teams -->
+        <div id="teams-results" style="display: none;">
+            <!-- Team results will be displayed here -->
         </div>
     </div>
 </body>
