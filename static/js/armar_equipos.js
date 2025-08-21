@@ -502,8 +502,8 @@ async function generateTeams() {
     const generateBtn = document.querySelector('.generate-btn');
     
     // Validate that there are selected players
-    if (selectedPlayers.size < 4) {
-        alert('Necesitas seleccionar al menos 4 jugadores para armar equipos');
+    if (selectedPlayers.size < 3) {
+        alert('Necesitas seleccionar al menos 3 jugadores para armar equipos');
         return;
     }
     

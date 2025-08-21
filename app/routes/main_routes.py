@@ -7,7 +7,7 @@ from requests import Session
 
 from app.config.config import templates
 from app.db.database import get_db
-from app.db.database_utils import execute_with_retries, query_club_members, query_clubs, query_players, query_players_v2, query_club_players, query_club_players_v2
+from app.db.database_utils import execute_with_retries, query_club_members, query_clubs, query_players
 from app.db.models import User
 from app.db.schemas import PlayerCreate
 from app.utils.ai_formations import create_formations

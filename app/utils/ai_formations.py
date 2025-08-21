@@ -1,66 +1,45 @@
 import asyncio
-import json
-import os
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.prompts import PromptTemplate
+from langchain_core.output_parsers import JsonOutputParser
 
-try:
-    if os.getenv("GOOGLE_API_KEY"):
-        from langchain_google_genai import ChatGoogleGenerativeAI
-        from langchain.prompts import PromptTemplate
-        from langchain_core.output_parsers import JsonOutputParser
-        
-        llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-lite")
-        AI_AVAILABLE = True
-    else:
-        AI_AVAILABLE = False
-        llm = None
-        PromptTemplate = None
-        JsonOutputParser = None
-except Exception:
-    AI_AVAILABLE = False
-    llm = None
-    PromptTemplate = None
-    JsonOutputParser = None
+llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-lite")
 
-# Only initialize AI components if available
-if AI_AVAILABLE:
-    # Define el template del prompt
-    prompt_template = PromptTemplate(
-        input_variables=["num_players", "team_data", "allowed_formations"],
-        template="""
-        Eres un entrenador experto especializado en equipos de fútbol de {num_players} jugadores.
-        Basándote en la habilidades de los jugadores listadas a continuación y en las formaciones permitidas con sus posiciones correspondientes, 
-        asigna una formación táctica óptima y posiciones a los jugadores.
+# Define el template del prompt
+prompt_template = PromptTemplate(
+    input_variables=["num_players", "team_data", "allowed_formations"],
+    template="""
+    Eres un entrenador experto especializado en equipos de fútbol de {num_players} jugadores.
+    Basándote en la habilidades de los jugadores listadas a continuación y en las formaciones permitidas con sus posiciones correspondientes, 
+    asigna una formación táctica óptima y posiciones a los jugadores.
 
-        Formaciones permitidas:
-        {allowed_formations}
-        
-        Habilidades de los jugadores:
-        {team_data}
+    Formaciones permitidas:
+    {allowed_formations}
+    
+    Habilidades de los jugadores:
+    {team_data}
 
-        Asigna una formación que maximice las fortalezas del equipo, en el siguiente formato JSON:
-        {{
-          "formation": "X-X-X",
-          "players": [
-            {{"position": "XX", "name": "Nombre del Jugador"}},
-            ...
-          ]
-        }}
+    Asigna una formación que maximice las fortalezas del equipo, en el siguiente formato JSON:
+    {{
+      "formation": "X-X-X",
+      "players": [
+        {{"position": "XX", "name": "Nombre del Jugador"}},
+        ...
+      ]
+    }}
 
-        Donde:
-        - "formation" es la formación asignada.
-        - "players" es una lista de jugadores con su número de camiseta y posición asignada.
-        - "position" es la abreviatura de la posición asignada al jugador.
-        - "name" es el nombre del jugador
+    Donde:
+    - "formation" es la formación asignada.
+    - "players" es una lista de jugadores con su número de camiseta y posición asignada.
+    - "position" es la abreviatura de la posición asignada al jugador.
+    - "name" es el nombre del jugador
 
-        Asegúrate de que la formación y las posiciones asignadas sean consistentes con las habilidades de los jugadores.
-        """
-    )
+    Asegúrate de que la formación y las posiciones asignadas sean consistentes con las habilidades de los jugadores.
+    """
+)
 
-    # Crea la cadena LLM
-    chain = prompt_template | llm | JsonOutputParser()
-else:
-    prompt_template = None
-    chain = None
+# Crea la cadena LLM
+chain = prompt_template | llm | JsonOutputParser()
 
 allowed_formations = {
     5: {
@@ -147,37 +126,6 @@ async def create_formations(players, teams, allowed_formations=allowed_formation
     Returns:
         formations (Dict): Un diccionario con las formaciones sugeridas para cada equipo.
     """
-    
-    if not AI_AVAILABLE:
-        # Return basic formations if AI is not available
-        formations = {'team1': {}, 'team2': {}}
-        
-        for i, team in enumerate(teams):
-            num_players = len(team[0])
-            team_key = f'team{i+1}'
-            
-            # Get the first available formation for this team size
-            if num_players in allowed_formations:
-                formation_name = list(allowed_formations[num_players].keys())[0]
-                formation_positions = allowed_formations[num_players][formation_name]
-                
-                formations[team_key] = {
-                    "formation": formation_name,
-                    "players": [
-                        {"position": formation_positions[j], "name": player}
-                        for j, player in enumerate(team[0])
-                    ]
-                }
-            else:
-                formations[team_key] = {
-                    "formation": "Unknown",
-                    "players": [
-                        {"position": "Unknown", "name": player}
-                        for player in team[0]
-                    ]
-                }
-        
-        return formations
     
     formations = {'team1': {}, 'team2': {}}
 
