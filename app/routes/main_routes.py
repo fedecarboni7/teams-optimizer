@@ -55,15 +55,9 @@ async def get_form(
     
     try:
         if not club_id:
-            if scale == "1-10":
-                players = execute_with_retries(query_players_v2, db, current_user_id)
-            else:
-                players = execute_with_retries(query_players, db, current_user_id)
+            players = execute_with_retries(query_players, db, current_user_id, scale=scale)
         elif club_id in clubs_ids:
-            if scale == "1-10":
-                players = execute_with_retries(query_club_players_v2, db, club_id)
-            else:
-                players = execute_with_retries(query_club_players, db, club_id)
+            players = execute_with_retries(query_players, db, current_user_id, club_id, scale=scale)
             # Obtener los miembros del club actual y sus roles
             club_members = execute_with_retries(query_club_members, db, club_id)
             # Convertir a diccionario para el template
@@ -143,15 +137,9 @@ async def submit_form(
     # Get player data for selected players
     try:
         if club_id:
-            if scale == "1-10":
-                existing_players = execute_with_retries(query_club_players_v2, db, club_id)
-            else:
-                existing_players = execute_with_retries(query_club_players, db, club_id)
+            existing_players = execute_with_retries(query_players, db, current_user_id, club_id, scale)
         else:
-            if scale == "1-10":
-                existing_players = execute_with_retries(query_players_v2, db, current_user_id)
-            else:
-                existing_players = execute_with_retries(query_players, db, current_user_id)
+            existing_players = execute_with_retries(query_players, db, current_user_id, scale=scale)
     except OperationalError:
         return HTMLResponse("Error al acceder a la base de datos. Inténtalo de nuevo más tarde.", status_code=500)
 
@@ -289,10 +277,7 @@ async def get_players_api(
     
     try:
         if not club_id:
-            if scale == "1-10":
-                players = execute_with_retries(query_players_v2, db, current_user_id)
-            else:
-                players = execute_with_retries(query_players, db, current_user_id)
+            players = execute_with_retries(query_players, db, current_user_id, scale=scale)
         else:
             clubs = execute_with_retries(query_clubs, db, current_user_id)
             clubs_ids = [club.id for club in clubs]
@@ -300,10 +285,7 @@ async def get_players_api(
             if club_id not in clubs_ids:
                 return JSONResponse(content={"error": "No tienes acceso a este club"}, status_code=403)
             
-            if scale == "1-10":
-                players = execute_with_retries(query_club_players_v2, db, club_id)
-            else:
-                players = execute_with_retries(query_club_players, db, club_id)
+            players = execute_with_retries(query_players, db, current_user_id, club_id, scale)
     except OperationalError:
         return JSONResponse(content={"error": "Error al acceder a la base de datos"}, status_code=500)
 
@@ -349,15 +331,9 @@ async def build_teams_api(
         scale = data.get('scale', '1-5')
         
         if club_id:
-            if scale == "1-10":
-                all_players = execute_with_retries(query_club_players_v2, db, club_id)
-            else:
-                all_players = execute_with_retries(query_club_players, db, club_id)
+            all_players = execute_with_retries(query_players, db, current_user_id, club_id, scale)
         else:
-            if scale == "1-10":
-                all_players = execute_with_retries(query_players_v2, db, current_user_id)
-            else:
-                all_players = execute_with_retries(query_players, db, current_user_id)
+            all_players = execute_with_retries(query_players, db, current_user_id, scale=scale)
         
         # Filtrar solo jugadores seleccionados
         selected_players = [p for p in all_players if p.id in selected_player_ids]

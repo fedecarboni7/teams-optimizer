@@ -22,8 +22,15 @@ def query_player(db: Session, player_id: int, current_user_id: int, scale: str =
 
 def query_players(db: Session, current_user_id: int, club_id: int = None, scale: str = "1-5"):
     if scale == "1-10":
-        return db.query(PlayerV2).filter(PlayerV2.user_id == current_user_id, PlayerV2.club_id == club_id).all()
-    return db.query(Player).filter(Player.user_id == current_user_id, Player.club_id == club_id).all()
+        if club_id is None:
+            return db.query(PlayerV2).filter(PlayerV2.user_id == current_user_id, PlayerV2.club_id.is_(None)).all()
+        else:
+            return db.query(PlayerV2).filter(PlayerV2.club_id == club_id).all()
+    else:
+        if club_id is None:
+            return db.query(Player).filter(Player.user_id == current_user_id, Player.club_id.is_(None)).all()
+        else:
+            return db.query(Player).filter(Player.club_id == club_id).all()
 
 def query_clubs(db: Session, current_user_id: int):
     return db.query(Club).join(ClubUser).filter(ClubUser.user_id == current_user_id).all()
