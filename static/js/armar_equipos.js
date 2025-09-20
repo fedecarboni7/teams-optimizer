@@ -9,6 +9,7 @@ let currentClubId = 'my-players';
 let userClubs = [];
 let currentScale = 5; // Variable para la escala actual
 let loading = false;
+let hasResults = false; // Variable para saber si hay resultados generados
 
 // Initialize app
 async function init() {
@@ -127,6 +128,13 @@ async function loadPlayersForContext(contextId) {
         selectedPlayers.clear();
         teamA = [];
         teamB = [];
+        hasResults = false; // Resetear resultados cuando cambia el contexto
+        
+        // Ocultar resultados anteriores si existen
+        const resultsContainer = document.getElementById('teams-results');
+        if (resultsContainer) {
+            resultsContainer.style.display = 'none';
+        }
         
         // Limpiar el buscador cuando cambia el contexto
         const searchInput = document.getElementById('search-input');
@@ -208,6 +216,18 @@ function setupEventListeners() {
             const mode = e.target.dataset.mode;
             document.getElementById('automatic-mode').classList.toggle('hidden', mode !== 'automatic');
             document.getElementById('manual-mode').classList.toggle('hidden', mode !== 'manual');
+            
+            // Manejar visibilidad de resultados generados
+            const resultsContainer = document.getElementById('teams-results');
+            if (resultsContainer) {
+                if (mode === 'manual') {
+                    // Ocultar resultados cuando se pasa a modo manual
+                    resultsContainer.style.display = 'none';
+                } else if (mode === 'automatic' && hasResults) {
+                    // Mostrar resultados cuando se vuelve a modo automático y hay resultados
+                    resultsContainer.style.display = 'block';
+                }
+            }
         });
     });
 
@@ -324,7 +344,7 @@ function renderPlayers() {
     const playersToShow = filteredPlayers;
     
     if (playersToShow.length === 0) {
-        const contextName = currentClubId === 'my-players' ? 'personales' : 
+        const contextName = currentClubId === 'my-players' ? 'creados' : 
                           userClubs.find(club => club.id == currentClubId)?.name || 'de este club';
         
         const searchTerm = document.getElementById('search-input')?.value?.toLowerCase().trim() || '';
@@ -925,6 +945,7 @@ function displayTeamsResults(data) {
     // Set the HTML and show the results
     resultsContainer.innerHTML = html;
     resultsContainer.style.display = 'block';
+    hasResults = true; // Marcar que hay resultados generados
     
     // Scroll to results
     resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
