@@ -95,8 +95,8 @@
                             <i class="fa-solid fa-bell"></i>
                             <span id="invitationsBadge" class="notification-badge" style="display: none;">0</span>
                         </button>
-                        <button id="manageBtn" class="icon-button" title="Gestionar miembros" style="display: none;">
-                            <i class="fa-solid fa-users"></i>
+                        <button id="deleteClubBtn" class="icon-button delete-club-button" title="Eliminar club" style="display: none;">
+                            <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
                 </div>
@@ -132,16 +132,6 @@
                     </div>
                 </div>
                 
-                <div class="action-card" id="inviteMemberCard" onclick="showInviteContent()" style="display: none;">
-                    <div class="action-icon">
-                        <i class="fa-solid fa-user-plus"></i>
-                    </div>
-                    <div class="action-content">
-                        <h4>Invitar Miembro</h4>
-                        <p>Agregar nuevos usuarios al club</p>
-                    </div>
-                </div>
-
                 <div class="action-card" id="manageMembersCard" onclick="openModal('manageModal')" style="display: none;">
                     <div class="action-icon">
                         <i class="fa-solid fa-users-cog"></i>
@@ -161,27 +151,8 @@
                         <p>Abandonar este club</p>
                     </div>
                 </div>
-
-                <div class="action-card danger" id="deleteClubCard" onclick="confirmDeleteClub()" style="display: none;">
-                    <div class="action-icon">
-                        <i class="fa-solid fa-trash"></i>
-                    </div>
-                    <div class="action-content">
-                        <h4>Eliminar Club</h4>
-                        <p>Borrar permanentemente</p>
-                    </div>
-                </div>
             </div>
         </div>
-
-        <!-- Members List Section -->
-        <div class="members-section" id="membersSection" style="display: none;">
-            <h3>Miembros del Club</h3>
-            <div class="members-grid" id="membersGrid">
-                <!-- Members will be loaded here -->
-            </div>
-        </div>
-    </div>
 
     <!-- Modal para ver invitaciones -->
         <!-- Modal para invitaciones -->
@@ -323,8 +294,6 @@
 
         // Función de integración con clubSelector.js
         function onContextChanged(contextId) {
-            console.log('Context changed to:', contextId);
-            
             // Sincronizar variables globales tanto en window como en clubs.js
             window.clubId = contextId !== 'my-players' ? contextId : null;
             if (typeof clubId !== 'undefined') {
@@ -349,44 +318,39 @@
 
         // Actualizar la visualización del club actual
         function updateClubDisplay() {
-            console.log('Updating club display for clubId:', window.clubId);
-            
             const clubNameEl = document.getElementById('currentClubName');
             const clubDescEl = document.getElementById('currentClubDescription');
             const clubStatsEl = document.getElementById('clubStats');
             const membersSection = document.getElementById('membersSection');
-            const manageBtn = document.getElementById('manageBtn');
+            
+            // Header buttons
+            const deleteClubBtn = document.getElementById('deleteClubBtn');
             
             // Action cards
-            const inviteMemberCard = document.getElementById('inviteMemberCard');
             const manageMembersCard = document.getElementById('manageMembersCard');
             const leaveClubCard = document.getElementById('leaveClubCard');
-            const deleteClubCard = document.getElementById('deleteClubCard');
 
             if (window.clubId === null) {
                 clubNameEl.textContent = 'Mis Jugadores';
                 clubDescEl.textContent = 'Tus jugadores personales';
                 clubStatsEl.style.display = 'none';
                 if (membersSection) membersSection.style.display = 'none';
-                if (manageBtn) manageBtn.style.display = 'none';
+                
+                // Hide header buttons
+                if (deleteClubBtn) deleteClubBtn.style.display = 'none';
                 
                 // Hide club-specific actions
-                if (inviteMemberCard) inviteMemberCard.style.display = 'none';
                 if (manageMembersCard) manageMembersCard.style.display = 'none';
                 if (leaveClubCard) leaveClubCard.style.display = 'none';
-                if (deleteClubCard) deleteClubCard.style.display = 'none';
             } else {
                 const clubs = getUserClubs();
-                console.log('Available clubs:', clubs);
                 const club = clubs.find(c => c.id == window.clubId);
-                console.log('Found club:', club);
                 
                 if (club) {
                     clubNameEl.textContent = club.name;
                     clubDescEl.textContent = `Club creado para gestionar jugadores en equipo`;
                     clubStatsEl.style.display = 'flex';
                     if (membersSection) membersSection.style.display = 'block';
-                    if (manageBtn) manageBtn.style.display = 'inline-flex';
                     
                     // Show club-specific actions
                     if (manageMembersCard) manageMembersCard.style.display = 'flex';
@@ -399,27 +363,24 @@
 
         // Actualizar acciones basadas en el rol del usuario
         function updateRoleBasedActions() {
-            const inviteMemberCard = document.getElementById('inviteMemberCard');
             const leaveClubCard = document.getElementById('leaveClubCard');
-            const deleteClubCard = document.getElementById('deleteClubCard');
+            const deleteClubBtn = document.getElementById('deleteClubBtn');
             const inviteBtn = document.getElementById('inviteBtn');
 
             if (currentUser && currentUser.clubRole) {
-                // Owner and admin can invite
+                // Owner and admin can invite (through modal)
                 if (currentUser.clubRole !== 'member') {
-                    inviteMemberCard.style.display = 'flex';
                     inviteBtn.style.display = 'inline-flex';
                 } else {
-                    inviteMemberCard.style.display = 'none';
                     inviteBtn.style.display = 'none';
                 }
 
                 // Only owner can delete club
                 if (currentUser.clubRole === 'owner') {
-                    deleteClubCard.style.display = 'flex';
+                    if (deleteClubBtn) deleteClubBtn.style.display = 'inline-flex';
                     leaveClubCard.style.display = 'none';
                 } else {
-                    deleteClubCard.style.display = 'none';
+                    if (deleteClubBtn) deleteClubBtn.style.display = 'none';
                     leaveClubCard.style.display = 'flex';
                 }
 
@@ -509,7 +470,7 @@
                 try {
                     currentUser = JSON.parse(currentUserData.textContent);
                 } catch (e) {
-                    console.warn('Could not parse user data');
+                    // Silently handle parse error
                 }
             }
 

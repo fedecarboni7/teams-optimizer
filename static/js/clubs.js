@@ -47,13 +47,10 @@ function setupEventListeners() {
     invitationsBtn.addEventListener('click', () => openModal('invitationsModal'));
   }
   
-  // Botón de gestionar - verificar que existe  
-  const manageBtn = document.getElementById('manageBtn');
-  if (manageBtn) {
-    manageBtn.addEventListener('click', () => {
-      loadClubMembers();
-      openModal('manageModal');
-    });
+  // Botón de eliminar club - verificar que existe
+  const deleteClubBtn = document.getElementById('deleteClubBtn');
+  if (deleteClubBtn) {
+    deleteClubBtn.addEventListener('click', () => confirmDeleteClub());
   }
   
   // Cerrar modales con la tecla Escape
@@ -121,11 +118,7 @@ function loadInvitations() {
 }
 
 async function loadClubMembers() {
-  console.log('Loading club members for clubId:', clubId);
-  console.log('Current user:', currentUser);
-  
   if (!clubId) {
-    console.log('No clubId available, skipping member load');
     return;
   }
   
@@ -133,7 +126,6 @@ async function loadClubMembers() {
     const response = await fetch(`/clubs/${clubId}/members`);
     if (response.ok) {
       clubMembers = await response.json();
-      console.log('Club members loaded:', clubMembers);
       
       // Actualizar el rol del usuario actual basándose en los miembros del club
       if (currentUser && clubMembers) {
@@ -143,11 +135,18 @@ async function loadClubMembers() {
         if (currentUserMember) {
           currentUser.clubRole = currentUserMember.role;
           window.currentUser = currentUser;
-          console.log('Updated current user club role:', currentUser.clubRole);
         }
       }
       
       updateMembersTableUI();
+      
+      // Actualizar las estadísticas de la club-card y el rol mostrado
+      if (typeof updateMemberStats === 'function') {
+        updateMemberStats(clubMembers);
+      }
+      if (typeof updateRoleBasedActions === 'function') {
+        updateRoleBasedActions();
+      }
     } else {
       console.error('Error response:', response.status, response.statusText);
     }
@@ -178,15 +177,8 @@ function updateInvitationsUI() {
 }
 
 function updateMembersTableUI() {
-  console.log('Updating members table UI');
-  console.log('Current user:', currentUser);
-  console.log('Club members:', clubMembers);
-  
   const tbody = document.getElementById('membersTableBody');
   const canEdit = currentUser && (currentUser.clubRole === 'admin' || currentUser.clubRole === 'owner');
-  
-  console.log('Can edit:', canEdit);
-  console.log('User club role:', currentUser?.clubRole);
   
   tbody.innerHTML = clubMembers.map(member => `
     <tr class="${member.role === 'pending' ? 'pending-member' : ''}">
@@ -227,12 +219,9 @@ function updateMembersTableUI() {
   
   // Mostrar u ocultar el botón de invitar según los permisos
   const inviteBtn = document.getElementById('inviteBtn');
-  console.log('InviteBtn element found:', inviteBtn);
   if (inviteBtn) {
     const canInvite = currentUser && (currentUser.clubRole === 'admin' || currentUser.clubRole === 'owner');
-    console.log('Can invite:', canInvite, 'Role:', currentUser?.clubRole);
     inviteBtn.style.display = canInvite ? 'inline-flex' : 'none';
-    console.log('InviteBtn display set to:', inviteBtn.style.display);
     
     // Asegurar que el event listener esté configurado
     if (canInvite && !inviteBtn.dataset.listenerAdded) {
@@ -242,8 +231,6 @@ function updateMembersTableUI() {
       });
       inviteBtn.dataset.listenerAdded = 'true';
     }
-  } else {
-    console.log('InviteBtn element not found in DOM');
   }
 }
 
@@ -580,10 +567,4 @@ async function deleteClub() {
     console.error('Error deleting club:', error);
     alert('Error al eliminar el club. Intenta de nuevo.');
   }
-}
-
-function confirmRoleChanges() {
-  // Implementar confirmación de cambios de rol
-  console.log('Confirming role changes...');
-  // TODO: Implementar lógica de cambio de roles
 }
