@@ -5,8 +5,9 @@ let teamA = [];
 let teamB = [];
 let availablePlayers = [];
 let filteredPlayers = [];
-let currentClubId = 'my-players';
-let userClubs = [];
+// Variables para el contexto actual (ahora se manejan desde clubSelector.js)
+// let currentClubId = 'my-players';  // Comentado - se usa desde clubSelector.js  
+// let userClubs = [];               // Comentado - se usa desde clubSelector.js
 let currentScale = 5; // Variable para la escala actual
 let loading = false;
 let hasResults = false; // Variable para saber si hay resultados generados
@@ -14,8 +15,7 @@ let hasResults = false; // Variable para saber si hay resultados generados
 // Initialize app
 async function init() {
     try {
-        // Cargar datos del usuario
-        await loadUserClubs();
+        // El clubSelector.js se encarga de cargar los clubes automáticamente
         
         // Cargar jugadores
         await loadPlayers();
@@ -32,52 +32,15 @@ async function init() {
     }
 }
 
-// Cargar clubes del usuario (igual que en players.js)
-async function loadUserClubs() {
-    try {
-        const response = await fetch('/api/user-clubs', {
-            method: 'GET',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' }
-        });
-        
-        if (response.ok) {
-            userClubs = await response.json();
-            populateClubSelector();
-        } else {
-            console.error('Error loading user clubs:', response.status);
-            populateClubSelector();
-        }
-    } catch (error) {
-        console.error('Error loading user clubs:', error);
-        populateClubSelector();
-    }
+// Función de integración con clubSelector.js
+// Esta función se llama cuando cambia el contexto desde el selector común
+function onContextChanged(contextId) {
+    return loadPlayersForContext(contextId);
 }
 
-// Poblar el selector de clubes (igual que en players.js)
-function populateClubSelector() {
-    const selector = document.getElementById('club-select-navbar');
-    const contextIcon = document.getElementById('contextIcon');
-    
-    // Limpiar opciones existentes excepto "Mis jugadores"
-    selector.innerHTML = '<option value="my-players">Mis jugadores</option>';
-    
-    // Agregar clubes del usuario
-    userClubs.forEach(club => {
-        const option = document.createElement('option');
-        option.value = club.id;
-        option.textContent = club.name;
-        selector.appendChild(option);
-    });
-    
-    // Actualizar icono según contexto actual
-    updateContextIcon();
-}
-
-// Actualizar el icono según el contexto actual
 // Cargar jugadores (usando la misma lógica que players.js)
 async function loadPlayers() {
-    await loadPlayersForContext(currentClubId);
+    await loadPlayersForContext(getCurrentClubId());
 }
 
 // Cargar jugadores según el contexto (personal o club) - igual que en players.js
@@ -160,30 +123,6 @@ function setScale(scale) {
     loadPlayers();
 }
 
-// Cambiar contexto (club o personal) - igual que en players.js
-async function switchContext() {
-    const selector = document.getElementById('club-select-navbar');
-    const selectedValue = selector.value;
-    
-    // Mostrar feedback visual mientras cambia el contexto
-    selector.disabled = true;
-    
-    try {
-        currentClubId = selectedValue;
-        updateContextIcon();
-        
-        // Recargar jugadores según el nuevo contexto
-        await loadPlayersForContext(selectedValue);
-        
-    } catch (error) {
-        // Si hay error, restaurar la selección anterior y mostrar error
-        console.error('Error switching context:', error);
-        showError('Error al cambiar el contexto. Intenta de nuevo.');
-    } finally {
-        selector.disabled = false;
-    }
-}
-
 // Calcular promedio de habilidades
 function calculateAverage(player) {
     const skillKeys = ['velocidad', 'resistencia', 'pases', 'tiro', 'defensa', 'fuerza_cuerpo', 'control', 'habilidad_arquero', 'vision'];
@@ -233,32 +172,6 @@ function setupEventListeners() {
     document.querySelector('.generate-btn').addEventListener('click', generateTeams);
 }
 
-// Actualizar selector de clubes
-function updateClubSelector() {
-    const clubSelect = document.getElementById('club-select-navbar');
-    const contextIcon = document.getElementById('contextIcon');
-    
-    // Limpiar opciones existentes (excepto "Mis jugadores")
-    const myPlayersOption = clubSelect.querySelector('option[value="my-players"]');
-    clubSelect.innerHTML = '';
-    clubSelect.appendChild(myPlayersOption);
-    
-    // Agregar clubes del usuario
-    userClubs.forEach(club => {
-        const option = document.createElement('option');
-        option.value = club.id;
-        option.textContent = club.name;
-        clubSelect.appendChild(option);
-    });
-    
-    // Actualizar icono según contexto
-    if (currentClubId === 'my-players') {
-        contextIcon.textContent = '👤';
-    } else {
-        contextIcon.textContent = '🏆';
-    }
-}
-
 function renderPlayers() {
     const playersList = document.getElementById('players-list');
     
@@ -277,8 +190,8 @@ function renderPlayers() {
     const playersToShow = filteredPlayers;
     
     if (playersToShow.length === 0) {
-        const contextName = currentClubId === 'my-players' ? 'creados' : 
-                          userClubs.find(club => club.id == currentClubId)?.name || 'de este club';
+        const contextName = getCurrentClubId() === 'my-players' ? 'creados' : 
+                          getUserClubs().find(club => club.id == getCurrentClubId())?.name || 'de este club';
         
         const searchTerm = document.getElementById('search-input')?.value?.toLowerCase().trim() || '';
         
@@ -597,7 +510,7 @@ async function generateTeams() {
         // Prepare data for API call
         const requestData = {
             selected_player_ids: selectedPlayerIds,
-            club_id: currentClubId !== 'my-players' ? parseInt(currentClubId) : null,
+            club_id: getCurrentClubId() !== 'my-players' ? parseInt(getCurrentClubId()) : null,
             scale: currentScale === 5 ? '1-5' : '1-10'
         };
         

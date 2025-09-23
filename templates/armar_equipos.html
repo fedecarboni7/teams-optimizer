@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="/static/js/utils.js" defer></script>
+    <script src="/static/js/clubSelector.js" defer></script>
     <script src="/static/js/ui.js" defer></script>
     <script src="/static/js/api.js" defer></script>
     <script src="/static/js/teamLogic.js" defer></script>
@@ -28,6 +29,7 @@
     <link rel="stylesheet" type="text/css" href="/static/css/utilities.css">
     <link rel="stylesheet" type="text/css" href="/static/css/formations.css">
     <link rel="stylesheet" type="text/css" href="/static/css/players.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/clubs.css">
     <link rel="stylesheet" type="text/css" href="/static/css/armar_equipos.css">
 </head>
 <body class="armar-equipos">
@@ -141,6 +143,16 @@
         <!-- Results container for generated teams -->
         <div id="teams-results" style="display: none;">
             <!-- Team results will be displayed here -->
+        </div>
+    </div>
+
+    <!-- Modal para crear un nuevo club -->
+    <div id="createClubModal" class="modal">
+        <div class="modal-content">
+            <h2>Crear Club</h2>
+            <input type="text" id="new-club-name" placeholder="Nombre del club">
+            <button class="btn btn-primary" onclick="createNewClub()">Crear</button>
+            <button class="btn" onclick="closeCreateClubModal()">Cancelar</button>
         </div>
     </div>
 </body>

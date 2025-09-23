@@ -332,7 +332,8 @@ function loadPlayersForClub() {
   if (selectedValue === 'create-club') {
     // Restaurar el valor anterior del select
     select.value = clubId || 'my-players';
-    openModal('createClubModal');
+    // Usar la función del módulo común
+    openCreateClubModal();
     return;
   }
 

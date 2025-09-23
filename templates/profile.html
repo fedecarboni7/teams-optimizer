@@ -26,7 +26,9 @@
     <link rel="stylesheet" type="text/css" href="../static/css/animations.css">
     <link rel="stylesheet" type="text/css" href="../static/css/utilities.css">
     <link rel="stylesheet" type="text/css" href="../static/css/players.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/clubs.css">
     <script src="/static/js/utils.js" defer></script>
+    <script src="/static/js/clubSelector.js" defer></script>
     <script src="/static/js/ui.js" defer></script>
     <script src="/static/js/api.js" defer></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -239,6 +241,24 @@
           }
         }
       }
+
+      // Función de integración con clubSelector.js para profile
+      // En esta página solo manejamos el cambio de contexto visualmente
+      function onContextChanged(contextId) {
+        // En profile no hay datos específicos que cargar, solo actualizar el icono
+        console.log('Contexto cambiado a:', contextId);
+        return Promise.resolve();
+      }
     </script>
+
+    <!-- Modal para crear un nuevo club -->
+    <div id="createClubModal" class="modal">
+        <div class="modal-content">
+            <h2>Crear Club</h2>
+            <input type="text" id="new-club-name" placeholder="Nombre del club">
+            <button class="btn btn-primary" onclick="createNewClub()">Crear</button>
+            <button class="btn" onclick="closeCreateClubModal()">Cancelar</button>
+        </div>
+    </div>
   </body>
 </html>
