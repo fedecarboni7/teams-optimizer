@@ -18,9 +18,58 @@
     <link rel="icon" type="image/png" sizes="16x16" href="../static/favicon/favicon-16x16.png">
     <link rel="manifest" href="../static/favicon/site.webmanifest">
     <link rel="stylesheet" type="text/css" href="../static/css/daisyui.min.css" />
+    <link rel="stylesheet" type="text/css" href="../static/css/base.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/components.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/pages.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/responsive.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/animations.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/utilities.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/players.css">
+    <script src="/static/js/utils.js" defer></script>
+    <script src="/static/js/ui.js" defer></script>
+    <script src="/static/js/api.js" defer></script>
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body class="justify-center flex h-screen items-center">
+  <body>
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">Menú</div>
+        </div>
+        <div class="sidebar-nav">
+            <button class="nav-item" onclick="navigateTo('jugadores')">
+                <span>👥</span>
+                <span>Gestionar Jugadores</span>
+            </button>
+            <button class="nav-item" onclick="navigateTo('equipos')">
+                <span>⚽</span>
+                <span>Armar Equipos</span>
+            </button>
+            <div class="nav-separator"></div>
+            <button class="nav-item active" onclick="navigateTo('perfil')">
+                <span>👤</span>
+                <span>Mi Perfil</span>
+            </button>
+        </div>
+    </div>
+
+    <nav class="navbar">
+        <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+        <div class="club-selector-navbar">
+            <div class="current-context">
+                <span class="context-icon" id="contextIcon">👤</span>
+                <select id="club-select-navbar" class="club-dropdown" onchange="switchContext()">
+                    <option value="my-players" selected>Mis jugadores</option>
+                    <!-- Los clubes se cargarán dinámicamente -->
+                </select>
+            </div>
+        </div>
+        <div class="logo">📱</div>
+    </nav>
+
+    <div class="justify-center flex h-screen items-center" style="margin-top: 20px; padding-top: 60px;">
     <div
         class="card bg-neutral text-neutral-content sm:w-96 w-full max-w-96 h-fit m-4">
         <div class="p-4 rounded-lg shadow-md border-primary">
@@ -61,7 +110,7 @@
                         <div class="text-xs text-gray-500 mb-2">
                             Revisá tu bandeja de entrada para confirmar tu email
                         </div>
-                        <form action="/profile/resend-email-confirmation" method="POST" class="mb-2">
+                        <form action="/perfil/resend-email-confirmation" method="POST" class="mb-2">
                             <button type="submit" class="btn btn-sm btn-outline btn-secondary">
                                 Reenviar confirmación
                             </button>
@@ -78,7 +127,7 @@
             </div>
             
             <!-- Email form -->
-            <form action="/profile/update-email" method="POST" class="mt-4 flex flex-col gap-2">
+            <form action="/perfil/update-email" method="POST" class="mt-4 flex flex-col gap-2">
             <label class="text-sm text-gray-400 mb-1">
                 {% if user.email %}Cambiar email:{% else %}Agregar email:{% endif %}
             </label>
@@ -127,7 +176,38 @@
             </div>
         </div>
     </div>
+    </div>
       <script>
+      // Funciones de navegación necesarias para el sidebar
+      function toggleSidebar() {
+          const sidebar = document.getElementById('sidebar');
+          const overlay = document.querySelector('.sidebar-overlay');
+          
+          sidebar.classList.toggle('open');
+          overlay.classList.toggle('active');
+      }
+
+      function navigateTo(page) {
+          switch(page) {
+              case 'jugadores':
+                  window.location.href = '/jugadores';
+                  break;
+              case 'equipos':
+                  window.location.href = '/armar_equipos';
+                  break;
+              case 'perfil':
+                  window.location.href = '/perfil';
+                  break;
+              default:
+                  console.log('Página no encontrada:', page);
+          }
+      }
+
+      async function switchContext() {
+          // Esta función puede implementarse más tarde si es necesaria en el perfil
+          console.log('Switch context - funcionalidad para el perfil');
+      }
+
       function confirmDeleteAccount() {
         const confirmation = confirm(`¿Estás seguro de que quieres borrar tu cuenta permanentemente?
 
@@ -153,7 +233,7 @@
             // Create a form to submit the delete request
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = '/profile/delete-account';
+            form.action = '/perfil/delete-account';
             document.body.appendChild(form);
             form.submit();
           }

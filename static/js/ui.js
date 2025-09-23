@@ -528,10 +528,37 @@ function navigateTo(page) {
     const routes = {
         'jugadores': '/jugadores',
         'equipos': '/armar_equipos',
-        'configuracion': '/profile'
+        'perfil': '/perfil'
     };
     
     if (routes[page]) {
         window.location.href = routes[page];
     }
+}
+
+// Función común para toggle del sidebar
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.querySelector('.sidebar-overlay');
+    
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('active');
+}
+
+// Función común para actualizar el icono de contexto
+function updateContextIcon() {
+    const contextIcon = document.getElementById('contextIcon');
+    const selector = document.getElementById('club-select-navbar');
+    
+    if (selector && selector.value === 'my-players') {
+        contextIcon.textContent = '👤'; // Icono de usuario personal
+    } else {
+        contextIcon.textContent = '⚽'; // Icono de club
+    }
+}
+
+// Función común para mostrar errores
+function showError(message) {
+    console.error(message);
+    // Aquí podrías agregar una notificación visual para el usuario
 }

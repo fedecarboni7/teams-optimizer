@@ -75,17 +75,6 @@ function populateClubSelector() {
 }
 
 // Actualizar el icono según el contexto actual
-function updateContextIcon() {
-    const contextIcon = document.getElementById('contextIcon');
-    const selector = document.getElementById('club-select-navbar');
-    
-    if (selector.value === 'my-players') {
-        contextIcon.textContent = '👤'; // Icono de usuario personal
-    } else {
-        contextIcon.textContent = '⚽'; // Icono de club
-    }
-}
-
 // Cargar jugadores (usando la misma lógica que players.js)
 async function loadPlayers() {
     await loadPlayersForContext(currentClubId);
@@ -244,35 +233,6 @@ function setupEventListeners() {
     document.querySelector('.generate-btn').addEventListener('click', generateTeams);
 }
 
-// Funciones de navegación (copiadas de players.js)
-function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.querySelector('.sidebar-overlay');
-    
-    if (sidebar.classList.contains('open')) {
-        sidebar.classList.remove('open');
-        overlay.classList.remove('active');
-    } else {
-        sidebar.classList.add('open');
-        overlay.classList.add('active');
-    }
-}
-
-// Función para mostrar errores
-function showError(message) {
-    console.error(message);
-    // Aquí podrías agregar una notificación visual para el usuario
-}
-
-// Funciones de navegación (copiadas de players.js)
-function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.querySelector('.sidebar-overlay');
-    
-    sidebar.classList.toggle('open');
-    overlay.classList.toggle('active');
-}
-
 // Actualizar selector de clubes
 function updateClubSelector() {
     const clubSelect = document.getElementById('club-select-navbar');
@@ -297,33 +257,6 @@ function updateClubSelector() {
     } else {
         contextIcon.textContent = '🏆';
     }
-}
-
-// Cambiar contexto (club)
-async function switchContext() {
-    const clubSelect = document.getElementById('club-select-navbar');
-    currentClubId = clubSelect.value;
-    
-    // Actualizar icono
-    const contextIcon = document.getElementById('contextIcon');
-    if (currentClubId === 'my-players') {
-        contextIcon.textContent = '👤';
-    } else {
-        contextIcon.textContent = '🏆';
-    }
-    
-    // Recargar jugadores
-    await loadPlayers();
-    
-    // Limpiar selecciones y equipos
-    selectedPlayers.clear();
-    teamA = [];
-    teamB = [];
-    availablePlayers = [...players];
-    
-    // Actualizar interfaz
-    renderPlayers();
-    updateManualMode();
 }
 
 function renderPlayers() {

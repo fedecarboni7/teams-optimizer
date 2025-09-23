@@ -842,20 +842,6 @@ async function savePlayer(playerData) {
     }
 }
 
-// Función para toggle del sidebar
-function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.querySelector('.sidebar-overlay');
-    
-    if (sidebar.classList.contains('open')) {
-        sidebar.classList.remove('open');
-        overlay.classList.remove('active');
-    } else {
-        sidebar.classList.add('open');
-        overlay.classList.add('active');
-    }
-}
-
 // Cerrar modal al hacer clic fuera
 window.onclick = function(event) {
     const modal = document.getElementById('playerModal');
@@ -922,18 +908,6 @@ function populateClubSelector() {
     
     // Actualizar icono según contexto actual
     updateContextIcon();
-}
-
-// Actualizar el icono según el contexto actual
-function updateContextIcon() {
-    const contextIcon = document.getElementById('contextIcon');
-    const selector = document.getElementById('club-select-navbar');
-    
-    if (selector.value === 'my-players') {
-        contextIcon.textContent = '👤'; // Icono de usuario personal
-    } else {
-        contextIcon.textContent = '⚽'; // Icono de club
-    }
 }
 
 // Cambiar contexto (club o personal)
