@@ -528,6 +528,7 @@ function navigateTo(page) {
     const routes = {
         'jugadores': '/jugadores',
         'equipos': '/armar_equipos',
+        'clubes': '/clubes',
         'perfil': '/perfil'
     };
     

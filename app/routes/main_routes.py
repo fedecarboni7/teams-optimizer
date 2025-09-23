@@ -36,6 +36,33 @@ async def players_page(
     })
 
 
+@router.get("/clubes", response_class=HTMLResponse, include_in_schema=False)
+async def clubs_management_page(
+        request: Request,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+    ):
+    if not current_user:
+        return RedirectResponse("/login", status_code=302)
+    
+    # Obtener clubes del usuario
+    clubs = execute_with_retries(query_clubs, db, current_user.id)
+    
+    # Preparar datos del usuario actual para el template
+    current_user_data = {
+        "id": current_user.id,
+        "username": current_user.username,
+        "clubRole": None  # Se actualizará dinámicamente según el club seleccionado
+    }
+    
+    return templates.TemplateResponse(request=request, name="clubs.html", context={
+        "request": request,
+        "user": current_user,
+        "userClubs": clubs,
+        "currentUser": current_user_data
+    })
+
+
 @router.get("/home", response_class=HTMLResponse, include_in_schema=False)
 async def get_form(
         request: Request,

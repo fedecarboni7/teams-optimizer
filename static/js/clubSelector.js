@@ -56,12 +56,6 @@ function populateClubSelector() {
         selector.appendChild(option);
     });
     
-    // Agregar opción para crear nuevo club
-    const createOption = document.createElement('option');
-    createOption.value = 'create-club';
-    createOption.textContent = '+ Crear nuevo club';
-    selector.appendChild(createOption);
-    
     // Actualizar icono según contexto actual
     updateContextIcon();
 }
@@ -89,14 +83,6 @@ function updateContextIcon() {
 async function switchContext() {
     const selector = document.getElementById('club-select-navbar');
     const selectedValue = selector.value;
-    
-    if (selectedValue === 'create-club') {
-        // Restaurar el valor anterior
-        selector.value = currentClubId;
-        // Abrir modal para crear club
-        openCreateClubModal();
-        return;
-    }
     
     // Mostrar feedback visual mientras cambia el contexto
     const originalText = selector.options[selector.selectedIndex].text;
