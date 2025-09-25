@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
+<head>
+    {% set active_page = 'perfil' %}
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q0GE6VCJGX"></script>
     <script>
@@ -17,6 +18,8 @@
     <link rel="icon" type="image/png" sizes="32x32" href="../static/favicon/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="../static/favicon/favicon-16x16.png">
     <link rel="manifest" href="../static/favicon/site.webmanifest">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/sidebar.css">
     <link rel="stylesheet" type="text/css" href="../static/css/daisyui.min.css" />
     <link rel="stylesheet" type="text/css" href="../static/css/base.css">
     <link rel="stylesheet" type="text/css" href="../static/css/layout.css">
@@ -33,33 +36,8 @@
     <script src="/static/js/api.js" defer></script>
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body>
-    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
-    
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-title">Menú</div>
-        </div>
-        <div class="sidebar-nav">
-            <button class="nav-item" onclick="navigateTo('jugadores')">
-                <span>👥</span>
-                <span>Gestionar Jugadores</span>
-            </button>
-            <button class="nav-item" onclick="navigateTo('equipos')">
-                <span>⚽</span>
-                <span>Armar Equipos</span>
-            </button>
-            <div class="nav-separator"></div>
-            <button class="nav-item" onclick="navigateTo('clubes')">
-                <span>🏆</span>
-                <span>Gestionar Clubes</span>
-            </button>
-            <button class="nav-item active" onclick="navigateTo('perfil')">
-                <span>👤</span>
-                <span>Mi Perfil</span>
-            </button>
-        </div>
-    </div>
+  <body class="profile-page">
+    {% include '_sidebar.html' %}
 
     <nav class="navbar">
         <button class="menu-btn" onclick="toggleSidebar()">☰</button>

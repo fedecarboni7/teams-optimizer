@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    {% set active_page = 'equipos' %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Armar Equipos</title>
@@ -27,38 +28,14 @@
     <link rel="stylesheet" type="text/css" href="/static/css/responsive.css">
     <link rel="stylesheet" type="text/css" href="/static/css/animations.css">
     <link rel="stylesheet" type="text/css" href="/static/css/utilities.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/sidebar.css">
     <link rel="stylesheet" type="text/css" href="/static/css/formations.css">
     <link rel="stylesheet" type="text/css" href="/static/css/players.css">
     <link rel="stylesheet" type="text/css" href="/static/css/clubs.css">
     <link rel="stylesheet" type="text/css" href="/static/css/armar_equipos.css">
 </head>
 <body class="armar-equipos">
-    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
-    
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-title">Menú</div>
-        </div>
-        <div class="sidebar-nav">
-            <button class="nav-item" onclick="navigateTo('jugadores')">
-                <span>👥</span>
-                <span>Gestionar Jugadores</span>
-            </button>
-            <button class="nav-item active" onclick="navigateTo('equipos')">
-                <span>⚽</span>
-                <span>Armar Equipos</span>
-            </button>
-            <div class="nav-separator"></div>
-            <button class="nav-item" onclick="navigateTo('clubes')">
-                <span>🏆</span>
-                <span>Gestionar Clubes</span>
-            </button>
-            <button class="nav-item" onclick="navigateTo('perfil')">
-                <span>👤</span>
-                <span>Mi Perfil</span>
-            </button>
-        </div>
-    </div>
+    {% include '_sidebar.html' %}
 
     <nav class="navbar">
         <button class="menu-btn" onclick="toggleSidebar()">☰</button>
