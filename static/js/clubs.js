@@ -1,56 +1,70 @@
 // Variables globales
 let currentUser = null;
 let clubId = null;
-document.addEventListener('DOMContentLoaded', () => {
-  clubId = document.getElementById('club-select').value;
-  currentUser = document.getElementById('invitationsBtn').value;
-  currentUser = JSON.parse(currentUser.replace(/'/g, '"'));
-});
-
 let pendingInvitations = [];
 let clubMembers = [];
 let pendingRoleChanges = new Map(); // Almacena los cambios pendientes
 
+// Hacer variables accesibles globalmente
+window.clubId = null;
+window.currentUser = null;
+
 // Inicialización
 document.addEventListener('DOMContentLoaded', () => {
-  setupEventListeners(clubId, currentUser);
-  loadInvitations();
-  if (clubId !== 'my-players') {
-    loadClubMembers();
+  // Obtener datos del usuario desde el script element
+  const currentUserData = document.getElementById('user-data');
+  if (currentUserData) {
+    try {
+      currentUser = JSON.parse(currentUserData.textContent);
+      window.currentUser = currentUser;
+    } catch (error) {
+      console.error('Error parsing user data:', error);
+    }
   }
+  
+  // Obtener el club actual del selector
+  const clubSelect = document.getElementById('club-select-navbar');
+  if (clubSelect) {
+    clubId = clubSelect.value !== 'my-players' ? clubSelect.value : null;
+    window.clubId = clubId;
+  }
+  
+  // Dar un pequeño delay para asegurar que todo esté listo
+  setTimeout(() => {
+    setupEventListeners();
+    loadInvitations();
+    if (clubId && clubId !== 'my-players') {
+      loadClubMembers();
+    }
+  }, 100);
 });
 
 // Configuración de event listeners
-function setupEventListeners(clubId, currentUser) {
-  // Botón de invitaciones
-  document.getElementById('invitationsBtn').addEventListener('click', () => openModal('invitationsModal'));
-  
-  // Botones de modales para el club
-  if (clubId !== 'my-players') {
-    // Permitir que todos los miembros vean la lista
-    document.getElementById('manageBtn').addEventListener('click', () => {
-      loadClubMembers();
-      openModal('manageModal');
-    });
-
-    // Solo admins y owners pueden invitar
-    if (currentUser.clubRole !== 'member') {
-      const inviteBtn = document.getElementById('inviteBtn');
-      if (inviteBtn) {
-        inviteBtn.addEventListener('click', (e) => {
-          e.stopPropagation(); // Evitar que el click cierre el modal de miembros
-          showInviteContent();
-        });
-      }
-    }
+function setupEventListeners() {
+  // Botón de invitaciones - verificar que existe
+  const invitationsBtn = document.getElementById('invitationsBtn');
+  if (invitationsBtn) {
+    invitationsBtn.addEventListener('click', () => openModal('invitationsModal'));
   }
-
-  // Cerrar modales al hacer click fuera
-  document.addEventListener('click', event => {
-    if (event.target.classList.contains('modal')) {
-      event.target.classList.remove('active');
+  
+  // Botón de eliminar club - verificar que existe
+  const deleteClubBtn = document.getElementById('deleteClubBtn');
+  if (deleteClubBtn) {
+    deleteClubBtn.addEventListener('click', () => confirmDeleteClub());
+  }
+  
+  // Cerrar modales con la tecla Escape
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      // Cerrar cualquier modal visible
+      const visibleModals = document.querySelectorAll('.club-modal[style*="flex"]');
+      visibleModals.forEach(modal => {
+        modal.style.display = 'none';
+      });
     }
   });
+
+  // Cerrar modales al hacer click fuera (ya no es necesario porque está en las funciones individuales)
 }
 
 function showInviteContent() {
@@ -66,11 +80,23 @@ function showMembersContent() {
 
 // Funciones de UI
 function openModal(modalId) {
-  document.getElementById(modalId).classList.add('active');
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.style.display = 'flex';
+    
+    // Cerrar modal al hacer click en el backdrop
+    const backdrop = modal.querySelector('.modal-backdrop');
+    if (backdrop) {
+      backdrop.onclick = () => closeModal(modalId);
+    }
+  }
 }
 
 function closeModal(modalId) {
-  document.getElementById(modalId).classList.remove('active');
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.style.display = 'none';
+  }
 }
 
 // Funciones de carga de datos
@@ -92,10 +118,38 @@ function loadInvitations() {
 }
 
 async function loadClubMembers() {
+  if (!clubId) {
+    return;
+  }
+  
   try {
     const response = await fetch(`/clubs/${clubId}/members`);
-    clubMembers = await response.json();
-    updateMembersTableUI();
+    if (response.ok) {
+      clubMembers = await response.json();
+      
+      // Actualizar el rol del usuario actual basándose en los miembros del club
+      if (currentUser && clubMembers) {
+        const currentUserMember = clubMembers.find(member => 
+          member.user_id === currentUser.id || member.user_id === currentUser.userId
+        );
+        if (currentUserMember) {
+          currentUser.clubRole = currentUserMember.role;
+          window.currentUser = currentUser;
+        }
+      }
+      
+      updateMembersTableUI();
+      
+      // Actualizar las estadísticas de la club-card y el rol mostrado
+      if (typeof updateMemberStats === 'function') {
+        updateMemberStats(clubMembers);
+      }
+      if (typeof updateRoleBasedActions === 'function') {
+        updateRoleBasedActions();
+      }
+    } else {
+      console.error('Error response:', response.status, response.statusText);
+    }
   } catch (error) {
     console.error('Error al cargar miembros:', error);
   }
@@ -124,7 +178,7 @@ function updateInvitationsUI() {
 
 function updateMembersTableUI() {
   const tbody = document.getElementById('membersTableBody');
-  const canEdit = currentUser.clubRole === 'admin' || currentUser.clubRole === 'owner';
+  const canEdit = currentUser && (currentUser.clubRole === 'admin' || currentUser.clubRole === 'owner');
   
   tbody.innerHTML = clubMembers.map(member => `
     <tr class="${member.role === 'pending' ? 'pending-member' : ''}">
@@ -161,6 +215,22 @@ function updateMembersTableUI() {
   const confirmButton = document.getElementById('confirmChangesBtn');
   if (confirmButton) {
     confirmButton.style.display = pendingRoleChanges.size > 0 ? 'block' : 'none';
+  }
+  
+  // Mostrar u ocultar el botón de invitar según los permisos
+  const inviteBtn = document.getElementById('inviteBtn');
+  if (inviteBtn) {
+    const canInvite = currentUser && (currentUser.clubRole === 'admin' || currentUser.clubRole === 'owner');
+    inviteBtn.style.display = canInvite ? 'inline-flex' : 'none';
+    
+    // Asegurar que el event listener esté configurado
+    if (canInvite && !inviteBtn.dataset.listenerAdded) {
+      inviteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        showInviteContent();
+      });
+      inviteBtn.dataset.listenerAdded = 'true';
+    }
   }
 }
 
@@ -329,13 +399,6 @@ function loadPlayersForClub() {
   const select = document.getElementById('club-select');
   const selectedValue = select.value;
 
-  if (selectedValue === 'create-club') {
-    // Restaurar el valor anterior del select
-    select.value = clubId || 'my-players';
-    openModal('createClubModal');
-    return;
-  }
-
   // Obtener la escala actual
   const currentScale = getCurrentScale();
 
@@ -346,4 +409,162 @@ function loadPlayersForClub() {
 
   // Navegar al club seleccionado preservando la escala
   window.location.href = `/home?club_id=${encodeURIComponent(selectedValue)}&scale=${currentScale}`;
+}
+
+// ========================================
+// FUNCIONES DE BOTONES DE LA INTERFAZ
+// ========================================
+
+function openCreateClubModal() {
+  const modal = document.getElementById('createClubModal');
+  if (modal) {
+    modal.style.display = 'flex';
+    
+    // Limpiar el input
+    const nameInput = document.getElementById('new-club-name');
+    if (nameInput) {
+      nameInput.value = '';
+      nameInput.focus();
+    }
+    
+    // Cerrar modal al hacer click en el backdrop
+    const backdrop = modal.querySelector('.modal-backdrop');
+    if (backdrop) {
+      backdrop.onclick = () => closeCreateClubModal();
+    }
+  }
+}
+
+function closeCreateClubModal() {
+  const modal = document.getElementById('createClubModal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+}
+
+async function createNewClub() {
+  const nameInput = document.getElementById('new-club-name');
+  const clubName = nameInput ? nameInput.value.trim() : '';
+  
+  if (!clubName || clubName.length < 3) {
+    alert('El nombre del club debe tener al menos 3 caracteres');
+    if (nameInput) nameInput.focus();
+    return;
+  }
+  
+  if (clubName.length > 50) {
+    alert('El nombre del club no puede tener más de 50 caracteres');
+    if (nameInput) nameInput.focus();
+    return;
+  }
+  
+  try {
+    const response = await fetch('/clubs/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        name: clubName
+      })
+    });
+    
+    if (response.ok) {
+      const newClub = await response.json();
+      closeCreateClubModal();
+      
+      // Mostrar mensaje de éxito
+      alert(`¡Club "${clubName}" creado exitosamente!`);
+      
+      // Recargar la página para mostrar el nuevo club
+      window.location.reload();
+    } else {
+      const error = await response.text();
+      alert(`Error al crear el club: ${error}`);
+    }
+  } catch (error) {
+    console.error('Error creating club:', error);
+    alert('Error al crear el club. Intenta de nuevo.');
+  }
+}
+
+function showInviteContent() {
+  // Cambiar a la vista de invitar miembro en el modal de gestión
+  const membersContent = document.getElementById('membersContent');
+  const inviteContent = document.getElementById('inviteContent');
+  
+  if (membersContent && inviteContent) {
+    membersContent.style.display = 'none';
+    inviteContent.style.display = 'block';
+  }
+  
+  // Si el modal no está abierto, abrirlo
+  openModal('manageModal');
+}
+
+function showMembersContent() {
+  const membersContent = document.getElementById('membersContent');
+  const inviteContent = document.getElementById('inviteContent');
+  
+  if (membersContent && inviteContent) {
+    membersContent.style.display = 'block';
+    inviteContent.style.display = 'none';
+  }
+}
+
+function confirmLeaveClub() {
+  if (confirm('¿Estás seguro de que quieres abandonar este club?')) {
+    leaveClub();
+  }
+}
+
+function confirmDeleteClub() {
+  if (confirm('¿Estás seguro de que quieres eliminar este club? Esta acción no se puede deshacer.')) {
+    deleteClub();
+  }
+}
+
+async function leaveClub() {
+  if (!clubId) return;
+  
+  try {
+    const response = await fetch(`/clubs/${clubId}/leave`, {
+      method: 'POST',
+      credentials: 'include'
+    });
+    
+    if (response.ok) {
+      alert('Has abandonado el club exitosamente');
+      window.location.href = '/clubes';
+    } else {
+      const error = await response.text();
+      alert(`Error al abandonar el club: ${error}`);
+    }
+  } catch (error) {
+    console.error('Error leaving club:', error);
+    alert('Error al abandonar el club. Intenta de nuevo.');
+  }
+}
+
+async function deleteClub() {
+  if (!clubId) return;
+  
+  try {
+    const response = await fetch(`/clubs/${clubId}`, {
+      method: 'DELETE',
+      credentials: 'include'
+    });
+    
+    if (response.ok) {
+      alert('Club eliminado exitosamente');
+      window.location.href = '/clubes';
+    } else {
+      const error = await response.text();
+      alert(`Error al eliminar el club: ${error}`);
+    }
+  } catch (error) {
+    console.error('Error deleting club:', error);
+    alert('Error al eliminar el club. Intenta de nuevo.');
+  }
 }

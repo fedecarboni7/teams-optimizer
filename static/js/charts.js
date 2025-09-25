@@ -8,9 +8,19 @@ function createRadarChart(contentContainer) {
     const tableContainer = contentContainer.querySelector('.table-container');
     const chartContainer = contentContainer.querySelector('.chart-container');
     const canvas = chartContainer.querySelector('canvas');
-    const resultadosEquiposContainer = document.getElementById('resultados-equipos1');
-    const listasJugadores = resultadosEquiposContainer.querySelectorAll('li');
-    const cantidadJugadores = Math.floor(listasJugadores.length / 2);
+    // Intentar obtener la cantidad de jugadores desde el dataset del contenedor (soporte para modo manual)
+    let cantidadJugadores = parseInt(contentContainer.dataset.playersCount || '0');
+    if (isNaN(cantidadJugadores) || cantidadJugadores <= 0) {
+        // Fallback al comportamiento anterior basado en resultados de equipos
+        const resultadosEquiposContainer = document.getElementById('resultados-equipos1');
+        if (resultadosEquiposContainer) {
+            const listasJugadores = resultadosEquiposContainer.querySelectorAll('li');
+            cantidadJugadores = Math.max(1, Math.floor(listasJugadores.length / 2));
+        } else {
+            // Último recurso: estimar a partir de los datos (no ideal, pero evita fallos)
+            cantidadJugadores = 5;
+        }
+    }
     const containerNumber = parseInt(contentContainer.id.replace('content-container', ''));
     const ctx = canvas.getContext('2d');
     
@@ -68,9 +78,8 @@ function createRadarChart(contentContainer) {
                         color: 'rgba(255, 255, 255, 0.4)',
                         lineWidth: 1
                     },
-                    // suggestedMin tiene que ser la cantidad de jugadores
+                    // Rango sugerido basado en cantidad de jugadores (1-5 por jugador)
                     suggestedMin: cantidadJugadores,
-                    // suggestedMax tiene que ser la cantidad de jugadores * 5
                     suggestedMax: cantidadJugadores * 5,
                     grid: {
                         color: 'rgba(255, 255, 255, 0.4)',

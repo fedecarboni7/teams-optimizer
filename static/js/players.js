@@ -51,7 +51,7 @@ function sortPlayers(column) {
 
 // Función para cargar jugadores desde el backend
 async function loadPlayers() {
-    await loadPlayersForContext(currentClubId);
+    await loadPlayersForContext(getCurrentClubId());
 }
 
 // Función para filtrar jugadores por nombre
@@ -129,8 +129,8 @@ function renderPlayers() {
     const playersToShow = filteredPlayers.length > 0 || searchTerm === '' ? filteredPlayers : [];
     
     if (playersToShow.length === 0) {
-        const contextName = currentClubId === 'my-players' ? 'personales' : 
-                          userClubs.find(club => club.id == currentClubId)?.name || 'de este club';
+        const contextName = getCurrentClubId() === 'my-players' ? 'personales' : 
+                          getUserClubs().find(club => club.id == getCurrentClubId())?.name || 'de este club';
         
         // Mostrar mensaje diferente si es por búsqueda o por falta de jugadores
         const message = searchTerm !== '' ? 
@@ -780,8 +780,8 @@ async function saveNewPlayer() {
     }
     
     // Agregar club_id según el contexto
-    if (currentClubId !== 'my-players') {
-        playerData.club_id = currentClubId;
+    if (getCurrentClubId() !== 'my-players') {
+        playerData.club_id = getCurrentClubId();
     } else {
         playerData.club_id = null;
     }
@@ -842,20 +842,6 @@ async function savePlayer(playerData) {
     }
 }
 
-// Función para toggle del sidebar
-function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.querySelector('.sidebar-overlay');
-    
-    if (sidebar.classList.contains('open')) {
-        sidebar.classList.remove('open');
-        overlay.classList.remove('active');
-    } else {
-        sidebar.classList.add('open');
-        overlay.classList.add('active');
-    }
-}
-
 // Cerrar modal al hacer clic fuera
 window.onclick = function(event) {
     const modal = document.getElementById('playerModal');
@@ -870,107 +856,14 @@ window.onclick = function(event) {
     }
 }
 
-// Variables para el contexto actual
-let currentClubId = 'my-players';
-let userClubs = [];
+// Variables para el contexto actual (ahora se manejan desde clubSelector.js)
+// let currentClubId = 'my-players';  // Comentado - se usa desde clubSelector.js
+// let userClubs = [];               // Comentado - se usa desde clubSelector.js
 
-// Cargar clubes del usuario
-async function loadUserClubs() {
-    try {
-        const response = await fetch('/api/user-clubs', {
-            method: 'GET',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' }
-        });
-        
-        if (response.ok) {
-            userClubs = await response.json();
-            populateClubSelector();
-        } else {
-            console.error('Error loading user clubs:', response.status);
-            // Si falla, al menos mantener "Mis jugadores"
-            populateClubSelector();
-        }
-    } catch (error) {
-        console.error('Error loading user clubs:', error);
-        // Si falla, al menos mantener "Mis jugadores"
-        populateClubSelector();
-    }
-}
-
-// Poblar el selector de clubes
-function populateClubSelector() {
-    const selector = document.getElementById('club-select-navbar');
-    const contextIcon = document.getElementById('contextIcon');
-    
-    // Limpiar opciones existentes excepto "Mis jugadores"
-    selector.innerHTML = '<option value="my-players">Mis jugadores</option>';
-    
-    // Agregar clubes del usuario
-    userClubs.forEach(club => {
-        const option = document.createElement('option');
-        option.value = club.id;
-        option.textContent = club.name;
-        selector.appendChild(option);
-    });
-    
-    // Agregar opción para crear nuevo club
-    const createOption = document.createElement('option');
-    createOption.value = 'create-club';
-    createOption.textContent = '+ Crear nuevo club';
-    selector.appendChild(createOption);
-    
-    // Actualizar icono según contexto actual
-    updateContextIcon();
-}
-
-// Actualizar el icono según el contexto actual
-function updateContextIcon() {
-    const contextIcon = document.getElementById('contextIcon');
-    const selector = document.getElementById('club-select-navbar');
-    
-    if (selector.value === 'my-players') {
-        contextIcon.textContent = '👤'; // Icono de usuario personal
-    } else {
-        contextIcon.textContent = '⚽'; // Icono de club
-    }
-}
-
-// Cambiar contexto (club o personal)
-async function switchContext() {
-    const selector = document.getElementById('club-select-navbar');
-    const selectedValue = selector.value;
-    
-    if (selectedValue === 'create-club') {
-        // Restaurar el valor anterior
-        selector.value = currentClubId;
-        // TODO: Abrir modal para crear club
-        alert('Función para crear club en desarrollo');
-        return;
-    }
-    
-    // Mostrar feedback visual mientras cambia el contexto
-    const originalText = selector.options[selector.selectedIndex].text;
-    selector.disabled = true;
-    
-    try {
-        currentClubId = selectedValue;
-        updateContextIcon();
-        
-        // Recargar jugadores según el nuevo contexto
-        await loadPlayersForContext(selectedValue);
-        
-        // Mostrar mensaje de éxito brevemente
-        const contextInfo = selectedValue === 'my-players' ? 'Mis jugadores' : 
-                          userClubs.find(club => club.id == selectedValue)?.name || 'Club desconocido';
-        
-    } catch (error) {
-        // Si hay error, restaurar la selección anterior y mostrar error
-        console.error('Error switching context:', error);
-        alert('Error al cambiar el contexto. Intenta de nuevo.');
-    } finally {
-        selector.disabled = false;
-    }
+// Función de integración con clubSelector.js
+// Esta función se llama cuando cambia el contexto desde el selector común
+function onContextChanged(contextId) {
+    return loadPlayersForContext(contextId);
 }
 
 // Cargar jugadores según el contexto (personal o club)
@@ -1025,6 +918,7 @@ async function loadPlayersForContext(contextId) {
 
 // Inicializar la aplicación
 document.addEventListener('DOMContentLoaded', function() {
-    loadUserClubs();
+    // El clubSelector.js se encarga de cargar los clubes automáticamente
+    // Solo necesitamos cargar los jugadores
     loadPlayers();
 });

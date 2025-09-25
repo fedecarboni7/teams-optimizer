@@ -589,39 +589,39 @@ function deleteSelectedPlayers() {
     }
 }
 
-// Crear el nuevo club
-function createNewClub() {
-    const clubName = document.getElementById('new-club-name').value;
-    if (!clubName) {
-        alert("Por favor, ingresá un nombre para el club.");
-        return;
-    }
+// Crear el nuevo club - DEPRECATED: Usar la función de clubSelector.js
+// function createNewClub() {
+//     const clubName = document.getElementById('new-club-name').value;
+//     if (!clubName) {
+//         alert("Por favor, ingresá un nombre para el club.");
+//         return;
+//     }
 
-    // Hacer la solicitud AJAX para crear el club
-    fetch('/clubs/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name: clubName }),
-    })
-    .then(response => {
-        if (response.ok) {
-            return response.json();
-        }
-        throw new Error("Error al crear el club");
-    })
-    .then(data => {
-        // Redirigir a la página con el club recién creado seleccionado
-        window.location.href = '/home?club_id=' + data.id;
-    })
-    .catch(error => {
-        alert(error.message);
-    })
-    .finally(() => {
-        closeCreateClubModal();
-    });
-}
+//     // Hacer la solicitud AJAX para crear el club
+//     fetch('/clubs/', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json',
+//         },
+//         body: JSON.stringify({ name: clubName }),
+//     })
+//     .then(response => {
+//         if (response.ok) {
+//             return response.json();
+//         }
+//         throw new Error("Error al crear el club");
+//     })
+//     .then(data => {
+//         // Redirigir a la página con el club recién creado seleccionado
+//         window.location.href = '/home?club_id=' + data.id;
+//     })
+//     .catch(error => {
+//         alert(error.message);
+//     })
+//     .finally(() => {
+//         closeCreateClubModal();
+//     });
+// }
 
 function deleteClub(clubId) {
     if (!confirm("¿Estás seguro de que querés eliminar este club? Esta acción no se puede deshacer.")) {

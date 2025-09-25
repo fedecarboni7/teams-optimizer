@@ -9,10 +9,12 @@
     <link rel="icon" type="image/png" sizes="16x16" href="../static/favicon/favicon-16x16.png">
     <link rel="manifest" href="../static/favicon/site.webmanifest">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="/static/js/clubSelector.js" defer></script>
     <script src="/static/js/api.js" defer></script>
     <script src="/static/js/ui.js" defer></script>
     <script src="/static/js/players.js" defer></script>
     <link rel="stylesheet" type="text/css" href="/static/css/players.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/clubs.css">
 </head>
 <body>
     <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
@@ -31,9 +33,13 @@
                 <span>Armar Equipos</span>
             </button>
             <div class="nav-separator"></div>
-            <button class="nav-item" onclick="navigateTo('configuracion')">
-                <span>⚙️</span>
-                <span>Configuración</span>
+            <button class="nav-item" onclick="navigateTo('clubes')">
+                <span>🏆</span>
+                <span>Gestionar Clubes</span>
+            </button>
+            <button class="nav-item" onclick="navigateTo('perfil')">
+                <span>👤</span>
+                <span>Mi Perfil</span>
             </button>
         </div>
     </div>
@@ -110,6 +116,16 @@
             <div id="create-player-form" class="player-details">
                 <!-- El formulario se cargará aquí -->
             </div>
+        </div>
+    </div>
+
+    <!-- Modal para crear un nuevo club -->
+    <div id="createClubModal" class="modal">
+        <div class="modal-content">
+            <h2>Crear Club</h2>
+            <input type="text" id="new-club-name" placeholder="Nombre del club">
+            <button class="btn btn-primary" onclick="createNewClub()">Crear</button>
+            <button class="btn" onclick="closeCreateClubModal()">Cancelar</button>
         </div>
     </div>
 </body>

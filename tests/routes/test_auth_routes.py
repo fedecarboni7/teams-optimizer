@@ -311,7 +311,7 @@ def test_profile_update_email(client, db):
     response = client.post("/login", data={"username": username, "password": "Testpassword1*"}, follow_redirects=False)
     assert response.status_code == 302
     
-    response = client.post("/profile/update-email", data={"email": new_email}, follow_redirects=False)
+    response = client.post("/perfil/update-email", data={"email": new_email}, follow_redirects=False)
     assert response.status_code == 200
     assert "success" in response.context
     
@@ -335,7 +335,7 @@ def test_profile_update_email_duplicate(client, db):
     assert response.status_code == 302
     
     # Try to update user2's email to user1's email
-    response = client.post("/profile/update-email", data={"email": "user1@example.com"}, follow_redirects=False)
+    response = client.post("/perfil/update-email", data={"email": "user1@example.com"}, follow_redirects=False)
     assert response.status_code == 200
     assert "error" in response.context
     assert "ya está registrado" in response.context["error"]
@@ -461,7 +461,7 @@ def test_profile_resend_email_confirmation(client, db):
     db.commit()
     
     # Try to resend confirmation from profile
-    response = client.post("/profile/resend-email-confirmation", follow_redirects=False)
+    response = client.post("/perfil/resend-email-confirmation", follow_redirects=False)
     assert response.status_code == 200
     assert response.template.name == "profile.html"
     assert "Email de confirmación reenviado exitosamente" in response.context["success"]
@@ -482,7 +482,7 @@ def test_profile_resend_email_confirmation_no_email(client, db):
     assert response.status_code == 302
     
     # Try to resend confirmation from profile
-    response = client.post("/profile/resend-email-confirmation", follow_redirects=False)
+    response = client.post("/perfil/resend-email-confirmation", follow_redirects=False)
     assert response.status_code == 200
     assert response.template.name == "profile.html"
     assert "No tienes un email configurado" in response.context["error"]
@@ -503,7 +503,7 @@ def test_profile_resend_email_confirmation_already_confirmed(client, db):
     assert response.status_code == 302
     
     # Try to resend confirmation from profile
-    response = client.post("/profile/resend-email-confirmation", follow_redirects=False)
+    response = client.post("/perfil/resend-email-confirmation", follow_redirects=False)
     assert response.status_code == 200
     assert response.template.name == "profile.html"
     assert "Tu email ya está confirmado" in response.context["error"]
