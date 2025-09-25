@@ -491,8 +491,21 @@ async function createNewClub() {
       // Mostrar mensaje de éxito
       alert(`¡Club "${clubName}" creado exitosamente!`);
       
-      // Recargar la página para mostrar el nuevo club
-      window.location.reload();
+      // En lugar de recargar la página, actualizar el selector y cambiar al nuevo club
+      if (typeof loadUserClubs === 'function') {
+        await loadUserClubs();
+        // Cambiar al nuevo club
+        const selector = document.getElementById('club-select-navbar');
+        if (selector) {
+          selector.value = newClub.id;
+          // Guardar en localStorage
+          localStorage.setItem('selectedClubId', newClub.id);
+          // Aplicar el cambio de contexto
+          if (typeof onContextChanged === 'function') {
+            onContextChanged(newClub.id);
+          }
+        }
+      }
     } else {
       const error = await response.text();
       alert(`Error al crear el club: ${error}`);

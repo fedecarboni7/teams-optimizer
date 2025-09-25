@@ -56,6 +56,13 @@ function populateClubSelector() {
         selector.appendChild(option);
     });
     
+    // Cargar la selección guardada desde localStorage
+    const savedClubId = localStorage.getItem('selectedClubId');
+    if (savedClubId && (savedClubId === 'my-players' || userClubs.some(club => club.id == savedClubId))) {
+        currentClubId = savedClubId;
+        selector.value = savedClubId;
+    }
+    
     // Actualizar icono según contexto actual
     updateContextIcon();
 }
@@ -90,6 +97,10 @@ async function switchContext() {
     
     try {
         currentClubId = selectedValue;
+        
+        // Guardar la selección en localStorage para persistencia entre páginas
+        localStorage.setItem('selectedClubId', selectedValue);
+        
         updateContextIcon();
         
         // Llamar a la función específica de cada página si existe
@@ -204,6 +215,10 @@ async function createNewClub() {
         if (selector) {
             selector.value = newClub.id;
             currentClubId = newClub.id;
+            
+            // Guardar la selección en localStorage para persistencia
+            localStorage.setItem('selectedClubId', newClub.id);
+            
             updateContextIcon();
             
             // Llamar a la función específica de cada página si existe
@@ -318,7 +333,27 @@ document.addEventListener('keydown', function(event) {
 document.addEventListener('DOMContentLoaded', function() {
     // Solo cargar clubes si hay un selector en la página
     if (document.getElementById('club-select-navbar')) {
-        loadUserClubs();
+        loadUserClubs().then(() => {
+            // Después de cargar los clubes, verificar si hay un club guardado
+            const savedClubId = localStorage.getItem('selectedClubId');
+            if (savedClubId && savedClubId !== 'my-players') {
+                // Verificar si el club guardado aún existe
+                const clubExists = userClubs.some(club => club.id == savedClubId);
+                if (clubExists && typeof onContextChanged === 'function') {
+                    // Si el club existe, aplicar el cambio de contexto
+                    onContextChanged(savedClubId);
+                } else if (!clubExists) {
+                    // Si el club ya no existe, resetear a "mis jugadores" y limpiar localStorage
+                    localStorage.removeItem('selectedClubId');
+                    currentClubId = 'my-players';
+                    const selector = document.getElementById('club-select-navbar');
+                    if (selector) {
+                        selector.value = 'my-players';
+                        updateContextIcon();
+                    }
+                }
+            }
+        });
     }
 });
 
