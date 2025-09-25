@@ -1,0 +1,32 @@
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-title">Menú</div>
+    </div>
+    <div class="sidebar-nav">
+        <button class="nav-item {{ 'active' if active_page == 'equipos' else '' }}" onclick="navigateTo('equipos')">
+            <span>⚽</span>
+            <span>Armar Equipos</span>
+        </button>
+        <button class="nav-item {{ 'active' if active_page == 'jugadores' else '' }}" onclick="navigateTo('jugadores')">
+            <span>👥</span>
+            <span>Jugadores</span>
+        </button>
+        <button class="nav-item {{ 'active' if active_page == 'clubes' else '' }}" onclick="navigateTo('clubes')">
+            <span>🏆</span>
+            <span>Clubes</span>
+        </button>
+        <div class="nav-separator"></div>
+        <button class="nav-item {{ 'active' if active_page == 'perfil' else '' }}" onclick="navigateTo('perfil')">
+            <span>👤</span>
+            <span>Mi Perfil</span>
+        </button>
+    </div>
+    <div class="sidebar-footer">
+        <a href="/logout" class="logout-link">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span>Cerrar sesión ({{ user.username }})</span>
+        </a>
+    </div>
+</div>
