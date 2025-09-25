@@ -9,6 +9,20 @@ let pendingRoleChanges = new Map(); // Almacena los cambios pendientes
 window.clubId = null;
 window.currentUser = null;
 
+// Función de utilidad para traducir roles
+function translateRole(role) {
+  switch (role) {
+    case 'admin':
+      return 'Administrador';
+    case 'owner':
+      return 'Dueño';
+    case 'member':
+      return 'Miembro';
+    default:
+      return role;
+  }
+}
+
 // Inicialización
 document.addEventListener('DOMContentLoaded', () => {
   // Obtener datos del usuario desde el script element
@@ -193,10 +207,10 @@ function updateMembersTableUI() {
               onchange="handleRoleChange(${member.user_id}, this.value, '${member.role}')"
             >
               <option value="member" ${member.role === 'member' ? 'selected' : ''}>Miembro</option>
-              <option value="admin" ${member.role === 'admin' ? 'selected' : ''}>Admin</option>
-              <option value="owner" ${member.role === 'owner' ? 'selected' : ''}>Owner</option>
+              <option value="admin" ${member.role === 'admin' ? 'selected' : ''}>Administrador</option>
+              <option value="owner" ${member.role === 'owner' ? 'selected' : ''}>Dueño</option>
             </select>
-          ` : member.role
+          ` : translateRole(member.role)
         }
       </td>
       <td>

@@ -280,7 +280,7 @@
                     <button class="btn btn-secondary" onclick="showMembersContent()">
                         <i class="fa-solid fa-arrow-left"></i> Volver
                     </button>
-                    <button class="btn btn-primary" onclick="inviteUser()">
+                    <button class="btn btn-primary" onclick="sendInvitation()">
                         <i class="fa-solid fa-paper-plane"></i> Enviar Invitación
                     </button>
                 </div>
@@ -387,7 +387,7 @@
                 // Update user role display
                 const userRoleEl = document.getElementById('userRole');
                 if (userRoleEl) {
-                    userRoleEl.textContent = currentUser.clubRole;
+                    userRoleEl.textContent = translateRole(currentUser.clubRole);
                 }
             }
         }
