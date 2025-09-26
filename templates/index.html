@@ -1,52 +1,31 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
+{% extends "base.html" %}
+{% set active_page = 'equipos' %}
+
+{% block title %}Armar Equipos | Home{% endblock %}
+
+{% block head %}
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q0GE6VCJGX"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-
         gtag('config', 'G-Q0GE6VCJGX');
     </script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Armar Equipos | Home</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="../static/favicon/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="../static/favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="../static/favicon/favicon-16x16.png">
-    <link rel="manifest" href="../static/favicon/site.webmanifest">
-    <!-- CSS Modular Organization -->
-    <link rel="stylesheet" type="text/css" href="/static/css/base.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/layout.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/components.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/pages.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/responsive.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/animations.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/utilities.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/formations.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/clubs.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/scale-toggle.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/pages.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/responsive.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/animations.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/formations.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/clubs.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/scale-toggle.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/modals.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="/static/js/utils.js"></script>
-    <script src="/static/js/api.js"></script>
-    <script src="/static/js/teamLogic.js"></script>
-    <script src="/static/js/charts.js"></script>
-    <script src="/static/js/ui.js"></script>
-    <script src="/static/js/changeTracker.js"></script>
-    <script src="/static/js/main.js"></script>
-    <script src="/static/js/formations.js"></script>
-    <script src="/static/js/clubs.js"></script>
-    <script src="/static/js/scaleManager.js"></script>
     <link rel="canonical" href="https://armarequipos.lat/home" />
-</head>
-<body>
-    <div class="content">
-    <h1>Armar Equipos</h1>
+{% endblock %}
+
+{% block content %}
 
     <div class="club-section">
         <div class="club-container">
@@ -326,5 +305,20 @@
             <i class="fas fa-code"></i> with ❤️ by <a href="https://github.com/fedecarboni7" target="_blank">fedecarboni7</a>
         </div>
     </footer>
-</body>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='js/api.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/teamLogic.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/charts.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/playerSelection.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/sliders.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/navigation.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/uiHelpers.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/changeTracker.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/formations.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/clubs.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/scaleManager.js') }}" defer></script>
+{% endblock %}
 </html>

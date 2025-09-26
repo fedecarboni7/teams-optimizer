@@ -26,7 +26,7 @@
     <div class="sidebar-footer">
         <a href="/logout" class="logout-link">
             <i class="fa-solid fa-right-from-bracket"></i>
-            <span>Cerrar sesión ({{ user.username }})</span>
+            <span>Cerrar sesión{% if currentUser %} ({{ currentUser.userName }}){% endif %}</span>
         </a>
     </div>
 </div>
