@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% block head_meta %}
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q0GE6VCJGX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-Q0GE6VCJGX');
+    </script>
+    {% endblock %}
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <title>{% block title %}Armar Equipos{% endblock %}</title>
+    
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='favicon/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon/favicon-16x16.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='favicon/site.webmanifest') }}">
+    
+    <!-- Core CSS -->
+    {% block core_css %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/layout.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/components.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/pages.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/responsive.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/animations.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/utilities.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    {% endblock %}
+    
+    <!-- Page-specific CSS -->
+    {% block page_css %}{% endblock %}
+    
+    <!-- Core JavaScript -->
+    {% block core_js %}
+    <script src="{{ url_for('static', filename='js/common.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/ui.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/api.js') }}" defer></script>
+    {% endblock %}
+    
+    <!-- Page-specific JavaScript -->
+    {% block page_js %}{% endblock %}
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body{% if body_class %} class="{{ body_class }}"{% endif %}>
+    {% block sidebar %}
+    {% if has_sidebar %}
+        {% include '_sidebar.html' %}
+    {% endif %}
+    {% endblock %}
+    
+    {% block navbar %}{% endblock %}
+    
+    {% block content %}{% endblock %}
+    
+    {% block modals %}{% endblock %}
+    
+    {% block footer_js %}{% endblock %}
+</body>
+</html>

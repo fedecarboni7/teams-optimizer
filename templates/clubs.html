@@ -1,56 +1,29 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    {% set active_page = 'clubes' %}
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q0GE6VCJGX"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-Q0GE6VCJGX');
-    </script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Gestión de Clubes - Armar Equipos</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="../static/favicon/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="../static/favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="../static/favicon/favicon-16x16.png">
-    <link rel="manifest" href="../static/favicon/site.webmanifest">
-    <link rel="stylesheet" type="text/css" href="../static/css/daisyui.min.css" />
-    <link rel="stylesheet" type="text/css" href="/static/css/base.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/layout.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/components.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/pages.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/responsive.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/animations.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/utilities.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/sidebar.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/players.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/clubs.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/clubs-management.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <script src="/static/js/utils.js" defer></script>
-    <script src="/static/js/clubSelector.js" defer></script>
-    <script src="/static/js/ui.js" defer></script>
-    <script src="/static/js/api.js" defer></script>
-    <script src="/static/js/clubs.js" defer></script>
-</head>
-<body class="clubs-page">
-    {% include '_sidebar.html' %}
-    <nav class="navbar">
-        <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-        <div class="club-selector-navbar">
-            <div class="current-context">
-                <span class="context-icon" id="contextIcon">👤</span>
-                <select id="club-select-navbar" class="club-dropdown" onchange="switchContext()">
-                    <option value="my-players" selected>Mis jugadores</option>
-                    <!-- Los clubes se cargarán dinámicamente -->
-                </select>
-            </div>
-        </div>
-        <div class="logo">📱</div>
-    </nav>
+{% extends "base.html" %}
+{% set active_page = 'clubes' %}
+{% set body_class = 'clubs-page' %}
+{% set has_sidebar = true %}
+
+{% block title %}Gestión de Clubes - Armar Equipos{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/daisyui.min.css') }}" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/sidebar.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/players.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/clubs.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/clubs-management.css') }}">
+{% endblock %}
+
+{% block page_js %}
+<script src="{{ url_for('static', filename='js/utils.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/clubSelector.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/clubs.js') }}" defer></script>
+{% endblock %}
+
+{% block navbar %}
+{% include '_navbar.html' %}
+{% endblock %}
+
+{% block content %}
 
     <div class="main-content">
         <div class="page-header">
@@ -263,7 +236,14 @@
             </div>
         </div>
     </div>
+{% endblock %}
 
+{% block footer_js %}
+    <!-- Hidden element to pass user data to JavaScript -->
+    {% if currentUser %}
+    <script id="user-data" type="application/json">{{ currentUser | tojson | safe }}</script>
+    {% endif %}
+    
     <script>
         // Variables específicas para la página de clubes
         let currentClubData = null;
@@ -454,10 +434,4 @@
             updateClubDisplay();
         });
     </script>
-
-    <!-- Hidden element to pass user data to JavaScript -->
-    {% if currentUser %}
-    <script id="user-data" type="application/json">{{ currentUser | tojson | safe }}</script>
-    {% endif %}
-</body>
-</html>
+{% endblock %}
