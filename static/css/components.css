@@ -1,10 +1,67 @@
 /* Components - Reusable UI components (buttons, inputs, player entries, teams) */
+
+/* Button Components */
+.btn {
+    background-color: var(--primary-color);
+    color: var(--text-white);
+    border: none;
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.btn:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+}
+
+.btn-success {
+    background-color: var(--success-color);
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: var(--spacing-sm);
+    border-radius: var(--border-radius-sm);
+    transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.btn-icon:hover {
+    color: var(--text-primary);
+    background-color: var(--bg-hover);
+}
+
+/* Link Components */
 a.logout-link {
-    color: #ff7158;
+    color: var(--danger-color);
     text-decoration: none;
-    margin-left: 10px;
-    font-size: 14px;
-    transition: color 0.3s ease;
+    margin-left: var(--spacing-md);
+    font-size: var(--font-size-sm);
+    transition: color var(--transition-fast);
     display: flex;
     align-items: center;
     font-weight: 500;
@@ -15,28 +72,28 @@ a.logout-link:hover {
 }
 
 .logout-link i {
-    margin-right: 5px;
+    margin-right: var(--spacing-sm);
     margin-top: 2px;
 }
 
 a.profile-link {
-    color: #e0e0e0;
+    color: var(--text-primary);
     text-decoration: none;
-    margin-top: 10px;
-    margin-left: 10px;
-    font-size: 14px;
-    transition: color 0.3s ease;
+    margin-top: var(--spacing-md);
+    margin-left: var(--spacing-md);
+    font-size: var(--font-size-sm);
+    transition: color var(--transition-fast);
     display: flex;
     align-items: center;
     font-weight: 500;
 }
 
 a.profile-link:hover {
-    color: #ccc;
+    color: var(--text-secondary);
 }
 
 .profile-link i {
-    margin-right: 5px;
+    margin-right: var(--spacing-sm);
     margin-top: 2px;
 }
 

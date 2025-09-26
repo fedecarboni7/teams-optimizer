@@ -1,0 +1,30 @@
+<!-- Modal para crear un nuevo club -->
+<div id="createClubModal" class="modal">
+    <div class="modal-content">
+        <h2>Crear Club</h2>
+        <input type="text" id="new-club-name" placeholder="Nombre del club">
+        <button class="btn btn-primary" data-action="create-club">Crear</button>
+        <button class="btn" data-action="close-modal" data-modal="createClubModal">Cancelar</button>
+    </div>
+</div>
+
+<!-- Modal para invitaciones -->
+<div id="invitationsModal" class="modal">
+    <div class="modal-content">
+        <h2>Invitaciones pendientes</h2>
+        <div id="invitations-list">
+            <!-- Las invitaciones se cargarán aquí dinámicamente -->
+        </div>
+        <button class="btn" data-action="close-modal" data-modal="invitationsModal">Cerrar</button>
+    </div>
+</div>
+
+<!-- Modal de enviar invitación -->
+<div id="sendInvitationModal" class="modal">
+    <div class="modal-content">
+        <h2>Enviar invitación</h2>
+        <input type="email" id="invitation-email" placeholder="Email del destinatario">
+        <button class="btn btn-primary" data-action="send-invitation">Enviar invitación</button>
+        <button class="btn" data-action="close-modal" data-modal="sendInvitationModal">Cancelar</button>
+    </div>
+</div>

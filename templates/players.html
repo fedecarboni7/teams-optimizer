@@ -1,44 +1,30 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    {% set active_page = 'jugadores' %}
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jugadores</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="../static/favicon/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="../static/favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="../static/favicon/favicon-16x16.png">
-    <link rel="manifest" href="../static/favicon/site.webmanifest">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/sidebar.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/players.css">
+{% extends "base.html" %}
+
+{% set active_page = 'jugadores' %}
+
+{% block title %}Jugadores - Armar Equipos{% endblock %}
+
+{% block head %}
+    <!-- Chart.js for player statistics -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <script src="/static/js/clubSelector.js" defer></script>
-    <script src="/static/js/ui.js" defer></script>
-    <script src="/static/js/api.js" defer></script>
-    <script src="/static/js/players.js" defer></script>
-</head>
-<body class="players-page">
-    {% include '_sidebar.html' %}
+    
+    <!-- Page-specific CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/players.css') }}">
+    
+    <!-- Page-specific JavaScript modules -->
+    <script src="{{ url_for('static', filename='js/modules/players-table.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/clubSelector.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/api.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/players.js') }}" defer></script>
+{% endblock %}
 
-    <nav class="navbar">
-        <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-        <div class="club-selector-navbar">
-            <div class="current-context">
-                <span class="context-icon" id="contextIcon">👤</span>
-                <select id="club-select-navbar" class="club-dropdown" onchange="switchContext()">
-                    <option value="my-players" selected>Mis jugadores</option>
-                    <!-- Los clubes se cargarán dinámicamente -->
-                </select>
-            </div>
-        </div>
-        <div class="logo">📱</div>
-    </nav>
+{% block body_class %}players-page{% endblock %}
 
+{% block content %}
     <div class="container">
         <div class="header">
             <h1 class="title">Jugadores</h1>
-            <button class="add-btn" onclick="addPlayer()">
+            <button class="add-btn" data-action="add-player">
                 <span>+</span>
                 Agregar Jugador
             </button>
@@ -46,23 +32,24 @@
 
         <div class="search-container">
             <div class="search-box">
-                <input type="text" id="player-search" placeholder="Buscar jugador por nombre..." onkeyup="filterPlayers()">
+                <input type="text" id="player-search" placeholder="Buscar jugador por nombre...">
                 <span class="search-icon">🔍</span>
             </div>
         </div>
 
         <div class="scale-selector">
             <div class="scale-toggle">
-                <button class="scale-option active" onclick="setScale(5)">1-5</button>
-                <button class="scale-option" onclick="setScale(10)">1-10</button>
+                <button class="scale-option active" data-action="set-scale" data-scale="5">1-5</button>
+                <button class="scale-option" data-action="set-scale" data-scale="10">1-10</button>
             </div>
         </div>
 
         <div class="players-table">
             <div class="table-header">
-                <div class="header-cell" onclick="sortPlayers('name')">Nombre</div>
-                <div class="header-cell" onclick="sortPlayers('score')">Puntuación</div>
-                <div class="header-cell" onclick="sortPlayers('date')">Última Modificación</div>
+                <div class="header-cell" data-sort="name">Nombre</div>
+                <div class="header-cell" data-sort="score">Puntuación</div>
+                <div class="header-cell" data-sort="date">Última Modificación</div>
+                <div class="header-cell">Acciones</div>
             </div>
             <div id="players-list">
                 <!-- Los jugadores se cargarán aquí -->
@@ -75,7 +62,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title">Detalles del Jugador</h2>
-                <button class="close-btn" onclick="closeModal()">&times;</button>
+                <button class="close-btn" data-action="close-modal" data-modal="playerModal">&times;</button>
             </div>
             <div id="player-details" class="player-details">
                 <!-- Los detalles se cargarán aquí -->
@@ -88,22 +75,11 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title">Nuevo Jugador</h2>
-                <button class="close-btn" onclick="closeCreateModal()">&times;</button>
+                <button class="close-btn" data-action="close-modal" data-modal="createPlayerModal">&times;</button>
             </div>
             <div id="create-player-form" class="player-details">
                 <!-- El formulario se cargará aquí -->
             </div>
         </div>
     </div>
-
-    <!-- Modal para crear un nuevo club -->
-    <div id="createClubModal" class="modal">
-        <div class="modal-content">
-            <h2>Crear Club</h2>
-            <input type="text" id="new-club-name" placeholder="Nombre del club">
-            <button class="btn btn-primary" onclick="createNewClub()">Crear</button>
-            <button class="btn" onclick="closeCreateClubModal()">Cancelar</button>
-        </div>
-    </div>
-</body>
-</html>
+{% endblock %}

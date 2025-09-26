@@ -1,24 +1,24 @@
-<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+<div class="sidebar-overlay" data-action="toggle-sidebar"></div>
 
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
         <div class="sidebar-title">Menú</div>
     </div>
     <div class="sidebar-nav">
-        <button class="nav-item {{ 'active' if active_page == 'equipos' else '' }}" onclick="navigateTo('equipos')">
+        <button class="nav-item {{ 'active' if active_page == 'equipos' else '' }}" data-action="navigate" data-target="equipos">
             <span>⚽</span>
             <span>Armar Equipos</span>
         </button>
-        <button class="nav-item {{ 'active' if active_page == 'jugadores' else '' }}" onclick="navigateTo('jugadores')">
+        <button class="nav-item {{ 'active' if active_page == 'jugadores' else '' }}" data-action="navigate" data-target="jugadores">
             <span>👥</span>
             <span>Jugadores</span>
         </button>
-        <button class="nav-item {{ 'active' if active_page == 'clubes' else '' }}" onclick="navigateTo('clubes')">
+        <button class="nav-item {{ 'active' if active_page == 'clubes' else '' }}" data-action="navigate" data-target="clubes">
             <span>🏆</span>
             <span>Clubes</span>
         </button>
         <div class="nav-separator"></div>
-        <button class="nav-item {{ 'active' if active_page == 'perfil' else '' }}" onclick="navigateTo('perfil')">
+        <button class="nav-item {{ 'active' if active_page == 'perfil' else '' }}" data-action="navigate" data-target="perfil">
             <span>👤</span>
             <span>Mi Perfil</span>
         </button>
