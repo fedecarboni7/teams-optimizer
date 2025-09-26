@@ -1,28 +1,60 @@
 /* Base styles - Core styles, reset, global styles, typography, body */
+
+/* CSS Variables */
+:root {
+    --primary-bg: #1c1c1c;
+    --secondary-bg: #2a2a2a;
+    --text-primary: #e0e0e0;
+    --text-secondary: #ccc;
+    --text-white: #ffffff;
+    --accent-color: #1a73e8;
+    --accent-hover: #1557b0;
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --border-radius: 8px;
+    --border-radius-lg: 12px;
+    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-bold: 700;
+}
+
 html, body {
     height: 97%;
 }
 
 body {
-    background-color: #1c1c1c;
-    color: #e0e0e0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--primary-bg);
+    color: var(--text-primary);
+    font-family: var(--font-family);
+    font-weight: var(--font-weight-normal);
     margin: 0;
-    padding: 0;
+    padding: var(--spacing-lg);
     display: flex;
     flex-direction: column;
 }
 
 h1 {
-    color: #ffffff;
+    color: var(--text-white);
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: var(--spacing-xl);
+    font-weight: var(--font-weight-bold);
+}
+
+h2, h3, h4, h5, h6 {
+    color: var(--text-white);
+    font-weight: var(--font-weight-medium);
 }
 
 label {
-    font-weight: 500;
+    font-weight: var(--font-weight-medium);
+    color: var(--text-primary);
 }
 
 p {
-    font-weight: 500;
+    font-weight: var(--font-weight-medium);
+    color: var(--text-primary);
 }

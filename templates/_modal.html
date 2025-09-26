@@ -1,0 +1,21 @@
+<!-- Modal genérico -->
+<div id="{{ modal_id }}" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">{{ modal_title }}</h2>
+            <button class="close-btn" onclick="{{ close_function }}">&times;</button>
+        </div>
+        <div id="{{ content_id }}" class="modal-body">
+            {% if modal_content %}
+                {{ modal_content | safe }}
+            {% else %}
+                <!-- El contenido se cargará dinámicamente -->
+            {% endif %}
+        </div>
+        {% if modal_footer %}
+        <div class="modal-footer">
+            {{ modal_footer | safe }}
+        </div>
+        {% endif %}
+    </div>
+</div>
