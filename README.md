@@ -28,6 +28,74 @@ El proyecto continuará desarrollándose para incorporar características y func
 * **Nuevas habilidades**: Permitirá crear tu propio set de habilidades a comparar entre los equipos.
 * **Colaboración entre jugadores**: La puntuación de las habilidades sería calculada entre los inputs de distintos jugadores para lograr una evaluación más equilibrada y consensuada.
 
+## Desarrollo
+
+### Ejecutar la aplicación
+
+```bash
+uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+### Checklist de Verificación
+
+Después de realizar cambios en el frontend, verifica que todo funcione correctamente:
+
+#### ✅ Funcionalidad del Sidebar
+- [ ] El sidebar se abre y cierra correctamente con el botón de menú (☰)
+- [ ] Los enlaces de navegación funcionan (Armar Equipos, Jugadores, Clubes, Mi Perfil)
+- [ ] El overlay del sidebar cierra el menú al hacer clic
+- [ ] Las páginas activas se resaltan correctamente en el sidebar
+
+#### ✅ JavaScript sin Errores
+- [ ] Abrir la consola del navegador (F12) y verificar que no hay errores en rojo
+- [ ] Los eventos de click funcionan sin usar `onclick` inline
+- [ ] Los módulos JavaScript se cargan correctamente
+- [ ] Las funciones de navegación y UI responden apropiadamente
+
+#### ✅ Estilos Consistentes
+- [ ] Los colores siguen las variables CSS definidas en `base.css`
+- [ ] No hay estilos duplicados o conflictivos
+- [ ] Los botones y componentes mantienen el diseño consistente
+- [ ] La tipografía y espaciado es uniforme en todas las páginas
+
+#### ✅ Funcionalidad de Páginas
+- [ ] **Jugadores**: La tabla ordena y filtra correctamente
+- [ ] **Armar Equipos**: Los formularios y selección de jugadores funcionan
+- [ ] **Clubes**: La gestión de clubes y miembros opera sin problemas
+- [ ] **Perfil**: Los formularios de cambio de contraseña y email funcionan
+- [ ] **Home**: El formulario principal y la lógica de equipos está operativa
+
+#### ✅ Responsividad
+- [ ] Las páginas se ven bien en diferentes tamaños de pantalla
+- [ ] El sidebar funciona correctamente en dispositivos móviles
+- [ ] Los formularios son accesibles en pantallas pequeñas
+
+### Estructura del Proyecto
+
+```
+├── templates/
+│   ├── base.html              # Template base con estructura común
+│   ├── _sidebar.html          # Componente sidebar reutilizable
+│   ├── _navbar.html           # Componente navbar reutilizable
+│   ├── _modals.html           # Modales comunes
+│   ├── index.html             # Página principal (extends base.html)
+│   ├── players.html           # Gestión de jugadores (extends base.html)
+│   ├── armar_equipos.html     # Armar equipos (extends base.html)
+│   ├── clubs.html             # Gestión de clubes (extends base.html)
+│   └── profile.html           # Perfil de usuario (extends base.html)
+├── static/
+│   ├── css/
+│   │   ├── base.css           # Variables CSS y estilos base
+│   │   ├── components.css     # Componentes reutilizables
+│   │   └── ...                # Otros archivos CSS
+│   └── js/
+│       ├── modules/
+│       │   ├── common.js      # Utilidades comunes
+│       │   ├── sidebar.js     # Lógica del sidebar
+│       │   └── players-table.js # Tabla de jugadores
+│       └── ...                # Otros archivos JS
+```
+
 ## Contribuir
 
 Las contribuciones a este proyecto son bienvenidas. Por favor, consultá las [Guías de Contribución](CONTRIBUTING.md) para más información.
