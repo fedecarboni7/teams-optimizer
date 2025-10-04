@@ -91,22 +91,22 @@
     background-color: #333;
 }
 
-.logout-link {
+a.logout-link {
+    color: #ff7158;
+    text-decoration: none;
+    margin-left: 10px;
+    font-size: 14px;
+    transition: color 0.3s ease;
     display: flex;
     align-items: center;
-    gap: 12px;
-    color: #ccc;
-    text-decoration: none;
-    font-size: 16px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    font-weight: normal;
-    transition: color 0.3s;
+    font-weight: 500;
 }
 
-.logout-link:hover {
-    color: #ffffff;
+a.logout-link:hover {
+    color: #c5413d;
 }
 
 .logout-link i {
-    font-size: 18px;
+    margin-right: 5px;
+    margin-top: 2px;
 }
