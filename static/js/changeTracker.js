@@ -319,39 +319,6 @@ class PlayerChangeTracker {
 // Crear instancia global del tracker
 window.playerChangeTracker = new PlayerChangeTracker();
 
-// Función global para validar cambios antes de enviar formulario
-function validateUnsavedChanges() {
-    if (!window.playerChangeTracker.hasUnsavedPlayerChanges()) {
-        return false; // No hay cambios sin guardar, continuar
-    }
-
-    const modifiedPlayers = window.playerChangeTracker.getModifiedPlayers();
-    const newPlayers = window.playerChangeTracker.getNewPlayers();
-    
-    let message = '';
-    
-    if (newPlayers.length > 0 && modifiedPlayers.length > 0) {
-        message = `Tenés jugadores nuevos: ${newPlayers.join(', ')} y cambios en: ${modifiedPlayers.join(', ')}.\n\n¿Querés guardar todo antes de armar los equipos?`;
-    } else if (newPlayers.length > 0) {
-        message = `Tenés jugadores nuevos sin guardar: ${newPlayers.join(', ')}.\n\n¿Querés guardarlos antes de armar los equipos?`;
-    } else if (modifiedPlayers.length > 0) {
-        message = `Tenés cambios sin guardar en: ${modifiedPlayers.join(', ')}.\n\n¿Querés guardar los cambios antes de armar los equipos?`;
-    }
-    else {
-        return false; // No hay cambios relevantes
-    }
-
-    const shouldSave = confirm(message);
-    if (shouldSave) {
-        // Marcar que debe auto-enviar después de guardar
-        window.playerChangeTracker.shouldAutoSubmitAfterSave = true;
-        savePlayers();
-        return true; // Cancelar por ahora, se reenviará después de guardar
-    } else {
-        return true; // Cancelar
-    }
-}
-
 // Función para manejar auto-guardado después de validación exitosa
 window.playerChangeTracker.shouldAutoSubmitAfterSave = false;
 

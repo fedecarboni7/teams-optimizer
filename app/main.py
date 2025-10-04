@@ -41,5 +41,9 @@ app.include_router(admin_router, tags=["admin"])
 
 if __name__ == "__main__":
     import uvicorn
-
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    
+    # Esta configuración se usa solo cuando ejecutas directamente con:
+    # python -m app.main
+    # Para desarrollo usa el debugger de VS Code
+    # Para producción Railway usa: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    uvicorn.run(app, host="127.0.0.1", port=8000)

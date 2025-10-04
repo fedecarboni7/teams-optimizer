@@ -7,7 +7,7 @@ venv/
 .pytest_cache
 
 # SQLite
-*.db
+*.db*
 
 # VSCode
 .vscode

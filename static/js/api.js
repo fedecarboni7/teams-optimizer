@@ -2,6 +2,173 @@
 window.playerDataDict = {};
 window.teams = {};
 
+// API utilities for players backend communication
+class PlayersAPI {
+    constructor() {
+        this.baseUrl = '';
+    }
+
+    // Helper method to handle API responses
+    async handleResponse(response) {
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Error ${response.status}: ${errorText}`);
+        }
+        
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return await response.json();
+        }
+        return await response.text();
+    }
+
+    // Get all players
+    async getPlayers() {
+        try {
+            const response = await fetch('/players-v2', {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            return await this.handleResponse(response);
+        } catch (error) {
+            console.error('Error fetching players:', error);
+            throw error;
+        }
+    }
+
+    // Save players (create or update multiple)
+    async savePlayers(players) {
+        try {
+            const response = await fetch('/players-v2', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(players)
+            });
+            
+            return await this.handleResponse(response);
+        } catch (error) {
+            console.error('Error saving players:', error);
+            throw error;
+        }
+    }
+
+    // Save single player (create or update)
+    async savePlayer(player) {
+        try {
+            const response = await fetch('/player-v2', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(player)
+            });
+            
+            return await this.handleResponse(response);
+        } catch (error) {
+            console.error('Error saving player:', error);
+            throw error;
+        }
+    }
+
+    // Delete a single player
+    async deletePlayer(playerId) {
+        try {
+            const response = await fetch(`/player-v2/${playerId}`, {
+                method: 'DELETE',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            return await this.handleResponse(response);
+        } catch (error) {
+            console.error('Error deleting player:', error);
+            throw error;
+        }
+    }
+}
+
+// Create a global instance
+const playersAPI = new PlayersAPI();
+
+// API utilities for teams builder
+class TeamsAPI {
+    static async get(url) {
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ error: 'Error del servidor' }));
+                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+            }
+            
+            return await response.json();
+        } catch (error) {
+            console.error('API GET Error:', error);
+            throw error;
+        }
+    }
+
+    static async post(url, data) {
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ error: 'Error del servidor' }));
+                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+            }
+            
+            return await response.json();
+        } catch (error) {
+            console.error('API POST Error:', error);
+            throw error;
+        }
+    }
+
+    static async getPlayers(clubId = null, scale = '1-5') {
+        let url = `/api/players?scale=${scale}`;
+        if (clubId) {
+            url += `&club_id=${clubId}`;
+        }
+        return await this.get(url);
+    }
+
+    static async buildTeams(selectedPlayerIds, clubId = null, scale = '1-5') {
+        const requestBody = {
+            selected_player_ids: selectedPlayerIds,
+            scale: scale
+        };
+        
+        if (clubId) {
+            requestBody.club_id = parseInt(clubId);
+        }
+        
+        return await this.post('/api/build-teams', requestBody);
+    }
+}
+
 function submitForm(formData) {
     const submitBtn = document.getElementById('submitBtn');
     const spinner = document.createElement('span');
@@ -422,39 +589,39 @@ function deleteSelectedPlayers() {
     }
 }
 
-// Crear el nuevo club
-function createNewClub() {
-    const clubName = document.getElementById('new-club-name').value;
-    if (!clubName) {
-        alert("Por favor, ingresá un nombre para el club.");
-        return;
-    }
+// Crear el nuevo club - DEPRECATED: Usar la función de clubSelector.js
+// function createNewClub() {
+//     const clubName = document.getElementById('new-club-name').value;
+//     if (!clubName) {
+//         alert("Por favor, ingresá un nombre para el club.");
+//         return;
+//     }
 
-    // Hacer la solicitud AJAX para crear el club
-    fetch('/clubs/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name: clubName }),
-    })
-    .then(response => {
-        if (response.ok) {
-            return response.json();
-        }
-        throw new Error("Error al crear el club");
-    })
-    .then(data => {
-        // Redirigir a la página con el club recién creado seleccionado
-        window.location.href = '/home?club_id=' + data.id;
-    })
-    .catch(error => {
-        alert(error.message);
-    })
-    .finally(() => {
-        closeCreateClubModal();
-    });
-}
+//     // Hacer la solicitud AJAX para crear el club
+//     fetch('/clubs/', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json',
+//         },
+//         body: JSON.stringify({ name: clubName }),
+//     })
+//     .then(response => {
+//         if (response.ok) {
+//             return response.json();
+//         }
+//         throw new Error("Error al crear el club");
+//     })
+//     .then(data => {
+//         // Redirigir a la página con el club recién creado seleccionado
+//         window.location.href = '/home?club_id=' + data.id;
+//     })
+//     .catch(error => {
+//         alert(error.message);
+//     })
+//     .finally(() => {
+//         closeCreateClubModal();
+//     });
+// }
 
 function deleteClub(clubId) {
     if (!confirm("¿Estás seguro de que querés eliminar este club? Esta acción no se puede deshacer.")) {

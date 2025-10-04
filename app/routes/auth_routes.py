@@ -306,7 +306,7 @@ async def reset_password(
 
 
 # Profile management routes
-@router.get("/profile", response_class=HTMLResponse, include_in_schema=False)
+@router.get("/perfil", response_class=HTMLResponse, include_in_schema=False)
 async def profile_page(request: Request, db: Session = Depends(get_db)):
     """Display user profile page"""
     user_id = request.session.get("user_id")
@@ -325,7 +325,7 @@ async def profile_page(request: Request, db: Session = Depends(get_db)):
     )
 
 
-@router.post("/profile/update-email")
+@router.post("/perfil/update-email")
 async def update_email(
     request: Request,
     email: str = Form(...),
@@ -408,7 +408,7 @@ async def update_email(
         )
 
 
-@router.post("/profile/delete-account")
+@router.post("/perfil/delete-account")
 async def delete_account(
     request: Request,
     db: Session = Depends(get_db)
@@ -611,7 +611,7 @@ async def resend_confirmation(
         )
 
 
-@router.post("/profile/resend-email-confirmation")
+@router.post("/perfil/resend-email-confirmation")
 async def resend_email_confirmation_profile(
     request: Request,
     db: Session = Depends(get_db)
