@@ -162,35 +162,6 @@
     </div>
     </div>
       <script>
-      // Funciones de navegación necesarias para el sidebar
-      function toggleSidebar() {
-          const sidebar = document.getElementById('sidebar');
-          const overlay = document.querySelector('.sidebar-overlay');
-          
-          sidebar.classList.toggle('open');
-          overlay.classList.toggle('active');
-      }
-
-      function navigateTo(page) {
-          switch(page) {
-              case 'jugadores':
-                  window.location.href = '/jugadores';
-                  break;
-              case 'equipos':
-                  window.location.href = '/armar_equipos';
-                  break;
-              case 'perfil':
-                  window.location.href = '/perfil';
-                  break;
-              default:
-                  console.log('Página no encontrada:', page);
-          }
-      }
-
-      async function switchContext() {
-          // Esta función puede implementarse más tarde si es necesaria en el perfil
-          console.log('Switch context - funcionalidad para el perfil');
-      }
 
       function confirmDeleteAccount() {
         const confirmation = confirm(`¿Estás seguro de que quieres borrar tu cuenta permanentemente?

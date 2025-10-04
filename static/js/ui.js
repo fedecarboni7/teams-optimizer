@@ -130,51 +130,6 @@ function filterPlayers() {
     }
 }
 
-// Validar formulario (sin el fetch)
-function validateForm(event) {
-    event.preventDefault();
-    let playersContainer = document.getElementById('players-container');
-    let playerEntries = playersContainer.getElementsByClassName('player-entry');
-    
-    if (playerEntries.length < 3) {
-        alert('Debes crear al menos tres jugadores.');
-        return false;
-    }
-    
-    let selectedPlayers = document.querySelectorAll('input[name="selectedPlayers"]:checked');
-    if (selectedPlayers.length < 3) {
-        alert('Por favor, selecciona al menos tres jugadores.');
-        return false;
-    }
-    
-    if (selectedPlayers.length > 22) {
-        alert('El máximo de jugadores seleccionados es 22.');
-        return false;
-    }
-    
-    let names = new Set();
-    for (let entry of playerEntries) {
-        let nameInput = entry.querySelector('input[name="names"]');
-        if (nameInput) {
-            let playerName = nameInput.value.trim();
-            if (names.has(playerName)) {
-                alert('Los nombres de los jugadores deben ser distintos. Nombre repetido: ' + playerName);
-                return false;
-            }
-            names.add(playerName);
-        }
-    }
-    
-    // Verificar cambios sin guardar usando el nuevo sistema de seguimiento
-    if (window.playerChangeTracker && validateUnsavedChanges()) {
-        return false; // El usuario canceló, no continuar
-    }
-
-    let formData = new FormData(event.target);
-    submitForm(formData); // Llama a la función de api.js
-    return false;
-}
-
 // Agregar jugador
 function addPlayer() {
     const container = document.getElementById("players-container");
@@ -527,7 +482,7 @@ function toggleSort() {
 function navigateTo(page) {
     const routes = {
         'jugadores': '/jugadores',
-        'equipos': '/armar_equipos',
+        'equipos': '/home',
         'clubes': '/clubes',
         'perfil': '/perfil'
     };
