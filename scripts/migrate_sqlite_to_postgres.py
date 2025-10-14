@@ -168,19 +168,19 @@ def migrate_data():
             print("  2. Despliega tu aplicación")
             print("  3. Verifica que todo funcione correctamente")
             print("  4. (Opcional) Haz un backup de tu SQLite antes de eliminarlo")
+            return True
         else:
             print("⚠️  Hay diferencias en los conteos. Revisa los datos antes de continuar.")
-        
+            return False
     except Exception as e:
         print(f"\n❌ Error durante la migración: {e}")
         postgres_session.rollback()
         import traceback
         traceback.print_exc()
         sys.exit(1)
+        return False
     finally:
         sqlite_session.close()
         postgres_session.close()
-
-
 if __name__ == "__main__":
     migrate_data()
