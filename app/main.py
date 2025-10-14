@@ -18,9 +18,9 @@ if Settings().run_db_migration:
         scripts_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "scripts")
         sys.path.insert(0, scripts_path)
         
-        from migrate_to_v2_scale import run_migration
+        from migrate_sqlite_to_postgres import migrate_data
         
-        success = run_migration()
+        success = migrate_data()
         if success:
             print("✅ Database migration completed successfully")
         else:
