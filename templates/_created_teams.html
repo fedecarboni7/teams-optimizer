@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparador de Equipos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+        
+        .option-container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .option-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 25px;
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px;
+        }
+        
+        .teams-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 25px;
+        }
+        
+        .team-section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .team-section h3 {
+            margin-bottom: 15px;
+            font-size: 20px;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        .team-a-section h3 {
+            color: #2196F3;
+        }
+        
+        .team-b-section h3 {
+            color: #FF5722;
+        }
+        
+        .player-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            margin: 8px 0;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .player-name {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .player-avg {
+            font-size: 18px;
+            font-weight: bold;
+            padding: 5px 12px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .buttons-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+        
+        .action-button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .toggle-charts-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .toggle-charts-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .share-btn {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+        }
+        
+        .share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+        }
+        
+        .formation-btn {
+            background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+            color: white;
+        }
+        
+        .formation-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
+        }
+        
+        .charts-section {
+            margin-top: 20px;
+            overflow: hidden;
+            transition: max-height 0.5s ease, opacity 0.5s ease;
+        }
+        
+        .charts-section.hidden {
+            max-height: 0;
+            opacity: 0;
+        }
+        
+        .charts-section.visible {
+            max-height: 2000px;
+            opacity: 1;
+        }
+        
+        .carousel-container {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .carousel-wrapper {
+            display: flex;
+            transition: transform 0.3s ease-out;
+        }
+        
+        .carousel-slide {
+            min-width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .chart-container {
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .team-a {
+            color: #2196F3;
+            font-weight: 600;
+        }
+        
+        .team-b {
+            color: #FF5722;
+            font-weight: 600;
+        }
+        
+        canvas {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+        }
+        
+        .dots-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ccc;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .dot.active {
+            background: #667eea;
+        }
+        
+        @media (max-width: 768px) {
+            .teams-display {
+                grid-template-columns: 1fr;
+            }
+            
+            .buttons-container {
+                flex-direction: column;
+            }
+            
+            .action-button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="optionsContainer"></div>
+
+    <script>
+        const skills = [
+            'Velocidad',
+            'Resistencia',
+            'Tiro',
+            'Defensa',
+            'Pase',
+            'Regate',
+            'Físico',
+            'Técnica',
+            'Visión'
+        ];
+        
+        const playerNames = [
+            'García', 'Martínez', 'Rodríguez', 'López', 'Fernández',
+            'González', 'Pérez', 'Sánchez', 'Romero', 'Torres'
+        ];
+        
+        function generatePlayer(name) {
+            const player = { name };
+            skills.forEach(skill => {
+                player[skill] = Math.floor(Math.random() * 4) + 7;
+            });
+            return player;
+        }
+        
+        function generateTeam(names) {
+            return names.map(name => generatePlayer(name));
+        }
+        
+        function calculateAverage(player) {
+            const sum = skills.reduce((acc, skill) => acc + player[skill], 0);
+            return (sum / skills.length).toFixed(1);
+        }
+        
+        function calculateTeamAverages(team) {
+            const averages = {};
+            skills.forEach(skill => {
+                const sum = team.reduce((acc, player) => acc + player[skill], 0);
+                averages[skill] = (sum / team.length).toFixed(1);
+            });
+            return averages;
+        }
+        
+        // Generar jugadores
+        const allPlayers = playerNames.map(name => generatePlayer(name));
+        
+        // Opción 1: División original
+        const option1TeamA = allPlayers.slice(0, 5);
+        const option1TeamB = allPlayers.slice(5, 10);
+        
+        // Opción 2: Intercambiar algunos jugadores
+        const option2TeamA = [
+            allPlayers[0], allPlayers[1], allPlayers[5], allPlayers[6], allPlayers[7]
+        ];
+        const option2TeamB = [
+            allPlayers[2], allPlayers[3], allPlayers[4], allPlayers[8], allPlayers[9]
+        ];
+        
+        const options = [
+            { teamA: option1TeamA, teamB: option1TeamB, title: 'Opción 1' },
+            { teamA: option2TeamA, teamB: option2TeamB, title: 'Opción 2' }
+        ];
+        
+        function createOptionHTML(option, index) {
+            const avgTeamA = calculateTeamAverages(option.teamA);
+            const avgTeamB = calculateTeamAverages(option.teamB);
+            
+            const optionDiv = document.createElement('div');
+            optionDiv.className = 'option-container';
+            optionDiv.innerHTML = `
+                <div class="option-title">${option.title}</div>
+                
+                <div class="teams-display">
+                    <div class="team-section team-a-section">
+                        <h3>Equipo A</h3>
+                        ${option.teamA.map(player => `
+                            <div class="player-item">
+                                <span class="player-name">${player.name}</span>
+                                <span class="player-avg">${calculateAverage(player)}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="team-section team-b-section">
+                        <h3>Equipo B</h3>
+                        ${option.teamB.map(player => `
+                            <div class="player-item">
+                                <span class="player-name">${player.name}</span>
+                                <span class="player-avg">${calculateAverage(player)}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                <div class="buttons-container">
+                    <button class="action-button toggle-charts-btn" onclick="toggleCharts(${index})">
+                        <span>📊</span> <span id="toggleText${index}">Ocultar Gráficos</span>
+                    </button>
+                    <button class="action-button share-btn" onclick="shareTeams(${index})">
+                        <span>🔗</span> Compartir Equipos
+                    </button>
+                    <button class="action-button formation-btn" onclick="showFormation(${index})">
+                        <span>⚽</span> Ver Formación
+                    </button>
+                </div>
+                
+                <div class="charts-section visible" id="charts${index}">
+                    <div class="carousel-container">
+                        <div class="carousel-wrapper" id="carouselWrapper${index}">
+                            <div class="carousel-slide">
+                                <div class="chart-container">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Habilidad</th>
+                                                <th>Equipo A</th>
+                                                <th>Equipo B</th>
+                                                <th>Diferencia</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tableBody${index}"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <div class="carousel-slide">
+                                <div class="chart-container">
+                                    <canvas id="radarCanvas${index}" width="600" height="600"></canvas>
+                                    <div class="legend">
+                                        <div class="legend-item">
+                                            <div class="legend-color" style="background: rgba(33, 150, 243, 0.6);"></div>
+                                            <span>Equipo A</span>
+                                        </div>
+                                        <div class="legend-item">
+                                            <div class="legend-color" style="background: rgba(255, 87, 34, 0.6);"></div>
+                                            <span>Equipo B</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="dots-container">
+                            <div class="dot active" data-slide="0" onclick="goToSlide(${index}, 0)"></div>
+                            <div class="dot" data-slide="1" onclick="goToSlide(${index}, 1)"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return optionDiv;
+        }
+        
+        function fillTable(index, avgTeamA, avgTeamB) {
+            const tableBody = document.getElementById(`tableBody${index}`);
+            skills.forEach(skill => {
+                const row = document.createElement('tr');
+                const diff = (avgTeamA[skill] - avgTeamB[skill]).toFixed(1);
+                const diffSign = diff > 0 ? '+' : '';
+                row.innerHTML = `
+                    <td><strong>${skill}</strong></td>
+                    <td class="team-a">${avgTeamA[skill]}</td>
+                    <td class="team-b">${avgTeamB[skill]}</td>
+                    <td style="color: ${diff > 0 ? '#4CAF50' : diff < 0 ? '#f44336' : '#999'}">${diffSign}${diff}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        function drawRadarChart(canvasId, avgTeamA, avgTeamB) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = Math.min(centerX, centerY) - 80;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.lineWidth = 1;
+            for (let i = 1; i <= 5; i++) {
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, (radius / 5) * i, 0, 2 * Math.PI);
+                ctx.stroke();
+            }
+            
+            const angleStep = (2 * Math.PI) / skills.length;
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.fillStyle = '#333';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            
+            skills.forEach((skill, i) => {
+                const angle = angleStep * i - Math.PI / 2;
+                const x = centerX + Math.cos(angle) * radius;
+                const y = centerY + Math.sin(angle) * radius;
+                
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+                
+                const labelX = centerX + Math.cos(angle) * (radius + 30);
+                const labelY = centerY + Math.sin(angle) * (radius + 30);
+                ctx.fillText(skill, labelX, labelY);
+            });
+            
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(33, 150, 243, 0.8)';
+            ctx.fillStyle = 'rgba(33, 150, 243, 0.3)';
+            ctx.lineWidth = 3;
+            
+            skills.forEach((skill, i) => {
+                const angle = angleStep * i - Math.PI / 2;
+                const value = avgTeamA[skill];
+                const distance = (value / 10) * radius;
+                const x = centerX + Math.cos(angle) * distance;
+                const y = centerY + Math.sin(angle) * distance;
+                
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(255, 87, 34, 0.8)';
+            ctx.fillStyle = 'rgba(255, 87, 34, 0.3)';
+            ctx.lineWidth = 3;
+            
+            skills.forEach((skill, i) => {
+                const angle = angleStep * i - Math.PI / 2;
+                const value = avgTeamB[skill];
+                const distance = (value / 10) * radius;
+                const x = centerX + Math.cos(angle) * distance;
+                const y = centerY + Math.sin(angle) * distance;
+                
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+        }
+        
+        const carouselStates = [];
+        
+        function goToSlide(optionIndex, slideIndex) {
+            carouselStates[optionIndex] = slideIndex;
+            const wrapper = document.getElementById(`carouselWrapper${optionIndex}`);
+            wrapper.style.transform = `translateX(-${slideIndex * 100}%)`;
+            
+            const dots = document.querySelectorAll(`#charts${optionIndex} .dot`);
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === slideIndex);
+            });
+        }
+        
+        function setupCarousel(index) {
+            carouselStates[index] = 0;
+            const container = document.querySelector(`#charts${index} .carousel-container`);
+            let touchStartX = 0;
+            let touchEndX = 0;
+            
+            function handleSwipe() {
+                const diff = touchStartX - touchEndX;
+                if (Math.abs(diff) > 50) {
+                    if (diff > 0 && carouselStates[index] < 1) {
+                        goToSlide(index, carouselStates[index] + 1);
+                    } else if (diff < 0 && carouselStates[index] > 0) {
+                        goToSlide(index, carouselStates[index] - 1);
+                    }
+                }
+            }
+            
+            container.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+            });
+            
+            container.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            });
+            
+            container.addEventListener('mousedown', (e) => {
+                touchStartX = e.screenX;
+            });
+            
+            container.addEventListener('mouseup', (e) => {
+                touchEndX = e.screenX;
+                handleSwipe();
+            });
+        }
+        
+        function toggleCharts(index) {
+            const chartsSection = document.getElementById(`charts${index}`);
+            const toggleText = document.getElementById(`toggleText${index}`);
+            
+            if (chartsSection.classList.contains('visible')) {
+                chartsSection.classList.remove('visible');
+                chartsSection.classList.add('hidden');
+                toggleText.textContent = 'Mostrar Gráficos';
+            } else {
+                chartsSection.classList.remove('hidden');
+                chartsSection.classList.add('visible');
+                toggleText.textContent = 'Ocultar Gráficos';
+            }
+        }
+        
+        function shareTeams(index) {
+            const option = options[index];
+            const teamANames = option.teamA.map(p => p.name).join(', ');
+            const teamBNames = option.teamB.map(p => p.name).join(', ');
+            
+            const shareText = `${option.title}\nEquipo A: ${teamANames}\nEquipo B: ${teamBNames}`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Equipos de Fútbol',
+                    text: shareText
+                }).catch(err => console.log('Error al compartir:', err));
+            } else {
+                navigator.clipboard.writeText(shareText).then(() => {
+                    alert('¡Equipos copiados al portapapeles!');
+                });
+            }
+        }
+        
+        function showFormation(index) {
+            alert(`Funcionalidad de formación para ${options[index].title} - Pendiente de implementar`);
+        }
+        
+        const container = document.getElementById('optionsContainer');
+        options.forEach((option, index) => {
+            const optionElement = createOptionHTML(option, index);
+            container.appendChild(optionElement);
+            
+            const avgTeamA = calculateTeamAverages(option.teamA);
+            const avgTeamB = calculateTeamAverages(option.teamB);
+            
+            fillTable(index, avgTeamA, avgTeamB);
+            drawRadarChart(`radarCanvas${index}`, avgTeamA, avgTeamB);
+            setupCarousel(index);
+        });
+    </script>
+</body>
+</html>
