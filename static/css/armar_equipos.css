@@ -1,50 +1,4 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #1a1a1a;
-    color: #ffffff;
-    min-height: 100vh;
-    margin: 0;
-    padding: 0;
-}
-
-.container {
-    max-width: 1128px; /* ancho cómodo de desktop */
-    margin: 0 auto;
-    padding: 24px 24px;
-    margin-top: 20px; /* Espacio para el navbar */
-}
-
-@media (min-width: 1280px) {
-    .container {
-        max-width: 1200px; /* ampliar un poco más en pantallas grandes */
-        padding-left: 32px;
-        padding-right: 32px;
-    }
-}
-
-/* Page-scoped overrides to guarantee wide layout on desktop */
-body.armar-equipos .container {
-    max-width: 1200px !important;
-    width: 100% !important;
-}
-
-/* Fix base body flex affecting width on this page */
-body.armar-equipos {
-    display: block !important; /* override base.css body flex */
-}
-
-/* Ensure results container follows the same width and centering */
-body.armar-equipos #teams-results {
-    width: 100%;
-    max-width: 1200px;
-    margin: 20px auto 0 auto;
-}
+/* Armar Equipos page specific styles */
 
 h1 {
     font-size: 2.5rem;
@@ -406,4 +360,230 @@ h1 {
     h1 {
         font-size: 2rem;
     }
+}
+
+/* ============================================
+   ESTILOS PARA RESULTADOS GENERADOS
+   ============================================ */
+
+/* Team Container - from layout.css */
+.team-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 0;
+}
+
+.team {
+    flex: 1 1 100%;
+    background: #2b2b2b;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.stats-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.content-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.table-container {
+    width: 50%;
+    background: #333333;
+    padding: 15px 25%;
+    border-radius: 8px;
+}
+
+/* Swiper - from layout.css */
+.swiper {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.swiper-slide {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #2b2b2b;
+    border-radius: 8px;
+}
+
+/* Player Entry - from components.css */
+.player-entry {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+    background: #2b2b2b;
+    border-radius: 8px;
+    border: 1px solid #444;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.player-entry:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.player-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.skills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Table styles - from pages.css */
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+ul li {
+    background: #2b2b2b;
+    padding: 8px 12px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 7px 5px;
+    text-align: left;
+    border-bottom: 1px solid #444;
+}
+
+th {
+    background-color: #333333;
+    font-weight: bold;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+/* Chart Container - from pages.css */
+.chart-container {
+    height: 400px;
+    background: #333333;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.bar-chart-container {
+    background: #333333;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* General Input & Button Styles - from components.css */
+input {
+    padding: 10px;
+    border: 1px solid #555;
+    border-radius: 5px;
+    background-color: #333;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+button {
+    padding: 10px 15px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: #444;
+    color: #e0e0e0;
+    cursor: pointer;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+button:hover {
+    background-color: #555;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* Player Item Styles - from components.css */
+.player-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+}
+
+.player-number {
+    min-width: 25px;
+    text-align: right;
+    font-weight: 600;
+    margin-right: 5px;
+}
+
+.player-name {
+    flex-grow: 1;
+    padding-left: 8px;
+}
+
+.swap-button {
+    border: none;
+    padding: 5px 10px;
+    margin-right: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Popup - from pages.css */
+.popup {
+    display: none;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 65%;
+    max-width: 450px;
+    background-color: #2b2b2b;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: larger;
+}
+
+.popup-content {
+    position: relative;
+}
+
+/* Swiper Navigation - from pages.css */
+.swiper-button-prev, .swiper-button-next {
+    --swiper-navigation-size: 30px;
+    --swiper-navigation-sides-offset: 2px;
+    --swiper-navigation-color: #e0e0e0b5;
 }
