@@ -348,6 +348,11 @@ h1 {
     display: none;
 }
 
+/* ============================================
+   RESPONSIVE DESIGN - MOBILE FIRST
+   ============================================ */
+
+/* Tablets y pantallas medianas */
 @media (max-width: 768px) {
     .teams-container {
         grid-template-columns: 1fr;
@@ -359,6 +364,111 @@ h1 {
     
     h1 {
         font-size: 2rem;
+    }
+    
+    .content-panel {
+        padding: 20px;
+    }
+    
+    /* Stats y resultados */
+    .stats-container {
+        gap: 15px;
+    }
+    
+    .content-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .table-container {
+        width: 100%;
+        padding: 15px;
+    }
+    
+    .chart-container {
+        height: 300px;
+        padding: 15px;
+    }
+    
+    .bar-chart-container {
+        padding: 15px;
+    }
+    
+    .button-container button {
+        width: 100%;
+        margin: 0;
+    }
+    
+    .carousel-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 20px;
+    }
+    
+    .carousel-prev {
+        left: 5px;
+    }
+    
+    .carousel-next {
+        right: 5px;
+    }
+}
+
+/* Móviles pequeños */
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.75rem;
+    }
+    
+    .mode-selector {
+        padding: 4px;
+    }
+    
+    .mode-btn {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+    
+    .content-panel {
+        padding: 15px;
+    }
+    
+    .section-title {
+        font-size: 1.25rem;
+    }
+    
+    .table-container {
+        padding: 10px;
+    }
+    
+    table th, table td {
+        padding: 5px 3px;
+        font-size: 14px;
+    }
+    
+    .chart-container {
+        height: 250px;
+        padding: 10px;
+    }
+    
+    .bar-chart-container {
+        padding: 10px;
+    }
+    
+    .carousel-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 18px;
+    }
+    
+    .team-section,
+    .available-players {
+        padding: 15px;
+    }
+    
+    button {
+        font-size: 13px;
+        padding: 8px 12px;
     }
 }
 
@@ -397,10 +507,11 @@ h1 {
 }
 
 .table-container {
-    width: 50%;
+    width: 400px;
     background: #333333;
-    padding: 15px 25%;
+    padding: 15px;
     border-radius: 8px;
+    overflow-x: auto;
 }
 
 /* Carousel Nativo - Reemplaza Swiper */
@@ -408,6 +519,7 @@ h1 {
     position: relative;
     width: 100%;
     height: 100%;
+    min-height: 450px;
     border-radius: 8px;
     overflow: hidden;
 }
@@ -420,6 +532,7 @@ h1 {
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE/Edge */
     height: 100%;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling en iOS */
 }
 
 .carousel-slides::-webkit-scrollbar {
@@ -433,6 +546,7 @@ h1 {
     justify-content: center;
     align-items: center;
     border-radius: 8px;
+    padding: 10px;
 }
 
 /* Player Entry - from components.css */
@@ -481,10 +595,11 @@ ul li {
 table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 250px;
 }
 
 th, td {
-    padding: 7px 5px;
+    padding: 10px 8px;
     text-align: left;
     border-bottom: 1px solid #444;
 }
@@ -492,26 +607,54 @@ th, td {
 th {
     background-color: #333333;
     font-weight: bold;
+    text-align: center;
+}
+
+td:first-child {
+    font-weight: 600;
+}
+
+td:not(:first-child) {
+    text-align: center;
 }
 
 tr:last-child td {
     border-bottom: none;
+    font-weight: bold;
+}
+
+tr:last-child {
+    background-color: #2b2b2b;
 }
 
 /* Chart Container - from pages.css */
 .chart-container {
     height: 400px;
+    width: 100%;
     background: #333333;
     border-radius: 8px;
     padding: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chart-container canvas {
+    max-width: 100%;
+    max-height: 100%;
 }
 
 .bar-chart-container {
+    width: 100%;
     background: #333333;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.bar-chart-container canvas {
+    max-width: 100%;
 }
 
 /* General Input & Button Styles - from components.css */
