@@ -134,7 +134,8 @@ h1 {
 
 .players-list {
     max-height: 400px;
-    /* overflow-y: auto; */
+    overflow-y: auto;
+    overflow-x: hidden;
     margin-bottom: 30px;
 }
 
