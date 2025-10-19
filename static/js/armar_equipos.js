@@ -359,9 +359,9 @@ function renderManualComparison() {
             </button>
         </div>
         <div class="content-container" id="content-containerManual" data-players-count="${teamSize}" style="display: none;">
-            <div class="swiper">
-                <div class="swiper-wrapper">
-                    <div class="swiper-slide">
+            <div class="carousel-container">
+                <div class="carousel-slides">
+                    <div class="carousel-slide">
                         <div class="table-container">
                             <table id="skills-tableManual">
                                 <thead>
@@ -388,19 +388,19 @@ function renderManualComparison() {
                             </table>
                         </div>
                     </div>
-                    <div class="swiper-slide">
+                    <div class="carousel-slide">
                         <div class="chart-container">
                             <canvas></canvas>
                         </div>
                     </div>
-                    <div class="swiper-slide">
+                    <div class="carousel-slide">
                         <div class="bar-chart-container">
                             <canvas></canvas>
                         </div>
                     </div>
                 </div>
-                <div class="swiper-button-prev"></div>
-                <div class="swiper-button-next"></div>
+                <button class="carousel-btn carousel-prev">❮</button>
+                <button class="carousel-btn carousel-next">❯</button>
             </div>
         </div>
     `;
@@ -417,7 +417,7 @@ function renderManualComparison() {
             container.dataset.playersCount = String(teamSize);
             createRadarChart(container);
             createBarChart(container);
-            createSwiper();
+            createCarousel(container.querySelector('.carousel-container'));
         } else {
             container.style.display = 'none';
             textSpan.textContent = 'Mostrar detalles';
@@ -721,10 +721,10 @@ function displayTeamsResults(data) {
                         </button>
                     </div>
                     <div class="content-container" id="content-container${optionNumber}" style="display: none;">
-                        <!-- Slider main container -->
-                        <div class="swiper">
-                            <div class="swiper-wrapper">
-                                <div class="swiper-slide">
+                        <!-- Carousel nativo -->
+                        <div class="carousel-container">
+                            <div class="carousel-slides">
+                                <div class="carousel-slide">
                                     <div class="table-container">
                                         <table id="skills-table${optionNumber}">
                                             <thead>
@@ -758,19 +758,19 @@ function displayTeamsResults(data) {
                                         </table>
                                     </div>
                                 </div>
-                                <div class="swiper-slide">
+                                <div class="carousel-slide">
                                     <div class="chart-container">
                                         <canvas></canvas>
                                     </div>
                                 </div>
-                                <div class="swiper-slide">
+                                <div class="carousel-slide">
                                     <div class="bar-chart-container">
                                         <canvas></canvas>
                                     </div>
                                 </div>
                             </div>
-                            <div class="swiper-button-prev"></div>
-                            <div class="swiper-button-next"></div>
+                            <button class="carousel-btn carousel-prev">❮</button>
+                            <button class="carousel-btn carousel-next">❯</button>
                         </div>
                         <!-- Formations container -->
                         <div id="formations-container${optionNumber}" style="display: none;">
@@ -796,9 +796,10 @@ function displayTeamsResults(data) {
     // Scroll to results
     resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
     
-    // Initialize components that might be needed for the results view
-    if (typeof createSwiper === 'function') {
-        createSwiper();
+    // Initialize carousel components for the results view
+    if (typeof createCarousel === 'function') {
+        const carousels = resultsContainer.querySelectorAll('.carousel-container');
+        carousels.forEach(carousel => createCarousel(carousel));
     }
 }
 

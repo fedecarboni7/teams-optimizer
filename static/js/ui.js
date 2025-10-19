@@ -441,7 +441,7 @@ function toggleStats(button) {
         textSpan.textContent = "Ocultar detalles";
         createRadarChart(contentContainer);
         createBarChart(contentContainer);
-        createSwiper();
+        createCarousel(contentContainer.querySelector('.carousel-container'));
     } else {
         contentContainer.style.display = "none";
         textSpan.textContent = "Mostrar detalles";

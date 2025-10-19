@@ -213,15 +213,31 @@ function createBarChart(contentContainer) {
     });
 }
 
-// Inicializar el carrusel Swiper
-function createSwiper() {
-    const swiper = new Swiper('.swiper', {
-        loop: true,
-      
-        // Navigation arrows
-        navigation: {
-          nextEl: '.swiper-button-next',
-          prevEl: '.swiper-button-prev',
-        }
+// Inicializar el carrusel nativo
+function createCarousel(container) {
+    const carouselContainer = container || document.querySelector('.carousel-container');
+    if (!carouselContainer) return;
+    
+    const slides = carouselContainer.querySelector('.carousel-slides');
+    const prevBtn = carouselContainer.querySelector('.carousel-prev');
+    const nextBtn = carouselContainer.querySelector('.carousel-next');
+    
+    if (!slides || !prevBtn || !nextBtn) return;
+    
+    let currentSlide = 0;
+    const totalSlides = slides.children.length;
+    
+    function goToSlide(index) {
+        currentSlide = (index + totalSlides) % totalSlides;
+        slides.scrollLeft = slides.children[currentSlide].offsetLeft;
+    }
+    
+    prevBtn.addEventListener('click', () => goToSlide(currentSlide - 1));
+    nextBtn.addEventListener('click', () => goToSlide(currentSlide + 1));
+    
+    // Soporte para teclado (flechas)
+    carouselContainer.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') goToSlide(currentSlide - 1);
+        if (e.key === 'ArrowRight') goToSlide(currentSlide + 1);
     });
 }
