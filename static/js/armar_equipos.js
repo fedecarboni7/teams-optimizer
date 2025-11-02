@@ -393,11 +393,6 @@ function renderManualComparison() {
                             <canvas></canvas>
                         </div>
                     </div>
-                    <div class="carousel-slide">
-                        <div class="bar-chart-container">
-                            <canvas></canvas>
-                        </div>
-                    </div>
                 </div>
                 <button class="carousel-btn carousel-prev">❮</button>
                 <button class="carousel-btn carousel-next">❯</button>
@@ -416,7 +411,6 @@ function renderManualComparison() {
             // Pasar conteo de jugadores para escalar gráficos
             container.dataset.playersCount = String(teamSize);
             createRadarChart(container);
-            createBarChart(container);
             createCarousel(container.querySelector('.carousel-container'));
         } else {
             container.style.display = 'none';
@@ -720,7 +714,7 @@ function displayTeamsResults(data) {
                             Generar formaciones
                         </button>
                     </div>
-                    <div class="content-container" id="content-container${optionNumber}" style="display: none;">
+                    <div class="content-container" id="content-container${optionNumber}" data-players-count="${data.teams[i][0].length}" style="display: none;">
                         <!-- Carousel nativo -->
                         <div class="carousel-container">
                             <div class="carousel-slides">
@@ -763,22 +757,22 @@ function displayTeamsResults(data) {
                                         <canvas></canvas>
                                     </div>
                                 </div>
-                                <div class="carousel-slide">
-                                    <div class="bar-chart-container">
-                                        <canvas></canvas>
+                                <div class="carousel-slide formation-slide">
+                                    <div class="formation-wrapper" id="formation-wrapper${optionNumber}">
+                                        <div class="formation-placeholder" id="formation-placeholder${optionNumber}">
+                                            <p>Generá la formación para verla acá.</p>
+                                            <p>Usá el botón "Generar formaciones".</p>
+                                        </div>
+                                        <div class="field-container" id="formations-container${optionNumber}" style="display: none;">
+                                            <div id="soccer-field${optionNumber}" class="soccer-field">
+                                                <!-- Players will be positioned here -->
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                             <button class="carousel-btn carousel-prev">❮</button>
                             <button class="carousel-btn carousel-next">❯</button>
-                        </div>
-                        <!-- Formations container -->
-                        <div id="formations-container${optionNumber}" style="display: none;">
-                            <div class="field-container">
-                                <div id="soccer-field${optionNumber}" class="soccer-field">
-                                    <!-- Players will be positioned here -->
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>

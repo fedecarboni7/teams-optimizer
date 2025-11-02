@@ -681,6 +681,16 @@ function generarFormaciones(button) {
         return; // La validación falló
     }
 
+    const formationsContainer = document.getElementById('formations-container' + indice);
+    const formationPlaceholder = document.getElementById('formation-placeholder' + indice);
+    if (formationPlaceholder) {
+        formationPlaceholder.style.display = 'flex';
+        formationPlaceholder.innerHTML = '<p>Generá la formación para verla acá.</p><p>Usá el botón "Generar formaciones".</p>';
+    }
+    if (formationsContainer) {
+        formationsContainer.style.display = 'none';
+    }
+
     // Crear el spinner y agregarlo al botón
     const spinner = document.createElement('span');
     spinner.className = 'spinner';
@@ -702,8 +712,12 @@ function generarFormaciones(button) {
         positionPlayers(data, indice);  // Procesar los datos de las formaciones
         
         // Mostrar el contenedor de formaciones
-        const formationsContainer = document.getElementById('formations-container' + indice);
-        formationsContainer.style.display = 'block';
+        if (formationPlaceholder) {
+            formationPlaceholder.style.display = 'none';
+        }
+        if (formationsContainer) {
+            formationsContainer.style.display = 'flex';
+        }
         
         // Cambiar el estilo del botón para indicar que ya no está activo
         button.style.backgroundColor = "#777";
@@ -712,7 +726,17 @@ function generarFormaciones(button) {
     })
     .catch(error => {
         console.error('Error fetching formations:', error);
-        formationsContainer.innerHTML = 'Error loading formations.';  // Manejar el error
+        if (formationsContainer) {
+            formationsContainer.style.display = 'none';
+        }
+        if (formationPlaceholder) {
+            formationPlaceholder.style.display = 'flex';
+            formationPlaceholder.innerHTML = '<p>No pudimos generar la formación.</p><p>Intentalo de nuevo en un momento.</p>';
+        }
+        if (button.contains(spinner)) {
+            button.removeChild(spinner);
+        }
+        button.disabled = false;
     })
     .finally(() => {
         // Si no se están mostrando los detalles llamar a toggleStats
