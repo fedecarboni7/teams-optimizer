@@ -99,7 +99,6 @@ function swapPlayer(player, fromTeamIndex, toTeamIndex) {
     var containerNumber = Math.floor(team1Index / 2) + 1;
     var contentContainer = document.getElementById('content-container' + containerNumber);
     createRadarChart(contentContainer);
-    createBarChart(contentContainer);
 }
 
 function updateSkillsTable(team1Index, team2Index) {

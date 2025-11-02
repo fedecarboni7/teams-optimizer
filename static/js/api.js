@@ -701,17 +701,26 @@ function generarFormaciones(button) {
     .then(data => {
         positionPlayers(data, indice);  // Procesar los datos de las formaciones
         
-        // Mostrar el contenedor de formaciones
+        // Mostrar el contenedor de formaciones dentro del carousel
         const formationsContainer = document.getElementById('formations-container' + indice);
-        formationsContainer.style.display = 'block';
+        formationsContainer.style.display = 'flex';
         
         // Cambiar el estilo del botón para indicar que ya no está activo
         button.style.backgroundColor = "#777";
         button.style.cursor = "not-allowed";
         button.innerText = "Formación generada";
+        
+        // Navegar al último slide del carousel (formaciones)
+        const contentContainer = document.getElementById('content-container' + indice);
+        const carouselSlides = contentContainer.querySelector('.carousel-slides');
+        if (carouselSlides) {
+            const lastSlide = carouselSlides.children[carouselSlides.children.length - 1];
+            carouselSlides.scrollLeft = lastSlide.offsetLeft;
+        }
     })
     .catch(error => {
         console.error('Error fetching formations:', error);
+        const formationsContainer = document.getElementById('formations-container' + indice);
         formationsContainer.innerHTML = 'Error loading formations.';  // Manejar el error
     })
     .finally(() => {

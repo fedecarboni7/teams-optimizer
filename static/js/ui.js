@@ -440,7 +440,6 @@ function toggleStats(button) {
         contentContainer.style.display = "flex";
         textSpan.textContent = "Ocultar detalles";
         createRadarChart(contentContainer);
-        createBarChart(contentContainer);
         createCarousel(contentContainer.querySelector('.carousel-container'));
     } else {
         contentContainer.style.display = "none";
