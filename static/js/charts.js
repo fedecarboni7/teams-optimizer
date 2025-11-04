@@ -223,21 +223,63 @@ function createCarousel(container) {
     const nextBtn = carouselContainer.querySelector('.carousel-next');
     
     if (!slides || !prevBtn || !nextBtn) return;
-    
-    let currentSlide = 0;
+
     const totalSlides = slides.children.length;
-    
+    if (!totalSlides) return;
+
+    const storedSlide = parseInt(carouselContainer.dataset.currentSlide || '0', 10);
+    let currentSlide = Number.isNaN(storedSlide) ? 0 : storedSlide;
+
     function goToSlide(index) {
-        currentSlide = (index + totalSlides) % totalSlides;
+        const total = totalSlides;
+        currentSlide = (index + total) % total;
+        carouselContainer.dataset.currentSlide = String(currentSlide);
         slides.scrollLeft = slides.children[currentSlide].offsetLeft;
     }
-    
+
+    carouselContainer.goToSlide = goToSlide;
+
+    if (carouselContainer.dataset.carouselInitialized === 'true') {
+        goToSlide(currentSlide);
+        return;
+    }
+
     prevBtn.addEventListener('click', () => goToSlide(currentSlide - 1));
     nextBtn.addEventListener('click', () => goToSlide(currentSlide + 1));
-    
+
     // Soporte para teclado (flechas)
     carouselContainer.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowLeft') goToSlide(currentSlide - 1);
         if (e.key === 'ArrowRight') goToSlide(currentSlide + 1);
     });
+
+    carouselContainer.dataset.carouselInitialized = 'true';
+    goToSlide(currentSlide);
 }
+
+function goToCarouselSlide(container, index) {
+    if (!container) return;
+
+    const carouselContainer = container.classList && container.classList.contains('carousel-container')
+        ? container
+        : container.querySelector
+            ? container.querySelector('.carousel-container')
+            : null;
+
+    if (!carouselContainer) return;
+
+    const slides = carouselContainer.querySelector('.carousel-slides');
+    if (!slides || !slides.children.length) return;
+
+    const totalSlides = slides.children.length;
+    const targetIndex = Math.max(0, Math.min(index, totalSlides - 1));
+
+    if (typeof carouselContainer.goToSlide === 'function') {
+        carouselContainer.goToSlide(targetIndex);
+    } else {
+        carouselContainer.dataset.currentSlide = String(targetIndex);
+        slides.scrollLeft = slides.children[targetIndex].offsetLeft;
+    }
+}
+
+window.goToCarouselSlide = goToCarouselSlide;

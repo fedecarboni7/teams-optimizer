@@ -709,6 +709,10 @@ function generarFormaciones(button) {
     })
     .then(response => response.json())  // Cambiar a .json() si el backend responde con JSON
     .then(data => {
+        if (button.contains(spinner)) {
+            button.removeChild(spinner);
+        }
+
         positionPlayers(data, indice);  // Procesar los datos de las formaciones
         
         // Mostrar el contenedor de formaciones
@@ -723,6 +727,31 @@ function generarFormaciones(button) {
         button.style.backgroundColor = "#777";
         button.style.cursor = "not-allowed";
         button.innerText = "Formación generada";
+
+        const contentContainer = document.getElementById('content-container' + indice);
+        const detallesButton = document.getElementById('mostrarDetalles' + indice);
+
+        if (contentContainer) {
+            const isHidden = contentContainer.style.display === 'none' || contentContainer.style.display === '';
+
+            if (isHidden && detallesButton) {
+                toggleStats(detallesButton);
+            } else {
+                const existingCarousel = contentContainer.querySelector('.carousel-container');
+                if (existingCarousel) {
+                    createCarousel(existingCarousel);
+                }
+            }
+
+            const carouselContainer = contentContainer.querySelector('.carousel-container');
+            if (carouselContainer) {
+                if (typeof window.goToCarouselSlide === 'function') {
+                    window.goToCarouselSlide(carouselContainer, 2);
+                } else if (typeof carouselContainer.goToSlide === 'function') {
+                    carouselContainer.goToSlide(2);
+                }
+            }
+        }
     })
     .catch(error => {
         console.error('Error fetching formations:', error);
@@ -739,14 +768,8 @@ function generarFormaciones(button) {
         button.disabled = false;
     })
     .finally(() => {
-        // Si no se están mostrando los detalles llamar a toggleStats
-        // Obtener el botón de "Mostrar detalles" correspondiente por su id
-        const detallesButton = document.getElementById('mostrarDetalles' + indice);
-
-        // Verificar si los detalles están ocultos
-        if (detallesButton.innerText.includes('Mostrar detalles')) {
-            // Llamar a toggleStats para mostrar los detalles
-            toggleStats(detallesButton);
+        if (button.contains(spinner)) {
+            button.removeChild(spinner);
         }
     });
 }

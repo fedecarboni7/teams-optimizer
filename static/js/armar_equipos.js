@@ -654,13 +654,6 @@ function displayTeamsResults(data) {
         }
         
         html += `
-            <div id="popup" class="popup">
-                <div class="popup-content">
-                <button type="button" class="swap-button"><i class="fa-solid fa-right-left"></i></button>
-                <p>Ahora podés intercambiar jugadores entre equipos usando este botón y ver las nuevas estadísticas de cada equipo. Para restaurar la disposición óptima de los equipos, volvé a tocar el botón "Armar Equipos".</p>
-                <button id="closeButton">Cerrar</button>
-                </div>
-            </div>
             <div class="team-container" id="resultados-equipos${optionNumber}">
                 <div class="team">
                     <h2>Equipo 1</h2>
