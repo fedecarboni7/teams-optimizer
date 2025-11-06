@@ -275,8 +275,8 @@ function renderAvailablePlayers() {
                 <span class="player-rating">${player.rating}</span>
             </div>
             <div class="add-buttons">
-                <button class="add-btn" onclick="addToTeam('A', '${player.name}')">+</button>
-                <button class="add-btn team-b" onclick="addToTeam('B', '${player.name}')">+</button>
+                <button class="add-btn" onclick="addToTeam('A', '${player.name}')">1</button>
+                <button class="add-btn team-b" onclick="addToTeam('B', '${player.name}')">2</button>
             </div>
         `;
         container.appendChild(playerDiv);
@@ -301,8 +301,8 @@ function renderTeam(teamName, team, containerId) {
                 <span class="player-rating">${player.rating}</span>
             </div>
             <div style="display: flex; gap: 8px; align-items: center;">
-                <button class="swap-btn" onclick="swapTeam('${teamName}', '${player.name}')">🔃</button>
-                <button class="remove-btn" onclick="removeFromTeam('${teamName}', '${player.name}')">−</button>
+                <button class="swap-btn" onclick="swapTeam('${teamName}', '${player.name}')">S</button>
+                <button class="remove-btn" onclick="removeFromTeam('${teamName}', '${player.name}')">x</button>
             </div>
         `;
         container.appendChild(playerDiv);

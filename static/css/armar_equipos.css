@@ -379,6 +379,15 @@ h1 {
         flex-direction: column;
         gap: 15px;
     }
+
+    .button-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .button-container button {
+        width: 100%;
+    }
     
     .table-container {
         width: 100%;
@@ -488,6 +497,7 @@ h1 {
     flex-direction: column;
     gap: 20px;
     max-width: 1200px;
+    width: 100%;
     margin: 0 auto;
 }
 
@@ -496,10 +506,15 @@ h1 {
     justify-content: space-between;
     gap: 20px;
     flex-wrap: wrap;
+    width: 100%;
+    align-items: stretch;
 }
 
 .table-container {
-    width: 400px;
+    flex: 1 1 400px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
     background: #333333;
     padding: 15px;
     border-radius: 8px;
@@ -704,6 +719,13 @@ button:hover {
     display: flex;
     justify-content: center;
     gap: 10px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.button-container button {
+    flex: 0 1 auto;
+    min-width: 140px;
 }
 
 .player-number {
