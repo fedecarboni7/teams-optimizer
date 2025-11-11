@@ -227,12 +227,13 @@ function renderPlayers() {
             <span class="player-rating">${player.rating}/${currentScale}</span>
         `;
         
-        // Add click event to checkbox
-        const checkbox = playerItem.querySelector('.checkbox');
-        checkbox.addEventListener('click', (e) => {
-            e.stopPropagation();
+        // Add click event to entire player item
+        playerItem.addEventListener('click', () => {
             togglePlayerSelection(player.name);
         });
+        
+        // Add cursor pointer style
+        playerItem.style.cursor = 'pointer';
         
         playersList.appendChild(playerItem);
     });
