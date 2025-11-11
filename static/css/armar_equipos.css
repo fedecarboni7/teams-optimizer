@@ -447,7 +447,7 @@ h1 {
     }
     
     table th, table td {
-        padding: 5px 3px;
+        padding: 5px 0px 5px 15px;
         font-size: 14px;
     }
     
@@ -606,7 +606,7 @@ table {
 }
 
 th, td {
-    padding: 10px 8px;
+    padding: 10px 0px 8px 50px;
     text-align: left;
     border-bottom: 1px solid #444;
 }
@@ -770,7 +770,7 @@ button:hover {
     position: relative;
 }
 
-/* Carousel Navigation - Reemplaza Swiper Navigation */
+/* Carousel Navigation */
 .carousel-btn {
     position: absolute;
     top: 50%;
@@ -789,6 +789,7 @@ button:hover {
     font-size: 24px;
     transition: all 0.3s ease;
     user-select: none;
+    padding: 0 0 4px 0;
 }
 
 .carousel-btn:hover {
@@ -801,14 +802,50 @@ button:hover {
 }
 
 .carousel-prev {
-    left: 10px;
+    left: 15px;
+    padding-right: 2px;
 }
 
 .carousel-next {
-    right: 10px;
+    right: 15px;
+    padding-left: 2px;
 }
 
 .carousel-btn::before {
     content: '';
     display: block;
+}
+
+/* Ajustes responsive para botones del carrusel */
+@media (max-width: 768px) {
+    .carousel-btn {
+        width: 38px;
+        height: 38px;
+        font-size: 20px;
+    }
+    
+    .carousel-prev {
+        left: 8px;
+    }
+    
+    .carousel-next {
+        right: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .carousel-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 18px;
+        background: rgba(0, 0, 0, 0.6);
+    }
+    
+    .carousel-prev {
+        left: 5px;
+    }
+    
+    .carousel-next {
+        right: 5px;
+    }
 }
