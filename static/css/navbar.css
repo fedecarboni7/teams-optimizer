@@ -107,13 +107,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 4px;
     transition: transform 0.3s ease;
 }
 
 .logo img {
-    height: 32px;
-    width: 32px;
+    height: 40px;
+    width: 40px;
     object-fit: contain;
     transition: transform 0.3s ease;
 }
@@ -124,19 +123,23 @@
 
 /* Estilos responsivos */
 @media (max-width: 768px) {
-    .navbar {
-        padding: 10px 15px;
-    }
-    
     /* Ocultar botón de menú en móvil (se usa bottom nav) */
     .menu-btn {
         display: none;
     }
     
-    /* Centrar el selector de club */
+    /* Centrar el selector de club absolutamente */
     .club-selector-navbar {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
         justify-content: center;
         margin-left: 0;
+    }
+    
+    /* Logo fijo a la derecha */
+    .logo {
+        margin-left: auto;
     }
 
     .current-context {
@@ -151,18 +154,9 @@
     .context-icon {
         font-size: 16px;
     }
-
-    .logo img {
-        height: 28px;
-        width: 28px;
-    }
 }
 
 @media (max-width: 480px) {
-    .navbar {
-        padding: 8px 12px;
-    }
-
     .menu-btn {
         font-size: 20px;
         padding: 6px;
@@ -176,10 +170,5 @@
     .club-dropdown {
         min-width: 80px;
         font-size: 12px;
-    }
-
-    .logo img {
-        height: 24px;
-        width: 24px;
     }
 }
