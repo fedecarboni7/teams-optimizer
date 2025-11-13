@@ -681,6 +681,16 @@ function generarFormaciones(button) {
         return; // La validación falló
     }
 
+    const formationsContainer = document.getElementById('formations-container' + indice);
+    const formationPlaceholder = document.getElementById('formation-placeholder' + indice);
+    if (formationPlaceholder) {
+        formationPlaceholder.style.display = 'flex';
+        formationPlaceholder.innerHTML = '<p>Generá la formación para verla acá.</p><p>Usá el botón "Generar formaciones".</p>';
+    }
+    if (formationsContainer) {
+        formationsContainer.style.display = 'none';
+    }
+
     // Crear el spinner y agregarlo al botón
     const spinner = document.createElement('span');
     spinner.className = 'spinner';
@@ -699,30 +709,67 @@ function generarFormaciones(button) {
     })
     .then(response => response.json())  // Cambiar a .json() si el backend responde con JSON
     .then(data => {
+        if (button.contains(spinner)) {
+            button.removeChild(spinner);
+        }
+
         positionPlayers(data, indice);  // Procesar los datos de las formaciones
         
         // Mostrar el contenedor de formaciones
-        const formationsContainer = document.getElementById('formations-container' + indice);
-        formationsContainer.style.display = 'block';
+        if (formationPlaceholder) {
+            formationPlaceholder.style.display = 'none';
+        }
+        if (formationsContainer) {
+            formationsContainer.style.display = 'flex';
+        }
         
         // Cambiar el estilo del botón para indicar que ya no está activo
         button.style.backgroundColor = "#777";
         button.style.cursor = "not-allowed";
         button.innerText = "Formación generada";
+
+        const contentContainer = document.getElementById('content-container' + indice);
+        const detallesButton = document.getElementById('mostrarDetalles' + indice);
+
+        if (contentContainer) {
+            const isHidden = contentContainer.style.display === 'none' || contentContainer.style.display === '';
+
+            if (isHidden && detallesButton) {
+                toggleStats(detallesButton);
+            } else {
+                const existingCarousel = contentContainer.querySelector('.carousel-container');
+                if (existingCarousel) {
+                    createCarousel(existingCarousel);
+                }
+            }
+
+            const carouselContainer = contentContainer.querySelector('.carousel-container');
+            if (carouselContainer) {
+                if (typeof window.goToCarouselSlide === 'function') {
+                    window.goToCarouselSlide(carouselContainer, 2);
+                } else if (typeof carouselContainer.goToSlide === 'function') {
+                    carouselContainer.goToSlide(2);
+                }
+            }
+        }
     })
     .catch(error => {
         console.error('Error fetching formations:', error);
-        formationsContainer.innerHTML = 'Error loading formations.';  // Manejar el error
+        if (formationsContainer) {
+            formationsContainer.style.display = 'none';
+        }
+        if (formationPlaceholder) {
+            formationPlaceholder.style.display = 'flex';
+            formationPlaceholder.innerHTML = '<p>No pudimos generar la formación.</p><p>Intentalo de nuevo en un momento.</p>';
+        }
+        if (button.contains(spinner)) {
+            button.removeChild(spinner);
+        }
+        button.disabled = false;
     })
     .finally(() => {
-        // Si no se están mostrando los detalles llamar a toggleStats
-        // Obtener el botón de "Mostrar detalles" correspondiente por su id
-        const detallesButton = document.getElementById('mostrarDetalles' + indice);
-
-        // Verificar si los detalles están ocultos
-        if (detallesButton.innerText.includes('Mostrar detalles')) {
-            // Llamar a toggleStats para mostrar los detalles
-            toggleStats(detallesButton);
+        if (button.contains(spinner)) {
+            button.removeChild(spinner);
         }
     });
 }

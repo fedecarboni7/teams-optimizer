@@ -1,50 +1,4 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #1a1a1a;
-    color: #ffffff;
-    min-height: 100vh;
-    margin: 0;
-    padding: 0;
-}
-
-.container {
-    max-width: 1128px; /* ancho cómodo de desktop */
-    margin: 0 auto;
-    padding: 24px 24px;
-    margin-top: 20px; /* Espacio para el navbar */
-}
-
-@media (min-width: 1280px) {
-    .container {
-        max-width: 1200px; /* ampliar un poco más en pantallas grandes */
-        padding-left: 32px;
-        padding-right: 32px;
-    }
-}
-
-/* Page-scoped overrides to guarantee wide layout on desktop */
-body.armar-equipos .container {
-    max-width: 1200px !important;
-    width: 100% !important;
-}
-
-/* Fix base body flex affecting width on this page */
-body.armar-equipos {
-    display: block !important; /* override base.css body flex */
-}
-
-/* Ensure results container follows the same width and centering */
-body.armar-equipos #teams-results {
-    width: 100%;
-    max-width: 1200px;
-    margin: 20px auto 0 auto;
-}
+/* Armar Equipos page specific styles */
 
 h1 {
     font-size: 2.5rem;
@@ -106,11 +60,6 @@ h1 {
     font-size: 1.5rem;
     font-weight: 600;
     margin-bottom: 15px;
-}
-
-.section-subtitle {
-    color: #999;
-    margin-bottom: 20px;
 }
 
 .search-container {
@@ -181,6 +130,7 @@ h1 {
 .players-list {
     max-height: 400px;
     overflow-y: auto;
+    overflow-x: hidden;
     margin-bottom: 30px;
 }
 
@@ -188,16 +138,15 @@ h1 {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 15px 0;
+    padding: 15px 10px;
+    margin: 0 -10px;
     border-bottom: 1px solid #222;
+    border-radius: 6px;
     transition: background 0.2s ease;
 }
 
 .player-item:hover {
     background: #1a1a1a;
-    border-radius: 6px;
-    margin: 0 -10px;
-    padding: 15px 10px;
 }
 
 .player-info {
@@ -306,8 +255,8 @@ h1 {
     background: #666;
     border: none;
     color: #fff;
-    width: 24px;
-    height: 24px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
     cursor: pointer;
     display: flex;
@@ -325,8 +274,8 @@ h1 {
     background: #333;
     border: none;
     color: #fff;
-    width: 24px;
-    height: 24px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
     cursor: pointer;
     display: flex;
@@ -394,6 +343,11 @@ h1 {
     display: none;
 }
 
+/* ============================================
+   RESPONSIVE DESIGN - MOBILE FIRST
+   ============================================ */
+
+/* Tablets y pantallas medianas */
 @media (max-width: 768px) {
     .teams-container {
         grid-template-columns: 1fr;
@@ -405,5 +359,490 @@ h1 {
     
     h1 {
         font-size: 2rem;
+    }
+    
+    .content-panel {
+        padding: 20px;
+    }
+    
+    /* Stats y resultados */
+    .stats-container {
+        gap: 15px;
+    }
+    
+    .content-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .button-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .button-container button {
+        width: 100%;
+    }
+    
+    .table-container {
+        width: 100%;
+        padding: 15px;
+    }
+    
+    .chart-container {
+        height: 300px;
+        padding: 15px;
+    }
+    
+    .button-container button {
+        width: 100%;
+        margin: 0;
+    }
+    
+    .carousel-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 20px;
+    }
+    
+    .carousel-prev {
+        left: 5px;
+    }
+    
+    .carousel-next {
+        right: 5px;
+    }
+}
+
+/* Móviles pequeños */
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.75rem;
+    }
+    
+    .mode-selector {
+        padding: 4px;
+    }
+    
+    .mode-btn {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+    
+    .content-panel {
+        padding: 15px;
+    }
+    
+    .section-title {
+        font-size: 1.25rem;
+    }
+    
+    .table-container {
+        padding: 10px;
+    }
+    
+    table th, table td {
+        padding: 5px 0px 5px 15px;
+        font-size: 14px;
+    }
+    
+    .chart-container {
+        height: 250px;
+        padding: 10px;
+    }
+    
+    .carousel-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 18px;
+    }
+    
+    .team-section,
+    .available-players {
+        padding: 15px;
+    }
+    
+    button {
+        font-size: 13px;
+        padding: 8px 12px;
+    }
+}
+
+/* ============================================
+   ESTILOS PARA RESULTADOS GENERADOS
+   ============================================ */
+
+/* Team Container - from layout.css */
+.team-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 0;
+    padding-bottom: 20px;
+    padding-top: 10px;
+}
+
+.team {
+    flex: 1 1 100%;
+    background: #2b2b2b;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.stats-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.content-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    width: 100%;
+    align-items: stretch;
+}
+
+.table-container {
+    flex: 1 1 400px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    background: #333333;
+    padding: 15px;
+    border-radius: 8px;
+    overflow-x: auto;
+}
+
+/* Carousel Nativo - Reemplaza Swiper */
+.carousel-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 450px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.carousel-slides {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+    height: 100%;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling en iOS */
+}
+
+.carousel-slides::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+}
+
+.carousel-slide {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+/* Player Entry - from components.css */
+.player-entry {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+    background: #2b2b2b;
+    border-radius: 8px;
+    border: 1px solid #444;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.player-entry:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.player-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.skills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Table styles - from pages.css */
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+ul li {
+    background: #2b2b2b;
+    padding: 8px 12px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 250px;
+}
+
+th, td {
+    padding: 10px 0px 8px 50px;
+    text-align: left;
+    border-bottom: 1px solid #444;
+}
+
+th {
+    background-color: #333333;
+    font-weight: bold;
+    text-align: center;
+}
+
+td:first-child {
+    font-weight: 600;
+}
+
+td:not(:first-child) {
+    text-align: center;
+}
+
+tr:last-child td {
+    border-bottom: none;
+    font-weight: bold;
+}
+
+tr:last-child {
+    background-color: #2b2b2b;
+}
+
+/* Chart Container - from pages.css */
+.chart-container {
+    height: 400px;
+    width: 100%;
+    background: #333333;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chart-container canvas {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.field-container {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 10px 0;
+}
+
+.formation-slide {
+    flex-direction: column;
+}
+
+.formation-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.formation-placeholder {
+    background: #333333;
+    padding: 24px;
+    border-radius: 8px;
+    text-align: center;
+    color: #d5d5d5;
+    max-width: 360px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    line-height: 1.4;
+}
+
+.formation-placeholder p {
+    margin: 0;
+}
+
+/* General Input & Button Styles - from components.css */
+input {
+    padding: 10px;
+    border: 1px solid #555;
+    border-radius: 5px;
+    background-color: #333;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #444;
+    color: #e0e0e0;
+    cursor: pointer;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+button:hover {
+    background-color: #555;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.button-container button {
+    flex: 0 1 auto;
+    min-width: 140px;
+}
+
+.player-number {
+    min-width: 25px;
+    text-align: right;
+    font-weight: 600;
+    margin-right: 5px;
+}
+
+.player-name {
+    flex-grow: 1;
+    padding-left: 8px;
+}
+
+.swap-button {
+    border: none;
+    padding: 5px 10px;
+    margin-right: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Popup - from pages.css */
+.popup {
+    display: none;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 65%;
+    max-width: 450px;
+    background-color: #2b2b2b;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: larger;
+}
+
+.popup-content {
+    position: relative;
+}
+
+/* Carousel Navigation */
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.5);
+    color: #e0e0e0b5;
+    border: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    transition: all 0.3s ease;
+    user-select: none;
+    padding: 0 0 4px 0;
+}
+
+.carousel-btn:hover {
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+}
+
+.carousel-btn:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+.carousel-prev {
+    left: 15px;
+    padding-right: 2px;
+}
+
+.carousel-next {
+    right: 15px;
+    padding-left: 2px;
+}
+
+.carousel-btn::before {
+    content: '';
+    display: block;
+}
+
+/* Ajustes responsive para botones del carrusel */
+@media (max-width: 768px) {
+    .carousel-btn {
+        width: 38px;
+        height: 38px;
+        font-size: 20px;
+    }
+    
+    .carousel-prev {
+        left: 8px;
+    }
+    
+    .carousel-next {
+        right: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .carousel-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 18px;
+        background: rgba(0, 0, 0, 0.6);
+    }
+    
+    .carousel-prev {
+        left: 5px;
+    }
+    
+    .carousel-next {
+        right: 5px;
     }
 }

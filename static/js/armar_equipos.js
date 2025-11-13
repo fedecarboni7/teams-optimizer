@@ -227,12 +227,13 @@ function renderPlayers() {
             <span class="player-rating">${player.rating}/${currentScale}</span>
         `;
         
-        // Add click event to checkbox
-        const checkbox = playerItem.querySelector('.checkbox');
-        checkbox.addEventListener('click', (e) => {
-            e.stopPropagation();
+        // Add click event to entire player item
+        playerItem.addEventListener('click', () => {
             togglePlayerSelection(player.name);
         });
+        
+        // Add cursor pointer style
+        playerItem.style.cursor = 'pointer';
         
         playersList.appendChild(playerItem);
     });
@@ -275,8 +276,8 @@ function renderAvailablePlayers() {
                 <span class="player-rating">${player.rating}</span>
             </div>
             <div class="add-buttons">
-                <button class="add-btn" onclick="addToTeam('A', '${player.name}')">+</button>
-                <button class="add-btn team-b" onclick="addToTeam('B', '${player.name}')">+</button>
+                <button class="add-btn" onclick="addToTeam('A', '${player.name}')">1</button>
+                <button class="add-btn team-b" onclick="addToTeam('B', '${player.name}')">2</button>
             </div>
         `;
         container.appendChild(playerDiv);
@@ -301,8 +302,8 @@ function renderTeam(teamName, team, containerId) {
                 <span class="player-rating">${player.rating}</span>
             </div>
             <div style="display: flex; gap: 8px; align-items: center;">
-                <button class="swap-btn" onclick="swapTeam('${teamName}', '${player.name}')">🔃</button>
-                <button class="remove-btn" onclick="removeFromTeam('${teamName}', '${player.name}')">−</button>
+                <button class="swap-btn" onclick="swapTeam('${teamName}', '${player.name}')"><i class="fa-solid fa-right-left"></i></button>
+                <button class="remove-btn" onclick="removeFromTeam('${teamName}', '${player.name}')"><i class="fa-solid fa-xmark"></i></button>
             </div>
         `;
         container.appendChild(playerDiv);
@@ -359,9 +360,9 @@ function renderManualComparison() {
             </button>
         </div>
         <div class="content-container" id="content-containerManual" data-players-count="${teamSize}" style="display: none;">
-            <div class="swiper">
-                <div class="swiper-wrapper">
-                    <div class="swiper-slide">
+            <div class="carousel-container">
+                <div class="carousel-slides">
+                    <div class="carousel-slide">
                         <div class="table-container">
                             <table id="skills-tableManual">
                                 <thead>
@@ -388,19 +389,14 @@ function renderManualComparison() {
                             </table>
                         </div>
                     </div>
-                    <div class="swiper-slide">
+                    <div class="carousel-slide">
                         <div class="chart-container">
                             <canvas></canvas>
                         </div>
                     </div>
-                    <div class="swiper-slide">
-                        <div class="bar-chart-container">
-                            <canvas></canvas>
-                        </div>
-                    </div>
                 </div>
-                <div class="swiper-button-prev"></div>
-                <div class="swiper-button-next"></div>
+                <button class="carousel-btn carousel-prev">❮</button>
+                <button class="carousel-btn carousel-next">❯</button>
             </div>
         </div>
     `;
@@ -416,8 +412,7 @@ function renderManualComparison() {
             // Pasar conteo de jugadores para escalar gráficos
             container.dataset.playersCount = String(teamSize);
             createRadarChart(container);
-            createBarChart(container);
-            createSwiper();
+            createCarousel(container.querySelector('.carousel-container'));
         } else {
             container.style.display = 'none';
             textSpan.textContent = 'Mostrar detalles';
@@ -643,30 +638,17 @@ function displayTeamsResults(data) {
     const resultsContainer = document.getElementById('teams-results');
     
     // Generate HTML similar to results.html template
-    let html = `
-        <div class="results-section">
-            <h2>Resultados de Equipos Optimizados</h2>
-            <p>Diferencia mínima entre equipos: ${data.min_difference_total}</p>
-            <p>Mejores combinaciones posibles: ${Math.floor(data.len_teams / 2)}</p>
-            <hr>
-    `;
+    let html = `<div class="results-section">`;
     
     // Generate team options
     for (let i = 0; i < data.len_teams - 1; i += 2) {
         const optionNumber = Math.floor(i / 2) + 1;
         
         if (data.len_teams > 2) {
-            html += `<p>Opción ${optionNumber}</p>`;
+            html += `<h2>Opción ${optionNumber}</h2>`;
         }
         
         html += `
-            <div id="popup" class="popup">
-                <div class="popup-content">
-                <button type="button" class="swap-button"><i class="fa-solid fa-right-left"></i></button>
-                <p>Ahora podés intercambiar jugadores entre equipos usando este botón y ver las nuevas estadísticas de cada equipo. Para restaurar la disposición óptima de los equipos, volvé a tocar el botón "Armar Equipos".</p>
-                <button id="closeButton">Cerrar</button>
-                </div>
-            </div>
             <div class="team-container" id="resultados-equipos${optionNumber}">
                 <div class="team">
                     <h2>Equipo 1</h2>
@@ -720,11 +702,11 @@ function displayTeamsResults(data) {
                             Generar formaciones
                         </button>
                     </div>
-                    <div class="content-container" id="content-container${optionNumber}" style="display: none;">
-                        <!-- Slider main container -->
-                        <div class="swiper">
-                            <div class="swiper-wrapper">
-                                <div class="swiper-slide">
+                    <div class="content-container" id="content-container${optionNumber}" data-players-count="${data.teams[i][0].length}" style="display: none;">
+                        <!-- Carousel nativo -->
+                        <div class="carousel-container">
+                            <div class="carousel-slides">
+                                <div class="carousel-slide">
                                     <div class="table-container">
                                         <table id="skills-table${optionNumber}">
                                             <thead>
@@ -758,31 +740,32 @@ function displayTeamsResults(data) {
                                         </table>
                                     </div>
                                 </div>
-                                <div class="swiper-slide">
+                                <div class="carousel-slide">
                                     <div class="chart-container">
                                         <canvas></canvas>
                                     </div>
                                 </div>
-                                <div class="swiper-slide">
-                                    <div class="bar-chart-container">
-                                        <canvas></canvas>
+                                <div class="carousel-slide formation-slide">
+                                    <div class="formation-wrapper" id="formation-wrapper${optionNumber}">
+                                        <div class="formation-placeholder" id="formation-placeholder${optionNumber}">
+                                            <p>Generá la formación para verla acá.</p>
+                                            <p>Usá el botón "Generar formaciones".</p>
+                                        </div>
+                                        <div class="field-container" id="formations-container${optionNumber}" style="display: none;">
+                                            <div id="soccer-field${optionNumber}" class="soccer-field">
+                                                <!-- Players will be positioned here -->
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="swiper-button-prev"></div>
-                            <div class="swiper-button-next"></div>
-                        </div>
-                        <!-- Formations container -->
-                        <div id="formations-container${optionNumber}" style="display: none;">
-                            <div class="field-container">
-                                <div id="soccer-field${optionNumber}" class="soccer-field">
-                                    <!-- Players will be positioned here -->
-                                </div>
-                            </div>
+                            <button class="carousel-btn carousel-prev">❮</button>
+                            <button class="carousel-btn carousel-next">❯</button>
                         </div>
                     </div>
                 </div>
             </div>
+            <hr>
         `;
     }
     
@@ -796,9 +779,10 @@ function displayTeamsResults(data) {
     // Scroll to results
     resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
     
-    // Initialize components that might be needed for the results view
-    if (typeof createSwiper === 'function') {
-        createSwiper();
+    // Initialize carousel components for the results view
+    if (typeof createCarousel === 'function') {
+        const carousels = resultsContainer.querySelectorAll('.carousel-container');
+        carousels.forEach(carousel => createCarousel(carousel));
     }
 }
 

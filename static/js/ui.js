@@ -1,4 +1,3 @@
-// filepath: /workspaces/teams-optimizer/static/js/ui.js
 
 // Ejecutar el código cuando el DOM esté completamente cargado
 document.addEventListener('DOMContentLoaded', function () {
@@ -440,8 +439,7 @@ function toggleStats(button) {
         contentContainer.style.display = "flex";
         textSpan.textContent = "Ocultar detalles";
         createRadarChart(contentContainer);
-        createBarChart(contentContainer);
-        createSwiper();
+        createCarousel(contentContainer.querySelector('.carousel-container'));
     } else {
         contentContainer.style.display = "none";
         textSpan.textContent = "Mostrar detalles";
