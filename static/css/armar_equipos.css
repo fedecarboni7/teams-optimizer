@@ -62,11 +62,6 @@ h1 {
     margin-bottom: 15px;
 }
 
-.section-subtitle {
-    color: #999;
-    margin-bottom: 20px;
-}
-
 .search-container {
     position: relative;
     margin-bottom: 20px;
@@ -483,6 +478,8 @@ h1 {
     flex-wrap: wrap;
     gap: 20px;
     padding: 0;
+    padding-bottom: 20px;
+    padding-top: 10px;
 }
 
 .team {

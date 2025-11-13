@@ -638,20 +638,14 @@ function displayTeamsResults(data) {
     const resultsContainer = document.getElementById('teams-results');
     
     // Generate HTML similar to results.html template
-    let html = `
-        <div class="results-section">
-            <h2>Resultados de Equipos Optimizados</h2>
-            <p>Diferencia mínima entre equipos: ${data.min_difference_total}</p>
-            <p>Mejores combinaciones posibles: ${Math.floor(data.len_teams / 2)}</p>
-            <hr>
-    `;
+    let html = `<div class="results-section">`;
     
     // Generate team options
     for (let i = 0; i < data.len_teams - 1; i += 2) {
         const optionNumber = Math.floor(i / 2) + 1;
         
         if (data.len_teams > 2) {
-            html += `<p>Opción ${optionNumber}</p>`;
+            html += `<h2>Opción ${optionNumber}</h2>`;
         }
         
         html += `
@@ -771,6 +765,7 @@ function displayTeamsResults(data) {
                     </div>
                 </div>
             </div>
+            <hr>
         `;
     }
     
