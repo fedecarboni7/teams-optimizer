@@ -302,8 +302,8 @@ function renderTeam(teamName, team, containerId) {
                 <span class="player-rating">${player.rating}</span>
             </div>
             <div style="display: flex; gap: 8px; align-items: center;">
-                <button class="swap-btn" onclick="swapTeam('${teamName}', '${player.name}')">S</button>
-                <button class="remove-btn" onclick="removeFromTeam('${teamName}', '${player.name}')">x</button>
+                <button class="swap-btn" onclick="swapTeam('${teamName}', '${player.name}')"><i class="fa-solid fa-right-left"></i></button>
+                <button class="remove-btn" onclick="removeFromTeam('${teamName}', '${player.name}')"><i class="fa-solid fa-xmark"></i></button>
             </div>
         `;
         container.appendChild(playerDiv);
