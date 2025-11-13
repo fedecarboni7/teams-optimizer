@@ -16,3 +16,4 @@ langchain-google-genai
 python-dotenv
 jinja2
 pytz
+psycopg[binary]

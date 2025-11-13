@@ -1,4 +1,3 @@
-import os
 import sys
 
 from sqlalchemy import create_engine
@@ -20,7 +19,16 @@ if not TESTING:
     DATABASE_URL = Settings().database_url
     logger.info(f"Connecting to database at {DATABASE_URL}")
     
-    engine = create_engine(DATABASE_URL, connect_args={'check_same_thread': False})
+    # Configure connection args based on database type
+    connect_args = {}
+    if DATABASE_URL.startswith('sqlite'):
+        connect_args = {'check_same_thread': False}
+    
+    # Si es PostgreSQL, usar el dialecto psycopg3 (psycopg versión 3)
+    if DATABASE_URL.startswith('postgresql://'):
+        DATABASE_URL = DATABASE_URL.replace('postgresql://', 'postgresql+psycopg://', 1)
+    
+    engine = create_engine(DATABASE_URL, connect_args=connect_args)
     Base.metadata.create_all(engine)
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 else:
