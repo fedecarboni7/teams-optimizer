@@ -23,10 +23,24 @@
             <span>Mi Perfil</span>
         </button>
     </div>
-    <div class="sidebar-footer">
-        <a href="/logout" class="logout-link">
-            <i class="fa-solid fa-right-from-bracket"></i>
-            <span>Cerrar sesión ({{ user.username }})</span>
-        </a>
-    </div>
+</div>
+
+<!-- Bottom Navigation Bar (solo móvil) -->
+<div class="bottom-nav">
+    <button class="bottom-nav-item {{ 'active' if active_page == 'equipos' else '' }}" onclick="navigateTo('equipos')">
+        <span class="bottom-nav-icon">⚽</span>
+        <span class="bottom-nav-label">Equipos</span>
+    </button>
+    <button class="bottom-nav-item {{ 'active' if active_page == 'jugadores' else '' }}" onclick="navigateTo('jugadores')">
+        <span class="bottom-nav-icon">👥</span>
+        <span class="bottom-nav-label">Jugadores</span>
+    </button>
+    <button class="bottom-nav-item {{ 'active' if active_page == 'clubes' else '' }}" onclick="navigateTo('clubes')">
+        <span class="bottom-nav-icon">🏆</span>
+        <span class="bottom-nav-label">Clubes</span>
+    </button>
+    <button class="bottom-nav-item {{ 'active' if active_page == 'perfil' else '' }}" onclick="navigateTo('perfil')">
+        <span class="bottom-nav-icon">👤</span>
+        <span class="bottom-nav-label">Perfil</span>
+    </button>
 </div>

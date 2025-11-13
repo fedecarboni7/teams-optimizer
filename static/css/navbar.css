@@ -127,6 +127,17 @@
     .navbar {
         padding: 10px 15px;
     }
+    
+    /* Ocultar botón de menú en móvil (se usa bottom nav) */
+    .menu-btn {
+        display: none;
+    }
+    
+    /* Centrar el selector de club */
+    .club-selector-navbar {
+        justify-content: center;
+        margin-left: 0;
+    }
 
     .current-context {
         padding: 6px 12px;
