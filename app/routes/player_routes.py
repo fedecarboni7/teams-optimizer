@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from app.db.database import get_db
-from app.db.database_utils import execute_with_retries, query_player, query_players, query_clubs
+from app.db.database_utils import execute_with_retries, query_player, query_players
 from app.db.models import Player, PlayerV2, User
 from app.db.schemas import PlayerCreate, PlayerResponse
 from app.utils.auth import get_current_user
