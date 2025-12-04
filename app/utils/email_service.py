@@ -1,11 +1,11 @@
 import secrets
-import smtplib
-from datetime import datetime, timedelta
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+from datetime import timedelta
 from typing import Optional
 
+import sib_api_v3_sdk
+from sib_api_v3_sdk.rest import ApiException
 from sqlalchemy.orm import Session
+
 from app.db import models
 from app.db.models import get_argentina_now
 from app.config.logging_config import logger
@@ -14,15 +14,18 @@ from app.config.settings import Settings
 
 class EmailService:
     def __init__(self):
-        self.smtp_server = Settings().smtp_server
-        self.smtp_port = Settings().smtp_port
-        self.username = Settings().brevo_smtp_username
-        self.password = Settings().brevo_smtp_password
         self.from_email = "info@armarequipos.lat"
         self.from_name = "Armar Equipos"
+        
+        # Configure Brevo API
+        configuration = sib_api_v3_sdk.Configuration()
+        configuration.api_key['api-key'] = Settings().brevo_api_key
+        self.api_instance = sib_api_v3_sdk.TransactionalEmailsApi(
+            sib_api_v3_sdk.ApiClient(configuration)
+        )
 
     def send_password_reset_email(self, to_email: str, reset_token: str, username: str) -> bool:
-        """Send password reset email via Brevo SMTP"""
+        """Send password reset email via Brevo API"""
         try:
             # Create reset URL (ajustar según tu dominio)
             reset_url = f"{Settings().frontend_url}/reset-password/{reset_token}"
@@ -87,27 +90,22 @@ class EmailService:
             Equipo de Armar Equipos
             """
 
-            # Create message
-            msg = MIMEMultipart('alternative')
-            msg['Subject'] = subject
-            msg['From'] = f"{self.from_name} <{self.from_email}>"
-            msg['To'] = to_email
-
-            # Attach parts
-            part1 = MIMEText(text_body, 'plain', 'utf-8')
-            part2 = MIMEText(html_body, 'html', 'utf-8')
+            # Send email via Brevo API
+            send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
+                to=[{"email": to_email}],
+                sender={"name": self.from_name, "email": self.from_email},
+                subject=subject,
+                html_content=html_body,
+                text_content=text_body
+            )
             
-            msg.attach(part1)
-            msg.attach(part2)
-
-            # Send email
-            with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
-                server.starttls()
-                server.login(self.username, self.password)
-                server.send_message(msg)
+            self.api_instance.send_transac_email(send_smtp_email)
             
             return True
             
+        except ApiException as e:
+            logger.error(f"Brevo API error sending email: {e}")
+            return False
         except Exception as e:
             logger.error(f"Error sending email: {e}")
             return False
@@ -183,27 +181,22 @@ class EmailService:
             Equipo de Armar Equipos
             """
 
-            # Create message
-            msg = MIMEMultipart('alternative')
-            msg['Subject'] = subject
-            msg['From'] = f"{self.from_name} <{self.from_email}>"
-            msg['To'] = to_email
-
-            # Attach parts
-            part1 = MIMEText(text_body, 'plain', 'utf-8')
-            part2 = MIMEText(html_body, 'html', 'utf-8')
+            # Send email via Brevo API
+            send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
+                to=[{"email": to_email}],
+                sender={"name": self.from_name, "email": self.from_email},
+                subject=subject,
+                html_content=html_body,
+                text_content=text_body
+            )
             
-            msg.attach(part1)
-            msg.attach(part2)
-
-            # Send email
-            with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
-                server.starttls()
-                server.login(self.username, self.password)
-                server.send_message(msg)
+            self.api_instance.send_transac_email(send_smtp_email)
             
             return True
             
+        except ApiException as e:
+            logger.error(f"Brevo API error sending confirmation email: {e}")
+            return False
         except Exception as e:
             logger.error(f"Error sending confirmation email: {e}")
             return False
