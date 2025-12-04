@@ -17,7 +17,6 @@ TESTING = 'pytest' in sys.modules
 
 if not TESTING:
     DATABASE_URL = Settings().database_url
-    logger.info(f"Connecting to database at {DATABASE_URL}")
     
     # Configure connection args based on database type
     connect_args = {}
