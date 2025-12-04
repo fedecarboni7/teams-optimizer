@@ -28,10 +28,7 @@ jobs:
       DATABASE_URL: "sqlite://"
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-      BREVO_SMTP_USERNAME: ${{ secrets.BREVO_SMTP_USERNAME }}
-      BREVO_SMTP_PASSWORD: ${{ secrets.BREVO_SMTP_PASSWORD }}
-      SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
-      SMTP_PORT: ${{ secrets.SMTP_PORT }}
+      BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
       FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
       # Explicitly mark that we're testing
       PYTEST_RUNNING: "1"
