@@ -1,4 +1,3 @@
-// filepath: /workspaces/teams-optimizer/static/js/ui.js
 
 // Ejecutar el código cuando el DOM esté completamente cargado
 document.addEventListener('DOMContentLoaded', function () {
@@ -6,22 +5,26 @@ document.addEventListener('DOMContentLoaded', function () {
     const toggleButton = document.getElementById('toggle-select-button');
     const checkboxes = document.querySelectorAll('input[name="selectedPlayers"]');
     
-    toggleButton.addEventListener('click', function () {
-        const checkboxes = document.querySelectorAll('input[name="selectedPlayers"]');
-        const allSelected = Array.from(checkboxes).every(checkbox => checkbox.checked);
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = !allSelected;
-        });
-        updateSelectedCount();
-        updateToggleButtonText();
-    });
-
-    checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function () {
+    if (toggleButton) {
+        toggleButton.addEventListener('click', function () {
+            const checkboxes = document.querySelectorAll('input[name="selectedPlayers"]');
+            const allSelected = Array.from(checkboxes).every(checkbox => checkbox.checked);
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = !allSelected;
+            });
             updateSelectedCount();
             updateToggleButtonText();
         });
-    });
+    }
+
+    if (checkboxes && checkboxes.length) {
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function () {
+                updateSelectedCount();
+                updateToggleButtonText();
+            });
+        });
+    }
     // Puntuar habilidades de los jugadores con sliders
     const sliderRatings = document.querySelectorAll('.slider-rating');
     
@@ -53,31 +56,34 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Inicializar el estado del botón de scroll al cargar la página
     const scrollButton = document.getElementById('scroll-button');
-    if (window.scrollY + window.innerHeight >= document.body.scrollHeight) {
-        scrollButton.style.display = 'none';
-    } else {
-        scrollButton.style.display = 'block';
+    if (scrollButton) {
+        if (window.scrollY + window.innerHeight >= document.body.scrollHeight) {
+            scrollButton.style.display = 'none';
+        } else {
+            scrollButton.style.display = 'block';
+        }
     }
 
     // Mostrar/Ocultar la lista de jugadores seleccionados al hacer clic en el botón flotante
     const floatingButton = document.getElementById('floating-button');
     const playersList = document.getElementById('selected-players-list');
+    if (floatingButton && playersList) {
+        floatingButton.addEventListener('click', function (event) {
+            event.stopPropagation();
+            if (playersList.style.display === 'block') {
+                playersList.style.display = 'none';
+            } else {
+                playersList.style.display = 'block';
+            }
+        });
 
-    floatingButton.addEventListener('click', function (event) {
-        event.stopPropagation();
-        if (playersList.style.display === 'block') {
-            playersList.style.display = 'none';
-        } else {
-            playersList.style.display = 'block';
-        }
-    });
-
-    // Cerrar la lista si se hace clic fuera de ella
-    document.addEventListener('click', function (event) {
-        if (!floatingButton.contains(event.target) && !playersList.contains(event.target)) {
-            playersList.style.display = 'none';
-        }
-    });
+        // Cerrar la lista si se hace clic fuera de ella
+        document.addEventListener('click', function (event) {
+            if (!floatingButton.contains(event.target) && !playersList.contains(event.target)) {
+                playersList.style.display = 'none';
+            }
+        });
+    }
 
     // Mostrar el pop-up si el usuario no lo ha visto
     const popup = document.getElementById("popup");
@@ -121,51 +127,6 @@ function filterPlayers() {
         playersContainer.innerHTML = '';
         allPlayers.forEach(player => playersContainer.appendChild(player));
     }
-}
-
-// Validar formulario (sin el fetch)
-function validateForm(event) {
-    event.preventDefault();
-    let playersContainer = document.getElementById('players-container');
-    let playerEntries = playersContainer.getElementsByClassName('player-entry');
-    
-    if (playerEntries.length < 3) {
-        alert('Debes crear al menos tres jugadores.');
-        return false;
-    }
-    
-    let selectedPlayers = document.querySelectorAll('input[name="selectedPlayers"]:checked');
-    if (selectedPlayers.length < 3) {
-        alert('Por favor, selecciona al menos tres jugadores.');
-        return false;
-    }
-    
-    if (selectedPlayers.length > 22) {
-        alert('El máximo de jugadores seleccionados es 22.');
-        return false;
-    }
-    
-    let names = new Set();
-    for (let entry of playerEntries) {
-        let nameInput = entry.querySelector('input[name="names"]');
-        if (nameInput) {
-            let playerName = nameInput.value.trim();
-            if (names.has(playerName)) {
-                alert('Los nombres de los jugadores deben ser distintos. Nombre repetido: ' + playerName);
-                return false;
-            }
-            names.add(playerName);
-        }
-    }
-    
-    // Verificar cambios sin guardar usando el nuevo sistema de seguimiento
-    if (window.playerChangeTracker && validateUnsavedChanges()) {
-        return false; // El usuario canceló, no continuar
-    }
-
-    let formData = new FormData(event.target);
-    submitForm(formData); // Llama a la función de api.js
-    return false;
 }
 
 // Agregar jugador
@@ -414,6 +375,9 @@ function scrollToSubmit() {
 window.addEventListener('scroll', function() {
     const scrollButton = document.getElementById('scroll-button');
     const submitBtn = document.getElementById('submitBtn');
+    if (!scrollButton || !submitBtn) {
+        return;
+    }
     const submitBtnPosition = submitBtn.getBoundingClientRect().top + window.scrollY;
     const windowBottom = window.scrollY + window.innerHeight;
 
@@ -475,8 +439,7 @@ function toggleStats(button) {
         contentContainer.style.display = "flex";
         textSpan.textContent = "Ocultar detalles";
         createRadarChart(contentContainer);
-        createBarChart(contentContainer);
-        createSwiper();
+        createCarousel(contentContainer.querySelector('.carousel-container'));
     } else {
         contentContainer.style.display = "none";
         textSpan.textContent = "Mostrar detalles";
@@ -512,4 +475,44 @@ function toggleSort() {
     // Vaciar y volver a llenar el contenedor con los elementos ordenados
     playersContainer.innerHTML = '';
     players.forEach(player => playersContainer.appendChild(player));
+}
+
+function navigateTo(page) {
+    const routes = {
+        'jugadores': '/jugadores',
+        'equipos': '/home',
+        'clubes': '/clubes',
+        'perfil': '/perfil'
+    };
+    
+    if (routes[page]) {
+        window.location.href = routes[page];
+    }
+}
+
+// Función común para toggle del sidebar
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.querySelector('.sidebar-overlay');
+    
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('active');
+}
+
+// Función común para actualizar el icono de contexto
+function updateContextIcon() {
+    const contextIcon = document.getElementById('contextIcon');
+    const selector = document.getElementById('club-select-navbar');
+    
+    if (selector && selector.value === 'my-players') {
+        contextIcon.textContent = '👤'; // Icono de usuario personal
+    } else {
+        contextIcon.textContent = '⚽'; // Icono de club
+    }
+}
+
+// Función común para mostrar errores
+function showError(message) {
+    console.error(message);
+    // Aquí podrías agregar una notificación visual para el usuario
 }

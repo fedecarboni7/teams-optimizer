@@ -8,6 +8,7 @@
 - Skip unnecessary comments; only explain critical logic briefly.
 - Do not fix linting errors (e.g., indentation); leave for manual correction.
 - Do not execute scripts or run code automatically.
+- Do not write documentation unless specifically requested.
 
 ## Workflow
 - Before coding, briefly describe the planned approach.

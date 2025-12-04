@@ -8,9 +8,19 @@ function createRadarChart(contentContainer) {
     const tableContainer = contentContainer.querySelector('.table-container');
     const chartContainer = contentContainer.querySelector('.chart-container');
     const canvas = chartContainer.querySelector('canvas');
-    const resultadosEquiposContainer = document.getElementById('resultados-equipos1');
-    const listasJugadores = resultadosEquiposContainer.querySelectorAll('li');
-    const cantidadJugadores = Math.floor(listasJugadores.length / 2);
+    // Intentar obtener la cantidad de jugadores desde el dataset del contenedor (soporte para modo manual)
+    let cantidadJugadores = parseInt(contentContainer.dataset.playersCount || '0');
+    if (isNaN(cantidadJugadores) || cantidadJugadores <= 0) {
+        // Fallback al comportamiento anterior basado en resultados de equipos
+        const resultadosEquiposContainer = document.getElementById('resultados-equipos1');
+        if (resultadosEquiposContainer) {
+            const listasJugadores = resultadosEquiposContainer.querySelectorAll('li');
+            cantidadJugadores = Math.max(1, Math.floor(listasJugadores.length / 2));
+        } else {
+            // Último recurso: estimar a partir de los datos (no ideal, pero evita fallos)
+            cantidadJugadores = 5;
+        }
+    }
     const containerNumber = parseInt(contentContainer.id.replace('content-container', ''));
     const ctx = canvas.getContext('2d');
     
@@ -68,9 +78,8 @@ function createRadarChart(contentContainer) {
                         color: 'rgba(255, 255, 255, 0.4)',
                         lineWidth: 1
                     },
-                    // suggestedMin tiene que ser la cantidad de jugadores
+                    // Rango sugerido basado en cantidad de jugadores (1-5 por jugador)
                     suggestedMin: cantidadJugadores,
-                    // suggestedMax tiene que ser la cantidad de jugadores * 5
                     suggestedMax: cantidadJugadores * 5,
                     grid: {
                         color: 'rgba(255, 255, 255, 0.4)',
@@ -204,15 +213,73 @@ function createBarChart(contentContainer) {
     });
 }
 
-// Inicializar el carrusel Swiper
-function createSwiper() {
-    const swiper = new Swiper('.swiper', {
-        loop: true,
-      
-        // Navigation arrows
-        navigation: {
-          nextEl: '.swiper-button-next',
-          prevEl: '.swiper-button-prev',
-        }
+// Inicializar el carrusel nativo
+function createCarousel(container) {
+    const carouselContainer = container || document.querySelector('.carousel-container');
+    if (!carouselContainer) return;
+    
+    const slides = carouselContainer.querySelector('.carousel-slides');
+    const prevBtn = carouselContainer.querySelector('.carousel-prev');
+    const nextBtn = carouselContainer.querySelector('.carousel-next');
+    
+    if (!slides || !prevBtn || !nextBtn) return;
+
+    const totalSlides = slides.children.length;
+    if (!totalSlides) return;
+
+    const storedSlide = parseInt(carouselContainer.dataset.currentSlide || '0', 10);
+    let currentSlide = Number.isNaN(storedSlide) ? 0 : storedSlide;
+
+    function goToSlide(index) {
+        const total = totalSlides;
+        currentSlide = (index + total) % total;
+        carouselContainer.dataset.currentSlide = String(currentSlide);
+        slides.scrollLeft = slides.children[currentSlide].offsetLeft;
+    }
+
+    carouselContainer.goToSlide = goToSlide;
+
+    if (carouselContainer.dataset.carouselInitialized === 'true') {
+        goToSlide(currentSlide);
+        return;
+    }
+
+    prevBtn.addEventListener('click', () => goToSlide(currentSlide - 1));
+    nextBtn.addEventListener('click', () => goToSlide(currentSlide + 1));
+
+    // Soporte para teclado (flechas)
+    carouselContainer.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') goToSlide(currentSlide - 1);
+        if (e.key === 'ArrowRight') goToSlide(currentSlide + 1);
     });
+
+    carouselContainer.dataset.carouselInitialized = 'true';
+    goToSlide(currentSlide);
 }
+
+function goToCarouselSlide(container, index) {
+    if (!container) return;
+
+    const carouselContainer = container.classList && container.classList.contains('carousel-container')
+        ? container
+        : container.querySelector
+            ? container.querySelector('.carousel-container')
+            : null;
+
+    if (!carouselContainer) return;
+
+    const slides = carouselContainer.querySelector('.carousel-slides');
+    if (!slides || !slides.children.length) return;
+
+    const totalSlides = slides.children.length;
+    const targetIndex = Math.max(0, Math.min(index, totalSlides - 1));
+
+    if (typeof carouselContainer.goToSlide === 'function') {
+        carouselContainer.goToSlide(targetIndex);
+    } else {
+        carouselContainer.dataset.currentSlide = String(targetIndex);
+        slides.scrollLeft = slides.children[targetIndex].offsetLeft;
+    }
+}
+
+window.goToCarouselSlide = goToCarouselSlide;

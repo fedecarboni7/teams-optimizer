@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
+<head>
+    {% set active_page = 'perfil' %}
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q0GE6VCJGX"></script>
     <script>
@@ -17,10 +18,23 @@
     <link rel="icon" type="image/png" sizes="32x32" href="../static/favicon/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="../static/favicon/favicon-16x16.png">
     <link rel="manifest" href="../static/favicon/site.webmanifest">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/global.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/sidebar.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/navbar.css">
     <link rel="stylesheet" type="text/css" href="../static/css/daisyui.min.css" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/static/js/utils.js" defer></script>
+    <script src="/static/js/clubSelector.js" defer></script>
+    <script src="/static/js/ui.js" defer></script>
+    <script src="/static/js/api.js" defer></script>
+    <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body class="justify-center flex h-screen items-center">
+  <body class="profile-page">
+    {% include '_sidebar.html' %}
+    {% include '_navbar.html' %}
+
+    <div class="justify-center flex h-screen items-center" style="margin-top: 20px; padding-top: 60px;">
     <div
         class="card bg-neutral text-neutral-content sm:w-96 w-full max-w-96 h-fit m-4">
         <div class="p-4 rounded-lg shadow-md border-primary">
@@ -61,7 +75,7 @@
                         <div class="text-xs text-gray-500 mb-2">
                             Revisá tu bandeja de entrada para confirmar tu email
                         </div>
-                        <form action="/profile/resend-email-confirmation" method="POST" class="mb-2">
+                        <form action="/perfil/resend-email-confirmation" method="POST" class="mb-2">
                             <button type="submit" class="btn btn-sm btn-outline btn-secondary">
                                 Reenviar confirmación
                             </button>
@@ -78,7 +92,7 @@
             </div>
             
             <!-- Email form -->
-            <form action="/profile/update-email" method="POST" class="mt-4 flex flex-col gap-2">
+            <form action="/perfil/update-email" method="POST" class="mt-4 flex flex-col gap-2">
             <label class="text-sm text-gray-400 mb-1">
                 {% if user.email %}Cambiar email:{% else %}Agregar email:{% endif %}
             </label>
@@ -108,6 +122,14 @@
             </button>
             </form>
             
+            <!-- Logout button -->
+            <div class="mt-6">
+                <a href="/logout" class="btn btn-error w-full">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Cerrar sesión</span>
+                </a>
+            </div>
+            
             <!-- Navigation links -->
             <div class="mt-6 text-center space-y-2">
                 <div>
@@ -127,7 +149,9 @@
             </div>
         </div>
     </div>
+    </div>
       <script>
+
       function confirmDeleteAccount() {
         const confirmation = confirm(`¿Estás seguro de que quieres borrar tu cuenta permanentemente?
 
@@ -153,12 +177,30 @@
             // Create a form to submit the delete request
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = '/profile/delete-account';
+            form.action = '/perfil/delete-account';
             document.body.appendChild(form);
             form.submit();
           }
         }
       }
+
+      // Función de integración con clubSelector.js para profile
+      // En esta página solo manejamos el cambio de contexto visualmente
+      function onContextChanged(contextId) {
+        // En profile no hay datos específicos que cargar, solo actualizar el icono
+        console.log('Contexto cambiado a:', contextId);
+        return Promise.resolve();
+      }
     </script>
+
+    <!-- Modal para crear un nuevo club -->
+    <div id="createClubModal" class="modal">
+        <div class="modal-content">
+            <h2>Crear Club</h2>
+            <input type="text" id="new-club-name" placeholder="Nombre del club">
+            <button class="btn btn-primary" onclick="createNewClub()">Crear</button>
+            <button class="btn" onclick="closeCreateClubModal()">Cancelar</button>
+        </div>
+    </div>
   </body>
 </html>

@@ -26,6 +26,7 @@ class PasswordResetConfirm(BaseModel):
     new_password: str
 
 class PlayerCreate(BaseModel):
+    id: Optional[int] = None
     name: str
     velocidad: int
     resistencia: int
@@ -36,6 +37,7 @@ class PlayerCreate(BaseModel):
     habilidad_arquero: int
     fuerza_cuerpo: int
     vision: int
+    club_id: Optional[int] = None
 
 class PlayerResponse(BaseModel):
     id: int
@@ -49,9 +51,9 @@ class PlayerResponse(BaseModel):
     habilidad_arquero: int
     fuerza_cuerpo: int
     vision: int
+    updated_at: datetime
     user_id: Optional[int] = None
     club_id: Optional[int] = None
-    average_skill_ratings: Optional[dict] = None  # Diccionario con los promedios por habilidad
 
     class Config:
         from_attributes = True

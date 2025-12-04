@@ -18,9 +18,9 @@ if Settings().run_db_migration:
         scripts_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "scripts")
         sys.path.insert(0, scripts_path)
         
-        from migrate_to_v2_scale import run_migration
+        from migrate_sqlite_to_postgres import migrate_data
         
-        success = run_migration()
+        success = migrate_data()
         if success:
             print("✅ Database migration completed successfully")
         else:
@@ -41,5 +41,9 @@ app.include_router(admin_router, tags=["admin"])
 
 if __name__ == "__main__":
     import uvicorn
-
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    
+    # Esta configuración se usa solo cuando ejecutas directamente con:
+    # python -m app.main
+    # Para desarrollo usa el debugger de VS Code
+    # Para producción Railway usa: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    uvicorn.run(app, host="127.0.0.1", port=8000)

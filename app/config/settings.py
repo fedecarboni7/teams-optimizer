@@ -15,5 +15,5 @@ class Settings:
         self.brevo_smtp_username = os.getenv("BREVO_SMTP_USERNAME")
         self.brevo_smtp_password = os.getenv("BREVO_SMTP_PASSWORD")
         self.frontend_url = os.getenv("FRONTEND_URL", "http://localhost:8000")
-        self.run_db_migration = os.getenv("RUN_V2_PLAYERS_MIGRATION", "false").lower() == "true"
+        self.run_db_migration = os.getenv("RUN_DB_MIGRATION", "false").lower() == "true"
         self.arg_timezone = pytz.timezone("America/Argentina/Buenos_Aires")
