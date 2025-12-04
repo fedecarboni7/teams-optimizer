@@ -43,27 +43,27 @@ async def admin_dashboard(
                     )
                 """)
             ).scalar() or 0
-            avg_users_per_club = round(avg_users_per_club, 1) if avg_users_per_club else 0
+            avg_users_per_club = float(round(avg_users_per_club, 1)) if avg_users_per_club else 0
             
             # Usuarios nuevos en diferentes períodos
             new_users_24h = conn.execute(
                 text("""
                     SELECT COUNT(*) FROM users 
-                    WHERE created_at >= datetime('now', '-1 day')
+                    WHERE created_at >= NOW() - INTERVAL '1 day'
                 """)
             ).scalar()
             
             new_users_week = conn.execute(
                 text("""
                     SELECT COUNT(*) FROM users 
-                    WHERE created_at >= datetime('now', '-7 days')
+                    WHERE created_at >= NOW() - INTERVAL '7 days'
                 """)
             ).scalar()
             
             new_users_month = conn.execute(
                 text("""
                     SELECT COUNT(*) FROM users 
-                    WHERE created_at >= datetime('now', '-1 month')
+                    WHERE created_at >= NOW() - INTERVAL '1 month'
                 """)
             ).scalar()
 
@@ -71,21 +71,21 @@ async def admin_dashboard(
             new_clubs_24h = conn.execute(
                 text("""
                     SELECT COUNT(*) FROM clubs 
-                    WHERE creation_date >= datetime('now', '-1 day')
+                    WHERE creation_date >= NOW() - INTERVAL '1 day'
                 """)
             ).scalar()
 
             new_clubs_week = conn.execute(
                 text("""
                     SELECT COUNT(*) FROM clubs 
-                    WHERE creation_date >= datetime('now', '-7 days')
+                    WHERE creation_date >= NOW() - INTERVAL '7 days'
                 """)
             ).scalar()
 
             new_clubs_month = conn.execute(
                 text("""
                     SELECT COUNT(*) FROM clubs 
-                    WHERE creation_date >= datetime('now', '-1 month')
+                    WHERE creation_date >= NOW() - INTERVAL '1 month'
                 """)
             ).scalar()
 
