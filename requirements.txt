@@ -88,7 +88,7 @@ jsonpointer==3.0.0
     # via jsonpatch
 langchain==1.0.5
     # via teams-optimizer
-langchain-core==1.0.4
+langchain-core==1.1.0
     # via
     #   langchain
     #   langchain-google-genai
