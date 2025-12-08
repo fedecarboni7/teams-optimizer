@@ -1,7 +1,9 @@
+import logging
+
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from requests import Session
-import logging
+
 from app.config.config import templates
 from app.db.database import get_db
 from app.db.database_utils import execute_with_retries, query_clubs, query_players
@@ -9,7 +11,6 @@ from app.db.models import User
 from app.utils.ai_formations import create_formations
 from app.utils.auth import get_current_user
 from app.utils.team_optimizer import find_best_combination
-
 
 router = APIRouter()
 
