@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from requests import Session
-
+import logging
 from app.config.config import templates
 from app.db.database import get_db
 from app.db.database_utils import execute_with_retries, query_clubs, query_players
@@ -192,4 +192,5 @@ async def build_teams_api(
         })
         
     except Exception as e:
-        return JSONResponse(content={"error": f"Error al armar equipos: {str(e)}"}, status_code=500)
+        logging.exception(e)
+        return JSONResponse(content={"error": "Error interno al armar equipos"}, status_code=500)
