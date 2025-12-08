@@ -12,6 +12,16 @@ let currentScale = 5; // Variable para la escala actual
 let loading = false;
 let hasResults = false; // Variable para saber si hay resultados generados
 
+// Escapes HTML meta-characters to prevent XSS
+function escapeHtml(str) {
+    return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
 // Initialize app
 async function init() {
     try {
@@ -197,7 +207,7 @@ function renderPlayers() {
         
         // Mostrar mensaje diferente si es por búsqueda o por falta de jugadores
         const message = searchTerm !== '' ? 
-            `🔍 No se encontraron jugadores con "${searchTerm}"` :
+            `🔍 No se encontraron jugadores con "${escapeHtml(searchTerm)}"` :
             `👤 No hay jugadores ${contextName}`;
         
         const subMessage = searchTerm !== '' ?
