@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr
 
 
 # User schemas
@@ -10,12 +10,11 @@ class UserCreate(BaseModel):
     email: EmailStr
 
 class UserResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     username: str
     email: Optional[str] = None
-
-    class Config:
-        from_attributes = True
 
 # Password reset schemas
 class PasswordResetRequest(BaseModel):
@@ -40,6 +39,8 @@ class PlayerCreate(BaseModel):
     club_id: Optional[int] = None
 
 class PlayerResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     name: str
     velocidad: int
@@ -55,20 +56,16 @@ class PlayerResponse(BaseModel):
     user_id: Optional[int] = None
     club_id: Optional[int] = None
 
-    class Config:
-        from_attributes = True
-
 # Schemas para Club
 class ClubCreate(BaseModel):
     name: str
 
 class ClubResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     name: str
     creation_date: datetime
-
-    class Config:
-        from_attributes = True
 
 # Schemas para ClubUser
 class ClubUserCreate(BaseModel):
@@ -76,23 +73,21 @@ class ClubUserCreate(BaseModel):
     role: Optional[str] = "miembro"
 
 class ClubUserResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     user_id: int
     club_id: int
     role: str
 
-    class Config:
-        from_attributes = True
-
 class ClubUsersResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     user_id: int
     club_id: int
     role: str
     username: str
-
-    class Config:
-        from_attributes = True
 
 # Schemas para SkillVote
 class PlayerSkillsVote(BaseModel):
@@ -107,6 +102,8 @@ class PlayerSkillsVote(BaseModel):
     vision: int
 
 class SkillVoteResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     player_id: int
     voter_id: int
@@ -120,9 +117,6 @@ class SkillVoteResponse(BaseModel):
     fuerza_cuerpo: int
     vision: int
     vote_date: datetime
-
-    class Config:
-        from_attributes = True
 
 class InviteRequest(BaseModel):
     invited_username: str
