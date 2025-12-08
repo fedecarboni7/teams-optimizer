@@ -5,7 +5,6 @@ venv/
 .venv/
 *.env
 .pytest_cache
-uv.lock
 
 # SQLite
 *.db*
