@@ -276,7 +276,7 @@ def accept_club_invitation(db: Session, invitation_id: int, user_id: int):
     if not invitation:
         raise ValueError("Invitación no encontrada o no válida")
     
-    if invitation.expiration_date < get_argentina_now():
+    if invitation.expiration_date < get_argentina_now().replace(tzinfo=None):
         invitation.status = models.InvitationStatus.EXPIRED.value
         db.commit()
         raise ValueError("La invitación ha expirado")

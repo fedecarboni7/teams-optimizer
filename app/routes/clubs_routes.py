@@ -88,12 +88,15 @@ def handle_invitation(
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    if action == "accept":
-        return crud.accept_club_invitation(db, invitation_id, current_user.id)
-    elif action == "reject":
-        return crud.reject_club_invitation(db, invitation_id, current_user.id)
-    else:
-        raise HTTPException(status_code=400, detail="Invalid action")
+    try:
+        if action == "accept":
+            return crud.accept_club_invitation(db, invitation_id, current_user.id)
+        elif action == "reject":
+            return crud.reject_club_invitation(db, invitation_id, current_user.id)
+        else:
+            raise HTTPException(status_code=400, detail="Invalid action")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 # Get pending invitations
 @router.get("/invitations/pending")
