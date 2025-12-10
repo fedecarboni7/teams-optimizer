@@ -1,3 +1,20 @@
+// Función para escapar HTML especial en cadenas (prevención XSS)
+function escapeHTML(str) {
+    return String(str).replace(/[&<>"'`=\/]/g, function (s) {
+        const entityMap = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;',
+            '`': '&#96;',
+            '=': '&#61;',
+            '/': '&#47;'
+        };
+        return entityMap[s] || s;
+    });
+}
+
 // Aplicar funcionalidad a los sliders
 function applySliderEffect(container) {
     container.addEventListener('input', function(event) {

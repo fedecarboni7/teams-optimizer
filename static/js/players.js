@@ -134,7 +134,7 @@ function renderPlayers() {
         
         // Mostrar mensaje diferente si es por búsqueda o por falta de jugadores
         const message = searchTerm !== '' ? 
-            `🔍 No se encontraron jugadores con "${searchTerm}"` :
+            `🔍 No se encontraron jugadores con "${escapeHTML(searchTerm)}"` :
             `👤 No hay jugadores en ${contextName}`;
         
         const subMessage = searchTerm !== '' ?
