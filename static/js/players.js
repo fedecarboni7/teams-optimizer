@@ -18,23 +18,6 @@ function formatDate(date) {
     return date.toLocaleDateString('es-ES') + ' ' + date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
 }
 
-// Función para escapar HTML especial en cadenas
-function escapeHTML(str) {
-    return String(str).replace(/[&<>"'`=\/]/g, function (s) {
-        const entityMap = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#39;',
-            '`': '&#96;',
-            '=': '&#61;',
-            '/': '&#47;'
-        };
-        return entityMap[s] || s;
-    });
-}
-
 // Función para calcular promedio de habilidades
 function calculateAverage(player) {
     const skillKeys = ['velocidad', 'resistencia', 'pases', 'tiro', 'defensa', 'fuerza_cuerpo', 'control', 'habilidad_arquero', 'vision'];
