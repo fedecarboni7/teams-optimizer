@@ -193,5 +193,5 @@ async def build_teams_api(
         })
         
     except Exception as e:
-        logging.exception(e)
+        logging.exception("Error building teams: %s", str(e))
         return JSONResponse(content={"error": "Error interno al armar equipos"}, status_code=500)
