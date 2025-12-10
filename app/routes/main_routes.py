@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from requests import Session
@@ -9,7 +11,6 @@ from app.db.models import User
 from app.utils.ai_formations import create_formations
 from app.utils.auth import get_current_user
 from app.utils.team_optimizer import find_best_combination
-
 
 router = APIRouter()
 
@@ -192,4 +193,5 @@ async def build_teams_api(
         })
         
     except Exception as e:
-        return JSONResponse(content={"error": f"Error al armar equipos: {str(e)}"}, status_code=500)
+        logging.exception("Error building teams: %s", str(e))
+        return JSONResponse(content={"error": "Error interno al armar equipos"}, status_code=500)

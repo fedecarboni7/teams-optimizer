@@ -13,7 +13,7 @@ router = APIRouter()
 
 @router.get("/api/players")
 def get_players(
-        scale: str = Query("1-5", regex="^(1-5|1-10)$"),
+        scale: str = Query("1-5", pattern="^(1-5|1-10)$"),
         club_id: int = Query(None),
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
@@ -31,7 +31,7 @@ def get_players(
 @router.post("/api/player")
 def save_player(
         player_data: PlayerCreate,
-        scale: str = Query("1-5", regex="^(1-5|1-10)$"),
+        scale: str = Query("1-5", pattern="^(1-5|1-10)$"),
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
     ) -> PlayerResponse:
@@ -54,7 +54,7 @@ def save_player(
 @router.put("/api/player")
 def update_player(
         player_data: PlayerCreate,
-        scale: str = Query("1-5", regex="^(1-5|1-10)$"),
+        scale: str = Query("1-5", pattern="^(1-5|1-10)$"),
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
     ) -> PlayerResponse:
@@ -80,7 +80,7 @@ def update_player(
 @router.delete("/api/players/{player_id}")
 def delete_player(
         player_id: int,
-        scale: str = Query("1-5", regex="^(1-5|1-10)$"),
+        scale: str = Query("1-5", pattern="^(1-5|1-10)$"),
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
     ):
