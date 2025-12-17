@@ -233,10 +233,14 @@ def invite_user_to_club(
     if not club_user:
         raise ValueError("No tienes permisos para invitar usuarios a este club")
 
+    invited_username_normalized = invited_username.strip().lower()
+    if not invited_username_normalized:
+        raise ValueError("Usuario no encontrado")
+
     # Buscar al usuario invitado por username
-    invited_user = db.query(models.User).filter(models.User.username == invited_username).first()
+    invited_user = db.query(models.User).filter(models.User.username == invited_username_normalized).first()
     if not invited_user:
-        raise ValueError(f"Usuario {invited_username} no encontrado")
+        raise ValueError(f"Usuario {invited_username_normalized} no encontrado")
     
     # Verificar que el usuario no pertenezca ya al club
     existing_membership = db.query(models.ClubUser).filter(
@@ -244,7 +248,7 @@ def invite_user_to_club(
         models.ClubUser.user_id == invited_user.id
     ).first()
     if existing_membership:
-        raise ValueError(f"{invited_username} ya es miembro del club")
+        raise ValueError(f"{invited_username_normalized} ya es miembro del club")
 
     # Verificar si ya existe una invitación pendiente
     existing_invitation = db.query(models.ClubInvitation).filter(
@@ -253,7 +257,7 @@ def invite_user_to_club(
         models.ClubInvitation.status == models.InvitationStatus.PENDING.value
     ).first()
     if existing_invitation:
-        raise ValueError(f"Ya existe una invitación pendiente para {invited_username}")
+        raise ValueError(f"Ya existe una invitación pendiente para {invited_username_normalized}")
 
     # Crear nueva invitación
     invitation = models.ClubInvitation(
