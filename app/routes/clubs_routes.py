@@ -42,21 +42,6 @@ def remove_user_from_club(club_id: int, user_id: int, db: Session = Depends(get_
 def create_skill_vote(player_id: int, skill_vote: schemas.PlayerSkillsVote, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     return crud.create_skill_vote(player_id=player_id, skill_vote=skill_vote, db=db, current_user=current_user)
 
-# Get all players from a club
-@router.get("/clubs/{club_id}/players", response_model=List[schemas.PlayerResponse])
-def get_club_players(club_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    return crud.get_club_players(db, club_id=club_id, current_user=current_user)
-
-# Delete player from a club
-@router.delete("/clubs/{club_id}/players/{player_id}", response_model=schemas.PlayerResponse)
-def remove_player_from_club(club_id: int, player_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    return crud.remove_player_from_club(db, club_id=club_id, player_id=player_id, current_user=current_user)
-
-# Delete player V2 from a club
-@router.delete("/clubs/{club_id}/players-v2/{player_id}", response_model=schemas.PlayerResponse)
-def remove_player_v2_from_club(club_id: int, player_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    return crud.remove_player_v2_from_club(db, club_id=club_id, player_id=player_id, current_user=current_user)
-
 # Invite user to a club
 @router.post("/clubs/{club_id}/invite")
 def invite_to_club(
