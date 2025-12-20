@@ -581,7 +581,10 @@ async function deletePlayerFromModal(id) {
                 headers: { 'Content-Type': 'application/json' }
             });
             
-            if (!response.ok) throw new Error(`Error ${response.status}`);
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.detail || `Error ${response.status}`);
+            }
             
             closeModal();
             await loadPlayers(); // Recargar la lista
@@ -826,20 +829,19 @@ function openPlayerModal() {
 
 // Función para guardar jugador
 async function savePlayer(playerData) {
-    try {
-        const scale = currentScale === 5 ? '1-5' : '1-10';
-        const response = await fetch(`/api/player?scale=${scale}`, {
-            method: playerData.id ? 'PUT' : 'POST', // Usar POST para crear y PUT para editar
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(playerData)
-        });
-        
-        if (!response.ok) throw new Error(`Error ${response.status}`);
-        await loadPlayers(); // Recargar la lista
-    } catch (error) {
-        alert('Error al guardar el jugador: ' + error.message);
+    const scale = currentScale === 5 ? '1-5' : '1-10';
+    const response = await fetch(`/api/player?scale=${scale}`, {
+        method: playerData.id ? 'PUT' : 'POST', // Usar POST para crear y PUT para editar
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(playerData)
+    });
+    
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || `Error ${response.status}`);
     }
+    await loadPlayers(); // Recargar la lista
 }
 
 // Cerrar modal al hacer clic fuera
