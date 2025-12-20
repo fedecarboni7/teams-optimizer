@@ -425,9 +425,14 @@ async def delete_account(
     
     try:
         # Import models here to avoid circular imports
-        from app.db.models import PasswordResetToken, Player, ClubUser, Club, SkillVote, ClubInvitation
+        from app.db.models import PasswordResetToken, Player, PlayerV2, ClubUser, Club, SkillVote, SkillVoteV2, ClubInvitation
         
-        # 1. Delete all players created by this user
+        # 0. Clear last_modified_by references in both Player and PlayerV2 tables
+        # (for players this user modified but doesn't own)
+        db.query(Player).filter(Player.last_modified_by == user_id).update({"last_modified_by": None})
+        db.query(PlayerV2).filter(PlayerV2.last_modified_by == user_id).update({"last_modified_by": None})
+        
+        # 1. Delete all players created by this user (legacy Player table)
         user_players = db.query(Player).filter(Player.user_id == user_id).all()
         for player in user_players:
             # Delete skill votes for this player first (foreign key constraint)
@@ -435,8 +440,17 @@ async def delete_account(
             # Delete the player
             db.delete(player)
         
+        # 1b. Delete all players created by this user (PlayerV2 table)
+        user_players_v2 = db.query(PlayerV2).filter(PlayerV2.user_id == user_id).all()
+        for player in user_players_v2:
+            # Delete skill votes for this player first (foreign key constraint)
+            db.query(SkillVoteV2).filter(SkillVoteV2.player_id == player.id).delete()
+            # Delete the player
+            db.delete(player)
+        
         # 2. Delete all skill votes made by this user (as voter)
         db.query(SkillVote).filter(SkillVote.voter_id == user_id).delete()
+        db.query(SkillVoteV2).filter(SkillVoteV2.voter_id == user_id).delete()
         
         # 3. Handle club memberships
         user_club_memberships = db.query(ClubUser).filter(ClubUser.user_id == user_id).all()
@@ -502,10 +516,12 @@ async def delete_account(
         
     except Exception as e:
         db.rollback()
+        import logging
+        logging.error(f"Error deleting account for user_id {user_id}: {str(e)}")
         return templates.TemplateResponse(
             request=request,
             name="profile.html",
-            context={"user": user, "error": f"Error al borrar la cuenta: {str(e)}. Inténtalo de nuevo más tarde."}
+            context={"user": user, "error": "Error al borrar la cuenta. Inténtalo de nuevo más tarde."}
         )
 
 
