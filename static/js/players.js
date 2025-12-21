@@ -1,6 +1,48 @@
 // Configuración de escala
 let currentScale = 5;
 
+// ==================== HELP MODAL (Players) ====================
+const HELP_MODAL_PLAYERS_KEY = 'players_helpModalShown';
+
+function initPlayersHelpModal() {
+    const modal = document.getElementById('help-modal-players');
+    const helpBtn = document.getElementById('help-btn');
+    const closeBtn = document.getElementById('close-help-modal-players');
+    const startBtn = document.getElementById('start-btn-players');
+    if (!modal) return;
+
+    // Mostrar modal si es la primera vez
+    const hasSeenHelp = localStorage.getItem(HELP_MODAL_PLAYERS_KEY);
+    if (!hasSeenHelp) {
+        showHelpModal();
+    }
+
+    // Event listeners
+    helpBtn?.addEventListener('click', showHelpModal);
+    closeBtn?.addEventListener('click', closeHelpModal);
+    startBtn?.addEventListener('click', closeHelpModal);
+    // Cerrar al hacer click fuera del contenido
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeHelpModal();
+    });
+    // Cerrar con Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) closeHelpModal();
+    });
+
+    function showHelpModal() {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeHelpModal() {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+        localStorage.setItem(HELP_MODAL_PLAYERS_KEY, 'true');
+    }
+}
+// ==================== END HELP MODAL ====================
+
 // Variables globales
 let players = [];
 let filteredPlayers = []; // Nueva variable para jugadores filtrados
@@ -920,6 +962,8 @@ async function loadPlayersForContext(contextId) {
 
 // Inicializar la aplicación
 document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar modal de ayuda
+    initPlayersHelpModal();
     // El clubSelector.js se encarga de cargar los clubes automáticamente
     // Solo necesitamos cargar los jugadores
     loadPlayers();
