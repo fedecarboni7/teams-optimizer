@@ -184,5 +184,5 @@ async def cleanup_expired_users(
         
     except Exception as e:
         db.rollback()
-        logger.error(f"Error during cleanup: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.exception("Error during cleanup")
+        raise HTTPException(status_code=500, detail="Internal server error")
