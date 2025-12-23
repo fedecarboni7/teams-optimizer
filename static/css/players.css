@@ -233,8 +233,8 @@
 }
 
 .title {
-    font-size: 32px;
-    font-weight: 600;
+    font-size: 2.5rem;
+    font-weight: 700;
     color: #ffffff;
 }
 
@@ -737,7 +737,7 @@
     }
     
     .title {
-        font-size: 24px;
+        font-size: 2rem;
     }
 
     .modal-content {
