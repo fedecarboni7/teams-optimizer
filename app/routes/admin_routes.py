@@ -159,9 +159,11 @@ async def cleanup_expired_users(
     try:
         now = datetime.now(timezone.utc)
         
-        # Buscar usuarios nuevos (email_confirmed=0) con token expirado
+        # Buscar usuarios nuevos (email_confirmed=0, con email y token expirado)
+        # No elimina usuarios legacy sin email
         expired_users = db.query(User).filter(
             User.email_confirmed == 0,
+            User.email.isnot(None),
             User.email_confirmation_expires < now
         ).all()
         
