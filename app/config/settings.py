@@ -14,3 +14,4 @@ class Settings:
         self.frontend_url = os.getenv("FRONTEND_URL", "http://localhost:8000")
         self.run_db_migration = os.getenv("RUN_DB_MIGRATION", "false").lower() == "true"
         self.arg_timezone = pytz.timezone("America/Argentina/Buenos_Aires")
+        self.cron_secret = os.getenv("CRON_SECRET_TOKEN")
