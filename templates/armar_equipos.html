@@ -24,11 +24,16 @@
     {% include '_navbar.html' %}
 
     <div class="container">
-        <h1>Armar Equipos</h1>
+        <div class="page-header">
+            <h1>Armar Equipos</h1>
+            <button class="help-btn" id="help-btn" title="Ayuda">
+                <i class="fas fa-question-circle"></i>
+            </button>
+        </div>
         
         <div class="mode-selector">
             <button class="mode-btn active" data-mode="automatic">Generación Equilibrada</button>
-            <button class="mode-btn" data-mode="manual">Editor Manual</button>
+            <button class="mode-btn" data-mode="manual">Creación Manual</button>
         </div>
 
         <!-- Automatic Mode -->
@@ -93,6 +98,55 @@
         <!-- Results container for generated teams -->
         <div id="teams-results" style="display: none;">
             <!-- Team results will be displayed here -->
+        </div>
+    </div>
+
+    <!-- Modal de Ayuda -->
+    <div class="help-modal" id="help-modal">
+        <div class="help-modal-content">
+            <div class="help-modal-header">
+                <h2>👋 ¡Bienvenido a Armar Equipos!</h2>
+                <button class="close-btn" id="close-help-modal">&times;</button>
+            </div>
+            <div class="help-modal-body">
+                <p class="help-intro">Creá equipos equilibrados de forma automática o armá los tuyos manualmente.</p>
+                
+                <div class="help-section">
+                    <h3>👥 Selector de Contexto</h3>
+                    <p>Usá el selector en la barra superior para elegir de dónde tomar los jugadores:</p>
+                    <ul>
+                        <li><strong>Mis Jugadores:</strong> Tu lista personal de jugadores</li>
+                        <li><strong>Nombre del Club:</strong> Los jugadores del club seleccionado</li>
+                    </ul>
+                </div>
+                
+                <div class="help-section">
+                    <h3>⚡ Generación Equilibrada</h3>
+                    <p>Seleccioná jugadores y el sistema armará automáticamente los equipos más balanceados posibles usando un algoritmo de optimización basado en las habilidades de cada jugador.</p>
+                </div>
+                
+                <div class="help-section">
+                    <h3>✏️ Creación Manual</h3>
+                    <p>Armá los equipos a tu gusto arrastrando jugadores. Ideal para cuando querés decidir vos quién juega con quién.</p>
+                </div>
+                
+                <div class="help-section">
+                    <h3>📊 Comparación de Equipos</h3>
+                    <p>Una vez armados los equipos, podés ver:</p>
+                    <ul>
+                        <li><strong>Tabla de habilidades:</strong> Compará las estadísticas de cada equipo</li>
+                        <li><strong>Radar Chart:</strong> Visualizá gráficamente el balance entre equipos</li>
+                        <li><strong>Formaciones con IA:</strong> Generá formaciones óptimas para cada equipo</li>
+                    </ul>
+                </div>
+                
+                <div class="help-tip">
+                    💡 <strong>Tip:</strong> Podés volver a ver esta ayuda tocando el botón <i class="fas fa-question-circle"></i> en cualquier momento.
+                </div>
+            </div>
+            <div class="help-modal-footer">
+                <button class="help-modal-btn" id="start-btn">¡Entendido!</button>
+            </div>
         </div>
     </div>
 

@@ -27,11 +27,10 @@
     {% include '_navbar.html' %}
 
     <div class="container">
-        <div class="header">
+        <div class="page-header">
             <h1 class="title">Jugadores</h1>
-            <button class="add-btn" onclick="addPlayer()">
-                <span>+</span>
-                Agregar Jugador
+            <button class="help-btn" id="help-btn" title="Ayuda">
+                <i class="fas fa-question-circle"></i>
             </button>
         </div>
 
@@ -42,7 +41,18 @@
             </div>
         </div>
 
-        {% include '_scale_selector.html' %}
+        <div class="players-toolbar">
+            <div class="toolbar-left">
+                {% include '_scale_selector.html' %}
+            </div>
+            <div class="toolbar-right">
+                <button class="add-btn" onclick="addPlayer()" title="Crear jugador" aria-label="Crear jugador">
+                    <i class="fas fa-user-plus"></i>
+                    Crear Jugador
+                </button>
+            </div>
+        </div>
+        
 
         <div class="players-table">
             <div class="table-header">
@@ -52,6 +62,50 @@
             </div>
             <div id="players-list">
                 <!-- Los jugadores se cargarán aquí -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Ayuda (Jugadores) -->
+    <div class="help-modal" id="help-modal-players">
+        <div class="help-modal-content">
+            <div class="help-modal-header">
+                <h2>👋 Bienvenido a Jugadores</h2>
+                <button class="close-btn" id="close-help-modal-players">&times;</button>
+            </div>
+            <div class="help-modal-body">
+                <p class="help-intro">Gestioná tu lista de jugadores, sus habilidades y cómo se muestran según el contexto.</p>
+
+                <div class="help-section">
+                    <h3>👥 Selector de Contexto</h3>
+                    <p>Usá el selector en la barra superior para elegir de dónde tomar los jugadores:</p>
+                    <ul>
+                        <li><strong>Mis Jugadores:</strong> Tu lista personal</li>
+                        <li><strong>Club seleccionado:</strong> Jugadores del club activo</li>
+                    </ul>
+                </div>
+
+                <div class="help-section">
+                    <h3>📏 Escala de valores</h3>
+                    <p>Elegí entre <strong>1-5</strong> o <strong>1-10</strong> para puntuar habilidades. Cada escala guarda a los jugadores en <strong>listas separadas</strong> que nunca se mezclan.</p>
+                </div>
+
+                <div class="help-section">
+                    <h3>🧑‍💻 Crear y modificar jugadores</h3>
+                    <p>Creá jugadores con <strong>nombre</strong> y puntuá sus <strong>habilidades</strong>. Para crear o modificar jugadores dentro de un <strong>club</strong> necesitás <strong>permisos de administrador</strong>.</p>
+                </div>
+
+                <div class="help-section">
+                    <h3>↕️ Ordenar la lista</h3>
+                    <p>Ordená por <strong>Nombre</strong>, <strong>Puntuación</strong> o <strong>Última Modificación</strong> haciendo clic en los encabezados.</p>
+                </div>
+
+                <div class="help-tip">
+                    💡 <strong>Tip:</strong> Podés volver a ver esta ayuda tocando el botón <i class="fas fa-question-circle"></i> en cualquier momento.
+                </div>
+            </div>
+            <div class="help-modal-footer">
+                <button class="help-modal-btn" id="start-btn-players">¡Entendido!</button>
             </div>
         </div>
     </div>

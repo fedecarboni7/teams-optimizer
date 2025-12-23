@@ -35,8 +35,13 @@
 
     <div class="main-content">
         <div class="page-header">
-            <h1>Gestión de Clubes</h1>
-            <p class="page-description">Administra tus clubes, miembros y configuraciones</p>
+            <div class="page-header-content">
+                <h1>Gestión de Clubes</h1>
+                <p class="page-description">Administra tus clubes, miembros y configuraciones</p>
+            </div>
+            <button class="help-btn" id="help-btn" title="Ayuda">
+                <i class="fas fa-question-circle"></i>
+            </button>
         </div>
 
         <!-- Club Information Section -->
@@ -60,6 +65,10 @@
                 
                 <div class="club-stats" id="clubStats" style="display: none;">
                     <div class="stat-item">
+                        <span class="stat-number" id="userRole">-</span>
+                        <span class="stat-label">Tu rol</span>
+                    </div>
+                    <div class="stat-item">
                         <span class="stat-number" id="memberCount">0</span>
                         <span class="stat-label">Miembros</span>
                     </div>
@@ -70,10 +79,6 @@
                     <div class="stat-item">
                         <span class="stat-number" id="playerCountV2">0</span>
                         <span class="stat-label">Jugadores (1-10)</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number" id="userRole">-</span>
-                        <span class="stat-label">Tu rol</span>
                     </div>
                 </div>
             </div>
@@ -465,6 +470,55 @@
             updateClubDisplay();
         });
     </script>
+
+    <!-- Modal de Ayuda (Clubes) -->
+    <div class="help-modal" id="help-modal-clubs">
+        <div class="help-modal-content">
+            <div class="help-modal-header">
+                <h2>👋 Bienvenido a Gestión de Clubes</h2>
+                <button class="close-btn" id="close-help-modal-clubs">&times;</button>
+            </div>
+            <div class="help-modal-body">
+                <p class="help-intro">Los clubes te permiten compartir jugadores con otras personas y organizar partidos en grupo.</p>
+
+                <div class="help-section">
+                    <h3>🏠 Crear un Club</h3>
+                    <p>Creá un club simplemente dándole un nombre. Vos serás el <strong>dueño</strong> y podrás invitar a otras personas para compartir los perfiles de jugadores.</p>
+                </div>
+
+                <div class="help-section">
+                    <h3>🔄 Cambiar de Club</h3>
+                    <p>Usá el <strong>selector en la barra superior</strong> para cambiar entre tus clubes o volver a "Mis Jugadores".</p>
+                </div>
+
+                <div class="help-section">
+                    <h3>👥 Roles y Permisos</h3>
+                    <ul>
+                        <li><strong>Dueño:</strong> Control total — invitar miembros, asignar roles, gestionar jugadores y eliminar el club</li>
+                        <li><strong>Administrador:</strong> Puede invitar miembros y crear/editar/eliminar jugadores</li>
+                        <li><strong>Miembro:</strong> Solo puede ver los jugadores, sin poder editarlos</li>
+                    </ul>
+                </div>
+
+                <div class="help-section">
+                    <h3>✉️ Invitar Miembros</h3>
+                    <p>Para invitar a alguien: seleccioná el club → <strong>Gestionar Miembros</strong> → <strong>Invitar</strong> → ingresá el nombre de usuario.</p>
+                </div>
+
+                <div class="help-section">
+                    <h3>🔔 Invitaciones Pendientes</h3>
+                    <p>Tocá el <strong>ícono de campana</strong> para ver si tenés invitaciones a clubes. Podés aceptarlas o rechazarlas desde ahí.</p>
+                </div>
+
+                <div class="help-tip">
+                    💡 <strong>Tip:</strong> Podés volver a ver esta ayuda tocando el botón <i class="fas fa-question-circle"></i> en cualquier momento.
+                </div>
+            </div>
+            <div class="help-modal-footer">
+                <button class="help-modal-btn" id="start-btn-clubs">¡Entendido!</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Hidden element to pass user data to JavaScript -->
     {% if currentUser %}

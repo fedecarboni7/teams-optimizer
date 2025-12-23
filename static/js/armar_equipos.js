@@ -12,9 +12,63 @@ let currentScale = 5; // Variable para la escala actual
 let loading = false;
 let hasResults = false; // Variable para saber si hay resultados generados
 
+// ==================== HELP MODAL ====================
+const HELP_MODAL_KEY = 'armarEquipos_helpModalShown';
+
+function initHelpModal() {
+    const modal = document.getElementById('help-modal');
+    const helpBtn = document.getElementById('help-btn');
+    const closeBtn = document.getElementById('close-help-modal');
+    const startBtn = document.getElementById('start-btn');
+    
+    if (!modal) return;
+    
+    // Mostrar modal si es la primera vez
+    const hasSeenHelp = localStorage.getItem(HELP_MODAL_KEY);
+    if (!hasSeenHelp) {
+        showHelpModal();
+    }
+    
+    // Event listeners
+    helpBtn?.addEventListener('click', showHelpModal);
+    closeBtn?.addEventListener('click', closeHelpModal);
+    startBtn?.addEventListener('click', closeHelpModal);
+    
+    // Cerrar al hacer click fuera del modal
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeHelpModal();
+        }
+    });
+    
+    // Cerrar con Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeHelpModal();
+        }
+    });
+    
+    function showHelpModal() {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeHelpModal() {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+        
+        // Guardar en localStorage que ya vio el modal
+        localStorage.setItem(HELP_MODAL_KEY, 'true');
+    }
+}
+// ==================== END HELP MODAL ====================
+
 // Initialize app
 async function init() {
     try {
+        // Inicializar modal de ayuda
+        initHelpModal();
+        
         // El clubSelector.js se encarga de cargar los clubes automáticamente
         
         // Cargar jugadores

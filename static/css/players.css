@@ -1,35 +1,244 @@
+.players-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.players-toolbar .toolbar-left {
+    flex: 0 0 auto;
+}
+
+.players-toolbar .toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Centrar selector dentro del toolbar y quitar margen inferior */
+.players-toolbar .scale-selector {
+    margin-bottom: 0;
+}
+
+/* Modern primary add button */
+.add-btn {
+    background: linear-gradient(180deg, #4a9eff, #3a8eef);
+    color: #fff;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 9999px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 6px 18px rgba(74, 158, 255, 0.25);
+    transition: transform 0.1s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.add-btn i { font-size: 18px; }
+
+.add-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 22px rgba(74, 158, 255, 0.35);
+    filter: brightness(1.03);
+}
+
+.add-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 6px 18px rgba(74, 158, 255, 0.25);
+}
+
+@media (max-width: 720px) {
+    .players-toolbar {
+        align-items: stretch;
+        gap: 12px;
+    }
+    .players-toolbar .toolbar-right { justify-content: flex-end; }
+}
 /* Players page specific styles */
 
-.header {
+/* Page header with centered title and help button */
+.page-header {
+    position: relative;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     margin-bottom: 20px;
 }
 
-.title {
-    font-size: 32px;
+.page-header .title {
+    margin: 0;
+    text-align: center;
+}
+
+/* Help button next to title */
+.help-btn {
+    position: absolute;
+    right: 0;
+    background: #404040;
+    border: 1px solid #555;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #999;
+    font-size: 18px;
+}
+
+.help-btn:hover {
+    background: #4a9eff;
+    border-color: #4a9eff;
+    color: #fff;
+    transform: scale(1.1);
+}
+
+/* Eliminado bloque legacy .scale-actions y estilos duplicados de .add-btn */
+
+/* Help Modal (same style as armar_equipos) */
+.help-modal {
+    display: none;
+    position: fixed;
+    z-index: 1001;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    animation: fadeIn 0.3s ease;
+}
+
+.help-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.help-modal-content {
+    background: linear-gradient(145deg, #2d2d2d, #252525);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 550px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border: 1px solid #404040;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: slideIn 0.3s ease;
+}
+
+.help-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 24px 16px;
+    border-bottom: 1px solid #404040;
+}
+
+.help-modal-header h2 {
+    font-size: 1.5rem;
     font-weight: 600;
+    color: #fff;
+    margin: 0;
+}
+
+.help-modal-header .close-btn {
+    background: none;
+    border: none;
+    color: #999;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    transition: color 0.2s ease;
+}
+
+.help-modal-header .close-btn:hover { color: #fff; }
+
+.help-modal-body { padding: 24px; }
+
+.help-intro { font-size: 1.1rem; color: #ccc; margin-bottom: 24px; line-height: 1.5; }
+
+.help-section {
+    background: #1a1a1a;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    border-left: 4px solid #4a9eff;
+}
+
+.help-section h3 { font-size: 1.1rem; font-weight: 600; color: #fff; margin: 0 0 8px 0; }
+.help-section p { color: #aaa; margin: 0; line-height: 1.5; font-size: 0.95rem; }
+.help-section ul { margin: 10px 0 0 0; padding-left: 20px; color: #aaa; }
+.help-section li { margin-bottom: 6px; line-height: 1.4; font-size: 0.95rem; }
+.help-section li strong { color: #ddd; }
+
+.help-tip {
+    background: rgba(74, 158, 255, 0.1);
+    border: 1px solid rgba(74, 158, 255, 0.3);
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: #8bc4ff;
+    font-size: 0.9rem;
+    margin-top: 8px;
+}
+
+.help-tip i { color: #4a9eff; }
+
+.help-modal-footer {
+    display: flex;
+    justify-content: center;
+    padding: 16px 24px 24px;
+    border-top: 1px solid #404040;
+}
+
+.help-modal-btn {
+    background: #4a9eff;
+    color: #fff;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.help-modal-btn:hover { background: #3a8eef; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(74, 158, 255, 0.4); }
+
+@media (max-width: 600px) {
+    .help-modal-content { width: 95%; margin: 10px; }
+    .help-modal-header h2 { font-size: 1.2rem; }
+    .help-modal-btn { width: 100%; }
+}
+
+.header {
+    display: none; /* replaced by page-header */
+}
+
+.title {
+    font-size: 2.5rem;
+    font-weight: 700;
     color: #ffffff;
 }
 
-.add-btn {
-    background-color: #666;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: background-color 0.3s;
-}
-
-.add-btn:hover {
-    background-color: #555;
-}
+/* Eliminados estilos antiguos de .add-btn (se mantiene el botón moderno arriba) */
 
 .search-container {
     display: flex;
@@ -473,6 +682,30 @@
     margin-bottom: 10px;
 }
 
+/* Responsive sizing for add button */
+@media (max-width: 480px) {
+    .add-btn {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+    .add-btn i { font-size: 16px; }
+}
+
+@media (max-width: 720px) {
+    .add-btn {
+        padding: 10px 14px;
+        font-size: 14px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .add-btn {
+        padding: 14px 22px;
+        font-size: 16px;
+    }
+    .add-btn i { font-size: 20px; }
+}
+
 @media (max-width: 768px) {
     .table-header,
     .player-row {
@@ -504,7 +737,7 @@
     }
     
     .title {
-        font-size: 24px;
+        font-size: 2rem;
     }
 
     .modal-content {

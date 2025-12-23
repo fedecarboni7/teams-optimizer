@@ -23,8 +23,53 @@ function translateRole(role) {
   }
 }
 
+// ==================== HELP MODAL (Clubs) ====================
+const HELP_MODAL_CLUBS_KEY = 'clubs_helpModalShown';
+
+function initClubsHelpModal() {
+    const modal = document.getElementById('help-modal-clubs');
+    const helpBtn = document.getElementById('help-btn');
+    const closeBtn = document.getElementById('close-help-modal-clubs');
+    const startBtn = document.getElementById('start-btn-clubs');
+    if (!modal) return;
+
+    // Mostrar modal si es la primera vez
+    const hasSeenHelp = localStorage.getItem(HELP_MODAL_CLUBS_KEY);
+    if (!hasSeenHelp) {
+        showHelpModal();
+    }
+
+    // Event listeners
+    helpBtn?.addEventListener('click', showHelpModal);
+    closeBtn?.addEventListener('click', closeHelpModal);
+    startBtn?.addEventListener('click', closeHelpModal);
+    // Cerrar al hacer click fuera del contenido
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeHelpModal();
+    });
+    // Cerrar con Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) closeHelpModal();
+    });
+
+    function showHelpModal() {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeHelpModal() {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+        localStorage.setItem(HELP_MODAL_CLUBS_KEY, 'true');
+    }
+}
+// ==================== END HELP MODAL ====================
+
 // Inicialización
 document.addEventListener('DOMContentLoaded', () => {
+  // Inicializar modal de ayuda
+  initClubsHelpModal();
+  
   // Obtener datos del usuario desde el script element
   const currentUserData = document.getElementById('user-data');
   if (currentUserData) {
