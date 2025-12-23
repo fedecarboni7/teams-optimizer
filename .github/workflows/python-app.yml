@@ -30,6 +30,7 @@ jobs:
       GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
       BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
       FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+      CRON_SECRET_TOKEN: ${{ secrets.CRON_SECRET_TOKEN }}
       # Explicitly mark that we're testing
       PYTEST_RUNNING: "1"
 
