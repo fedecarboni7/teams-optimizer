@@ -3,7 +3,7 @@
    ===================================== */
 
 .main-content {
-    padding: 80px 20px 20px;
+    padding: 40px 20px 20px;
     max-width: 1200px;
     margin: 0 auto;
 }
@@ -335,7 +335,7 @@
 
 @media (max-width: 768px) {
     .main-content {
-        padding: 80px 15px 20px;
+        padding: 40px 15px 20px;
     }
     
     .club-header {
@@ -386,6 +386,41 @@
     .modal-content.large {
         width: 95%;
         padding: 20px;
+    }
+    
+    .club-stats {
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+    }
+    
+    .stat-item {
+        flex: 1 1 40%;
+        min-width: 80px;
+    }
+    
+    .stat-label {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 380px) {
+    .club-stats {
+        gap: 10px;
+    }
+    
+    .stat-item {
+        flex: 1 1 45%;
+        min-width: 70px;
+    }
+    
+    .stat-number {
+        font-size: 1.25rem;
+    }
+    
+    .stat-label {
+        font-size: 0.7rem;
+        letter-spacing: 0;
     }
 }
 
