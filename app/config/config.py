@@ -20,7 +20,8 @@ def create_app() -> FastAPI:
     # Configuración de logging
     configure_logging()
 
-    secret_key = Settings().secret_key
+    settings = Settings()
+    secret_key = settings.secret_key
 
     app = FastAPI(title="Armar Equipos", docs_url=None, redoc_url=None, openapi_url=None)
 
@@ -61,7 +62,6 @@ def create_app() -> FastAPI:
     async def redirect_to_new_domain(request: Request, call_next):
         # Redirección de dominio configurable vía variables de entorno
         # Para desactivar, dejar REDIRECT_FROM_DOMAIN vacío
-        settings = Settings()
         old_domain = settings.redirect_from_domain
         new_domain = settings.redirect_to_domain
         
