@@ -61,7 +61,7 @@ def create_app() -> FastAPI:
     @app.middleware("http")
     async def redirect_to_new_domain(request: Request, call_next):
         # Redirección de dominio configurable vía variables de entorno
-        # Para desactivar, dejar REDIRECT_FROM_DOMAIN vacío
+        # Para desactivar, dejar REDIRECT_FROM_DOMAIN y/o REDIRECT_TO_DOMAIN vacíos
         old_domain = settings.redirect_from_domain
         new_domain = settings.redirect_to_domain
         
