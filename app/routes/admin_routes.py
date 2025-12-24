@@ -1,8 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+from datetime import datetime, timezone
+from fastapi import APIRouter, Depends, HTTPException, Header, Request
 from fastapi.responses import HTMLResponse
 from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 from app.config.config import templates
+from app.config.settings import Settings
 from app.db.database import get_db
 from app.db.models import User
 from app.utils.auth import get_current_user
@@ -14,7 +17,7 @@ router = APIRouter()
 @router.get("/dashboard", response_class=HTMLResponse, include_in_schema=False)
 async def admin_dashboard(
     request: Request,
-    db = Depends(get_db),
+    db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     verify_admin_user(current_user, detail="Unauthorized access.")
@@ -135,3 +138,51 @@ async def admin_dashboard(
     except Exception as e:
         logger.error(f"Error loading admin dashboard: {e}")
         raise HTTPException(status_code=500, detail=f"Error loading dashboard: {str(e)}")
+
+# Token secreto para proteger el endpoint
+CRON_SECRET = Settings().cron_secret
+
+def verify_cron_token(x_cron_token: str = Header(None)):
+    if not CRON_SECRET or x_cron_token != CRON_SECRET:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    return True
+
+@router.post("/cleanup-expired-users")
+async def cleanup_expired_users(
+    db: Session = Depends(get_db),
+    _: bool = Depends(verify_cron_token)
+):
+    """
+    Elimina usuarios no confirmados cuya fecha de expiración ya pasó.
+    Este endpoint debe ser llamado por un cron job externo.
+    """
+    try:
+        now = datetime.now(timezone.utc)
+        
+        # Buscar usuarios nuevos (email_confirmed=0, con email y token expirado)
+        # No elimina usuarios legacy sin email
+        expired_users = db.query(User).filter(
+            User.email_confirmed == 0,
+            User.email.isnot(None),
+            User.email_confirmation_expires < now
+        ).all()
+        
+        deleted_count = len(expired_users)
+        
+        for user in expired_users:
+            db.delete(user)
+        
+        db.commit()
+        
+        logger.info(f"Cleanup completed: {deleted_count} expired users deleted")
+        
+        return {
+            "success": True,
+            "deleted_count": deleted_count,
+            "timestamp": now.isoformat()
+        }
+        
+    except Exception as e:
+        db.rollback()
+        logger.exception("Error during cleanup")
+        raise HTTPException(status_code=500, detail="Internal server error")
