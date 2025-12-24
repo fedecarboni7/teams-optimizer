@@ -1,0 +1,129 @@
+<!-- TODO: Remover después del 7 de enero de 2026 - Banner de aviso de cambio de dominio -->
+<div class="domain-notice" id="domainNotice">
+    <div class="domain-notice-content">
+        <span class="domain-notice-icon">⚠️</span>
+        <span class="domain-notice-text">
+            <strong>Aviso importante:</strong> A partir del <strong>7 de enero de 2026</strong>, 
+            esta app cambiará de dominio a <strong>armarequipos.up.railway.app</strong>. 
+            Actualizá tus marcadores.
+        </span>
+        <button class="domain-notice-close" onclick="closeDomainNotice()" aria-label="Cerrar aviso">×</button>
+    </div>
+</div>
+
+<style>
+.domain-notice {
+    background: linear-gradient(90deg, #f59e0b, #d97706);
+    color: #1a1a1a;
+    padding: 12px 20px;
+    text-align: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.domain-notice-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    max-width: 1200px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+}
+
+.domain-notice-icon {
+    font-size: 1.2rem;
+}
+
+.domain-notice-text {
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.domain-notice-text strong {
+    color: #1a1a1a;
+}
+
+.domain-notice-close {
+    background: rgba(0, 0, 0, 0.1);
+    border: none;
+    color: #1a1a1a;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0 8px;
+    border-radius: 4px;
+    line-height: 1;
+    transition: background 0.2s;
+}
+
+.domain-notice-close:hover {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.domain-notice.hidden {
+    display: none;
+}
+
+/* Ajustar el body para que el contenido no quede debajo del banner */
+body.has-domain-notice {
+    padding-top: 50px;
+}
+
+@media (max-width: 768px) {
+    .domain-notice {
+        padding: 10px 15px;
+    }
+    
+    .domain-notice-text {
+        font-size: 0.8rem;
+    }
+    
+    body.has-domain-notice {
+        padding-top: 70px;
+    }
+}
+</style>
+
+<script>
+(function() {
+    const NOTICE_KEY = 'domainNoticeClosedV1';
+    const EXPIRY_DATE = new Date('2026-01-08T00:00:00');
+    
+    // Si ya pasó la fecha de cambio, no mostrar el banner
+    if (new Date() >= EXPIRY_DATE) {
+        document.getElementById('domainNotice').classList.add('hidden');
+        return;
+    }
+    
+    // Si el usuario ya cerró el banner, no mostrarlo
+    const noticeClosed = localStorage.getItem(NOTICE_KEY);
+    if (noticeClosed) {
+        document.getElementById('domainNotice').classList.add('hidden');
+    } else {
+        document.body.classList.add('has-domain-notice');
+    }
+})();
+
+function closeDomainNotice() {
+    const notice = document.getElementById('domainNotice');
+    notice.classList.add('hidden');
+    document.body.classList.remove('has-domain-notice');
+    localStorage.setItem('domainNoticeClosedV1', 'true');
+}
+</script>
