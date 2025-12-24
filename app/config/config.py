@@ -59,12 +59,13 @@ def create_app() -> FastAPI:
 
     @app.middleware("http")
     async def redirect_to_new_domain(request: Request, call_next):
-        # Redirigir de armarequipos.lat a armarequipos.up.railway.app
-        # TODO: Eliminar este middleware después del 7 de enero 2026 (ya no tendremos el dominio .lat)
-        old_domain = "armarequipos.lat"
-        new_domain = "armarequipos.up.railway.app"
+        # Redirección de dominio configurable vía variables de entorno
+        # Para desactivar, dejar REDIRECT_FROM_DOMAIN vacío
+        settings = Settings()
+        old_domain = settings.redirect_from_domain
+        new_domain = settings.redirect_to_domain
         
-        if request.url.hostname and old_domain in request.url.hostname:
+        if old_domain and new_domain and request.url.hostname and old_domain in request.url.hostname:
             new_url = str(request.url).replace(old_domain, new_domain)
             return RedirectResponse(url=new_url, status_code=301)
         return await call_next(request)
