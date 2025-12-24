@@ -14,7 +14,7 @@ from app.config.settings import Settings
 
 class EmailService:
     def __init__(self):
-        self.from_email = "info@armarequipos.lat"
+        self.from_email = "armarequipos.app@gmail.com"
         self.from_name = "Armar Equipos"
         
         # Configure Brevo API
