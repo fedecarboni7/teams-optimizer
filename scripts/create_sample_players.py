@@ -4,12 +4,15 @@ Script simple para crear 10 jugadores de ejemplo para testing.
 Ubicado en tests/utils/ para mantener organizado el proyecto.
 """
 
+
 import random
 import sys
 import os
 
-# Agregar el directorio raíz al path para importar los módulos
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+# Agregar la raíz del proyecto al sys.path de forma robusta
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
 
 from app.db.database import SessionLocal, engine
 from app.db.models import User, Player, Base
