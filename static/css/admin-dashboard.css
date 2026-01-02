@@ -322,6 +322,9 @@ body {
     opacity: 0.7;
     transition: opacity 0.2s;
     margin-left: 0.5rem;
+    border: none;
+    background: none;
+    padding: 0;
 }
 
 .tooltip-icon:hover {
