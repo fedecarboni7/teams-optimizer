@@ -222,7 +222,7 @@ function renderDashboard(stats) {
                 <div class="metric-card">
                     <div class="metric-header">
                         ${createIcon('zap', 'metric-icon purple')}
-                        <button type="button" class="tooltip-icon" aria-label="Usuario activo: ha modificado jugadores en el período O está en un club">ℹ️</button>
+                        <button type="button" class="tooltip-icon" aria-label="Usuario activo: ha modificado jugadores en el período">ℹ️</button>
                     </div>
                     <div class="period-selector">
                         <button class="period-btn-active" data-period="24h" onclick="changeActiveUsersPeriod('24h')">24h</button>

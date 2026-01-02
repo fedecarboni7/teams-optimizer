@@ -105,14 +105,16 @@ async def admin_dashboard(
                 """)
             ).scalar()
 
-            # Calcular usuarios activos (que han creado jugadores O están en clubes)
+            # Calcular usuarios activos (que han creado jugadores en v1 o v2, O están en clubes)
             active_users = conn.execute(
                 text("""
                     SELECT COUNT(DISTINCT user_id) FROM (
                         SELECT user_id FROM players
                         UNION
+                        SELECT user_id FROM players_v2
+                        UNION
                         SELECT user_id FROM club_users
-                    )
+                    ) AS active_users_combined
                 """)
             ).scalar()
             
@@ -120,39 +122,22 @@ async def admin_dashboard(
             abandoned_users = total_users - active_users
             abandonment_rate = round((abandoned_users / total_users) * 100, 1) if total_users > 0 else 0
             
-            # Usuarios activos en últimos 24h, 7 y 30 días
-            active_users_24h = conn.execute(
-                text(f"""
-                    SELECT COUNT(DISTINCT user_id) FROM (
-                        SELECT user_id FROM players
-                        WHERE updated_at >= {date_24h}
-                        UNION
-                        SELECT user_id FROM club_users
-                    )
-                """)
-            ).scalar()
+            # Helper para contar usuarios con actividad reciente (edición de jugadores)
+            def count_recently_active_users(date_expr: str) -> int:
+                return conn.execute(
+                    text(f"""
+                        SELECT COUNT(DISTINCT user_id) FROM (
+                            SELECT user_id FROM players WHERE updated_at >= {date_expr}
+                            UNION
+                            SELECT user_id FROM players_v2 WHERE updated_at >= {date_expr}
+                        ) AS recently_active_users
+                    """)
+                ).scalar()
             
-            active_users_7d = conn.execute(
-                text(f"""
-                    SELECT COUNT(DISTINCT user_id) FROM (
-                        SELECT user_id FROM players
-                        WHERE updated_at >= {date_7d}
-                        UNION
-                        SELECT user_id FROM club_users
-                    )
-                """)
-            ).scalar()
-            
-            active_users_30d = conn.execute(
-                text(f"""
-                    SELECT COUNT(DISTINCT user_id) FROM (
-                        SELECT user_id FROM players
-                        WHERE updated_at >= {date_30d}
-                        UNION
-                        SELECT user_id FROM club_users
-                    )
-                """)
-            ).scalar()
+            # Usuarios con actividad reciente (edición de jugadores) en últimos 24h, 7 y 30 días
+            active_users_24h = count_recently_active_users(date_24h)
+            active_users_7d = count_recently_active_users(date_7d)
+            active_users_30d = count_recently_active_users(date_30d)
             
             # Invitaciones: pendientes, aceptadas, rechazadas
             pending_invitations = conn.execute(
@@ -170,9 +155,10 @@ async def admin_dashboard(
             total_invitations = pending_invitations + accepted_invitations + rejected_invitations
             invitation_acceptance_rate = round((accepted_invitations / total_invitations) * 100, 1) if total_invitations > 0 else 0
             
-            # Tasa de confirmación de email
+            # Tasa de confirmación de email (sintaxis compatible con SQLite y PostgreSQL)
+            email_confirmed_value = "TRUE" if db_dialect == 'postgresql' else "1"
             users_email_confirmed = conn.execute(
-                text("SELECT COUNT(*) FROM users WHERE email_confirmed = 1")
+                text(f"SELECT COUNT(*) FROM users WHERE email_confirmed = {email_confirmed_value}")
             ).scalar()
             
             email_confirmation_rate = round((users_email_confirmed / total_users) * 100, 1) if total_users > 0 else 0
@@ -224,7 +210,7 @@ async def admin_dashboard(
                         SELECT id FROM players WHERE club_id IS NOT NULL
                         UNION ALL
                         SELECT id FROM players_v2 WHERE club_id IS NOT NULL
-                    )
+                    ) AS combined_players
                 """)
             ).scalar()
             
@@ -234,7 +220,7 @@ async def admin_dashboard(
                         SELECT id FROM players WHERE club_id IS NULL
                         UNION ALL
                         SELECT id FROM players_v2 WHERE club_id IS NULL
-                    )
+                    ) AS combined_players
                 """)
             ).scalar()
         
