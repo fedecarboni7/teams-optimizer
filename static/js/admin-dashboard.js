@@ -7,13 +7,17 @@ function createIcon(name, className = '') {
         'zap': `<svg class="${className}" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10 13,2"/></svg>`,
         'clock': `<svg class="${className}" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>`,
         'trending-up': `<svg class="${className}" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24"><polyline points="22,7 13.5,15.5 8.5,10.5 2,17"/><polyline points="16,7 22,7 22,13"/></svg>`,
-        'map-pin': `<svg class="${className}" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>`
+        'map-pin': `<svg class="${className}" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>`,
+        'mail': `<svg class="${className}" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>`,
+        'link': `<svg class="${className}" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`,
+        'alert': `<svg class="${className}" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3.05h16.94a2 2 0 0 0 1.71-3.05L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`
     };
     return iconMap[name] || '';
 }
 
 // Variables globales para almacenar los datos del dashboard
 let dashboardStats = null;
+
 
 // Función para inicializar los datos del dashboard
 function initializeDashboard(stats) {
@@ -36,7 +40,7 @@ function changePeriod(type, period) {
             },
             '30d': { 
                 value: dashboardStats.new_users_month, 
-                label: 'Último mes', 
+                label: 'Últimos 30 días', 
                 color: '#f472b6'
             }
         },
@@ -53,7 +57,24 @@ function changePeriod(type, period) {
             },
             '30d': { 
                 value: dashboardStats.new_clubs_month, 
-                label: 'Último mes', 
+                label: 'Últimos 30 días', 
+                color: '#f472b6'
+            }
+        },
+        'active': {
+            '24h': { 
+                value: dashboardStats.active_users_24h, 
+                label: 'Últimas 24 horas', 
+                color: '#fb923c'
+            },
+            '7d': { 
+                value: dashboardStats.active_users_7d, 
+                label: 'Últimos 7 días', 
+                color: '#818cf8'
+            },
+            '30d': { 
+                value: dashboardStats.active_users_30d, 
+                label: 'Últimos 30 días', 
                 color: '#f472b6'
             }
         }
@@ -73,6 +94,11 @@ function changePeriod(type, period) {
             value: 'new-clubs-value',
             subtitle: 'new-clubs-subtitle',
             buttons: '.period-btn-clubs'
+        },
+        'active': {
+            value: 'active-users-period-value',
+            subtitle: 'active-users-period-subtitle',
+            buttons: '.period-btn-active'
         }
     };
 
@@ -103,6 +129,10 @@ function changeNewUsersPeriod(period) {
 
 function changeNewClubsPeriod(period) {
     changePeriod('clubs', period);
+}
+
+function changeActiveUsersPeriod(period) {
+    changePeriod('active', period);
 }
 
 // Función principal para cargar y mostrar datos
@@ -153,7 +183,7 @@ function renderDashboard(stats) {
         </div>
 
         <div class="container">
-            <!-- Métricas de Usuarios -->
+            <!-- SECCIÓN 1: Métricas de Usuarios -->
             <div class="section-header">
                 <h2 class="section-title">👥 Métricas de Usuarios</h2>
             </div>
@@ -161,15 +191,14 @@ function renderDashboard(stats) {
                 <div class="metric-card">
                     <div class="metric-header">
                         ${createIcon('users', 'metric-icon')}
-                        <span class="metric-emoji">📱</span>
                     </div>
                     <h3 class="metric-title">Total Usuarios</h3>
                     <p class="metric-value">${stats.total_users}</p>
                     <p class="metric-subtitle" style="color: #93c5fd;">${stats.engagement_rate}% están activos</p>
-                </div>                <div class="metric-card">
+                </div>                
+                <div class="metric-card">
                     <div class="metric-header">
                         ${createIcon('clock', 'metric-icon orange')}
-                        <span class="metric-emoji">🆕</span>
                     </div>
                     <div class="period-selector">
                         <button class="period-btn active" data-period="24h" onclick="changeNewUsersPeriod('24h')">24h</button>
@@ -180,9 +209,33 @@ function renderDashboard(stats) {
                     <p class="metric-value" id="new-users-value">${stats.new_users_24h}</p>
                     <p class="metric-subtitle" id="new-users-subtitle" style="color: #fb923c;">Últimas 24 horas</p>
                 </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        ${createIcon('alert', 'metric-icon red')}
+                    </div>
+                    <h3 class="metric-title">Tasa de Abandono</h3>
+                    <p class="metric-value">${stats.abandonment_rate}%</p>
+                    <p class="metric-subtitle" style="color: #ef4444;">${stats.abandoned_users} usuarios sin jugadores</p>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        ${createIcon('zap', 'metric-icon purple')}
+                        <button type="button" class="tooltip-icon" aria-label="Usuario activo: ha modificado jugadores en el período O está en un club">ℹ️</button>
+                    </div>
+                    <div class="period-selector">
+                        <button class="period-btn-active" data-period="24h" onclick="changeActiveUsersPeriod('24h')">24h</button>
+                        <button class="period-btn-active active" data-period="7d" onclick="changeActiveUsersPeriod('7d')">7d</button>
+                        <button class="period-btn-active" data-period="30d" onclick="changeActiveUsersPeriod('30d')">30d</button>
+                    </div>
+                    <h3 class="metric-title">Usuarios Activos</h3>
+                    <p class="metric-value" id="active-users-period-value">${stats.active_users_7d}</p>
+                    <p class="metric-subtitle" id="active-users-period-subtitle" style="color: #d8b4fe;">Últimos 7 días</p>
+                </div>
             </div>
 
-            <!-- Métricas de Jugadores -->
+            <!-- SECCIÓN 2: Métricas de Jugadores -->
             <div class="section-header">
                 <h2 class="section-title">⚽ Métricas de Jugadores</h2>
             </div>
@@ -190,7 +243,6 @@ function renderDashboard(stats) {
                 <div class="metric-card">
                     <div class="metric-header">
                         ${createIcon('user-check', 'metric-icon green')}
-                        <span class="metric-emoji">⚽</span>
                     </div>
                     <h3 class="metric-title">Creación de Jugadores</h3>
                     <p class="metric-value">${stats.player_creation_rate}%</p>
@@ -200,32 +252,47 @@ function renderDashboard(stats) {
                 <div class="metric-card">
                     <div class="metric-header">
                         ${createIcon('zap', 'metric-icon purple')}
-                        <span class="metric-emoji">🎯</span>
                     </div>
                     <h3 class="metric-title">Promedio Jugadores</h3>
                     <p class="metric-value">${stats.avg_players_per_user}</p>
                     <p class="metric-subtitle" style="color: #d8b4fe;">Por usuario activo</p>
                 </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        ${createIcon('trophy', 'metric-icon yellow')}
+                    </div>
+                    <h3 class="metric-title">Total de Jugadores</h3>
+                    <p class="metric-value">${stats.total_players_v1 + stats.total_players_v2}</p>
+                    <p class="metric-subtitle" style="color: #fbbf24;">En toda la app</p>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        ${createIcon('map-pin', 'metric-icon blue')}
+                    </div>
+                    <h3 class="metric-title">Jugadores en Clubs</h3>
+                    <p class="metric-value">${stats.players_in_clubs}</p>
+                    <p class="metric-subtitle" style="color: #60a5fa;">${stats.players_without_club} sin club</p>
+                </div>
             </div>
 
-            <!-- Métricas de Clubes -->
+            <!-- SECCIÓN 3: Métricas de Clubes -->
             <div class="section-header">
                 <h2 class="section-title">🏟️ Métricas de Clubes</h2>
             </div>
-
             <div class="metrics-grid">
                 <div class="metric-card">
                     <div class="metric-header">
                         ${createIcon('map-pin', 'metric-icon purple')}
-                        <span class="metric-emoji">🏟️</span>
                     </div>
                     <h3 class="metric-title">Total Clubes</h3>
                     <p class="metric-value">${stats.total_clubs}</p>
                     <p class="metric-subtitle" style="color: #d8b4fe;">Comunidades activas</p>
-                </div>                <div class="metric-card">
+                </div>                
+                <div class="metric-card">
                     <div class="metric-header">
                         ${createIcon('clock', 'metric-icon')}
-                        <span class="metric-emoji">🆕</span>
                     </div>
                     <div class="period-selector-clubs">
                         <button class="period-btn-clubs active" data-period="24h" onclick="changeNewClubsPeriod('24h')">24h</button>
@@ -240,7 +307,6 @@ function renderDashboard(stats) {
                 <div class="metric-card">
                     <div class="metric-header">
                         ${createIcon('users', 'metric-icon blue')}
-                        <span class="metric-emoji">⚽</span>
                     </div>
                     <h3 class="metric-title">Promedio Usuarios</h3>
                     <p class="metric-value">${stats.avg_users_per_club}</p>
@@ -250,13 +316,131 @@ function renderDashboard(stats) {
                 <div class="metric-card">
                     <div class="metric-header">
                         ${createIcon('trophy', 'metric-icon yellow')}
-                        <span class="metric-emoji">🏟️</span>
                     </div>
                     <h3 class="metric-title">Participación en Clubes</h3>
                     <p class="metric-value">${stats.club_participation_rate}%</p>
                     <p class="metric-subtitle" style="color: #fbbf24;">${stats.users_in_clubs} usuarios en clubes</p>
                 </div>
+
             </div>
+
+            <!-- SECCIÓN 4: Invitaciones -->
+            <div class="section-header">
+                <h2 class="section-title">✉️ Invitaciones a Clubes</h2>
+            </div>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-header">
+                        ${createIcon('mail', 'metric-icon')}
+                    </div>
+                    <h3 class="metric-title">Total Invitaciones</h3>
+                    <p class="metric-value">${stats.pending_invitations + stats.accepted_invitations + stats.rejected_invitations}</p>
+                    <p class="metric-subtitle" style="color: #93c5fd;">Desde el inicio</p>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        ${createIcon('user-check', 'metric-icon green')}
+                    </div>
+                    <h3 class="metric-title">Tasa de Aceptación</h3>
+                    <p class="metric-value">${stats.invitation_acceptance_rate}%</p>
+                    <p class="metric-subtitle" style="color: #86efac;">${stats.accepted_invitations} aceptadas</p>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        ${createIcon('clock', 'metric-icon orange')}
+                    </div>
+                    <h3 class="metric-title">Pendientes</h3>
+                    <p class="metric-value">${stats.pending_invitations}</p>
+                    <p class="metric-subtitle" style="color: #fb923c;">Esperando respuesta</p>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        ${createIcon('alert', 'metric-icon')}
+                    </div>
+                    <h3 class="metric-title">Rechazadas</h3>
+                    <p class="metric-value">${stats.rejected_invitations}</p>
+                    <p class="metric-subtitle" style="color: #ef4444;">No aceptadas</p>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 5: Email -->
+            <div class="section-header">
+                <h2 class="section-title">📧 Confirmación de Email</h2>
+            </div>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-header">
+                        ${createIcon('mail', 'metric-icon')}
+                    </div>
+                    <h3 class="metric-title">Tasa de Confirmación</h3>
+                    <p class="metric-value">${stats.email_confirmation_rate}%</p>
+                    <p class="metric-subtitle" style="color: #34d399;">${stats.users_email_confirmed} confirmados / ${stats.total_users - stats.users_email_confirmed} sin confirmar</p>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        ${createIcon('link', 'metric-icon purple')}
+                    </div>
+                    <h3 class="metric-title">Resets de Contraseña</h3>
+                    <p class="metric-value">${stats.total_password_resets}</p>
+                    <p class="metric-subtitle" style="color: #d8b4fe;">${stats.users_with_reset} usuarios</p>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 6: Versiones V1 vs V2 -->
+            <div class="section-header">
+                <h2 class="section-title">📊 Adopción de Versiones</h2>
+            </div>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-header">
+                        ${createIcon('trending-up', 'metric-icon')}
+                    </div>
+                    <h3 class="metric-title">Usuarios V1</h3>
+                    <p class="metric-value">${stats.users_v1_only}</p>
+                    <p class="metric-subtitle" style="color: #fbbf24;">Solo en V1</p>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        ${createIcon('trending-up', 'metric-icon')}
+                    </div>
+                    <h3 class="metric-title">Usuarios V2</h3>
+                    <p class="metric-value">${stats.users_v2_only}</p>
+                    <p class="metric-subtitle" style="color: #60a5fa;">Solo en V2</p>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        ${createIcon('trophy', 'metric-icon')}
+                    </div>
+                    <h3 class="metric-title">Ambas Versiones</h3>
+                    <p class="metric-value">${stats.users_both_versions}</p>
+                    <p class="metric-subtitle" style="color: #34d399;">Usando V1 y V2</p>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        ${createIcon('zap', 'metric-icon')}
+                    </div>
+                    <h3 class="metric-title">Jugadores V1</h3>
+                    <p class="metric-value">${stats.total_players_v1}</p>
+                    <p class="metric-subtitle" style="color: #93c5fd;">Jugadores creados</p>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        ${createIcon('zap', 'metric-icon')}
+                    </div>
+                    <h3 class="metric-title">Jugadores V2</h3>
+                    <p class="metric-value">${stats.total_players_v2}</p>
+                    <p class="metric-subtitle" style="color: #34d399;">Jugadores creados</p>
+                </div>
+            </div>
+
             <!-- Insights finales -->
             <div class="insights">
                 <div class="insights-card">
