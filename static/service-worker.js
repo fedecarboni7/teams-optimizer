@@ -47,10 +47,17 @@ self.addEventListener('fetch', event => {
               cache.put(event.request, responseToCache);
             });
           return response;
+        }).catch(() => {
+          return caches.match('/').then(fallback => {
+            return fallback || new Response('Offline - No cached content available', {
+              status: 503,
+              statusText: 'Service Unavailable',
+              headers: new Headers({
+                'Content-Type': 'text/html'
+              })
+            });
+          });
         });
-      })
-      .catch(() => {
-        return caches.match('/');
       })
   );
 });

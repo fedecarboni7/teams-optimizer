@@ -7,6 +7,7 @@
     font-weight: 600;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    animation: slideInUp 0.5s ease-out;
 }
 
 #install-button:hover {
@@ -30,6 +31,20 @@
     }
 }
 
-#install-button {
-    animation: slideInUp 0.5s ease-out;
+/* Installation instructions styling */
+.pwa-install-instructions {
+    margin-top: 16px;
+    padding: 12px;
+    background: rgba(86, 88, 221, 0.1);
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.pwa-install-instructions p {
+    margin: 0 0 8px 0;
+}
+
+.pwa-install-instructions p:last-child {
+    margin: 0;
 }
