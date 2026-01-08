@@ -58,16 +58,4 @@ def create_app() -> FastAPI:
         verify_admin_user(current_user, detail="Unauthorized: /openapi.json")
         return app.openapi()
 
-    @app.middleware("http")
-    async def redirect_to_new_domain(request: Request, call_next):
-        # Redirección de dominio configurable vía variables de entorno
-        # Para desactivar, dejar REDIRECT_FROM_DOMAIN y/o REDIRECT_TO_DOMAIN vacíos
-        old_domain = settings.redirect_from_domain
-        new_domain = settings.redirect_to_domain
-        
-        if old_domain and new_domain and request.url.hostname and old_domain in request.url.hostname:
-            new_url = str(request.url).replace(old_domain, new_domain)
-            return RedirectResponse(url=new_url, status_code=301)
-        return await call_next(request)
-
     return app

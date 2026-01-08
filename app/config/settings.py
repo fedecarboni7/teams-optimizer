@@ -15,5 +15,3 @@ class Settings:
         self.run_db_migration = os.getenv("RUN_DB_MIGRATION", "false").lower() == "true"
         self.arg_timezone = pytz.timezone("America/Argentina/Buenos_Aires")
         self.cron_secret = os.getenv("CRON_SECRET_TOKEN")
-        self.redirect_from_domain = os.getenv("REDIRECT_FROM_DOMAIN", "")
-        self.redirect_to_domain = os.getenv("REDIRECT_TO_DOMAIN", "")
