@@ -1,4 +1,6 @@
 """Tests for PWA (Progressive Web App) functionality"""
+import json
+
 
 def test_manifest_json_accessible(client):
     """Test that the manifest.json file is accessible"""
@@ -40,7 +42,6 @@ def test_manifest_json_content(client):
     response = client.get("/static/favicon/site.webmanifest")
     assert response.status_code == 200
     
-    import json
     manifest = json.loads(response.content)
     
     # Check required PWA manifest fields
