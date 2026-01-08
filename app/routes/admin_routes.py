@@ -155,10 +155,9 @@ async def admin_dashboard(
             total_invitations = pending_invitations + accepted_invitations + rejected_invitations
             invitation_acceptance_rate = round((accepted_invitations / total_invitations) * 100, 1) if total_invitations > 0 else 0
             
-            # Tasa de confirmación de email (sintaxis compatible con SQLite y PostgreSQL)
-            email_confirmed_value = "TRUE" if db_dialect == 'postgresql' else "1"
+            # Tasa de confirmación de email (columna integer en ambos motores)
             users_email_confirmed = conn.execute(
-                text(f"SELECT COUNT(*) FROM users WHERE email_confirmed = {email_confirmed_value}")
+                text("SELECT COUNT(*) FROM users WHERE email_confirmed = 1")
             ).scalar()
             
             email_confirmation_rate = round((users_email_confirmed / total_users) * 100, 1) if total_users > 0 else 0
