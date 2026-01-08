@@ -22,7 +22,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 function showInstallPromotion() {
   installButton = document.getElementById('install-button');
-  if (installButton) {
+  if (installButton && installButton.style.display !== 'inline-block') {
     installButton.style.display = 'inline-block';
     installButton.addEventListener('click', installApp);
   }
