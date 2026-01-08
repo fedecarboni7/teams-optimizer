@@ -41,6 +41,14 @@
     <link rel="icon" type="image/png" sizes="32x32" href="../static/favicon/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="../static/favicon/favicon-16x16.png">
     <link rel="manifest" href="../static/favicon/site.webmanifest">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Armar Equipos">
+    <meta name="theme-color" content="#5658dd">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css?family=Heebo:400,700|Oxygen:700" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/style.css">
@@ -105,6 +113,9 @@
 	                        <p class="hero-paragraph" style="color: #ccc; max-width: 600px; margin: 0px auto 30px;">Creá equipos de fútbol balanceados y disfrutá de partidos más justos, competitivos y parejos.</p>
 	                        <div class="hero-cta">
 								<a class="button button-primary button-wide-mobile" href="/signup">Creá tu cuenta gratis</a>
+								<button id="install-button" class="button button-secondary button-wide-mobile" style="display: none; margin-left: 10px;">
+									<i class="fas fa-download"></i> Instalar App
+								</button>
 							</div>
 						</div>
 						<div class="mockup-container">
@@ -233,5 +244,6 @@
         </footer>
     </div>
     <script src="/static/js/main.min.js"></script>
+    <script src="/static/js/pwa-install.js"></script>
 </body>
 </html>
