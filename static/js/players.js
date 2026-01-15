@@ -344,6 +344,15 @@ function viewPlayer(id) {
 }
 
 // Función para renderizar el modal del jugador
+// Function to handle avatar image load errors
+function handleAvatarImageError(imgElement) {
+    imgElement.style.display = 'none';
+    const fallbackElement = imgElement.nextElementSibling;
+    if (fallbackElement && fallbackElement.classList.contains('avatar-initials')) {
+        fallbackElement.style.display = 'flex';
+    }
+}
+
 function renderPlayerModal(player) {
     const details = document.getElementById('player-details');
     const average = calculateAverage(player);
@@ -352,7 +361,7 @@ function renderPlayerModal(player) {
     
     // Generate avatar content - show photo if available, otherwise show initials
     const avatarContent = player.photo_url 
-        ? `<img src="${escapeHTML(player.photo_url)}" alt="${escapeHTML(player.name)}" class="avatar-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" /><div class="avatar-initials" style="display: none;">${initial}</div>`
+        ? `<img src="${escapeHTML(player.photo_url)}" alt="${escapeHTML(player.name)}" class="avatar-image" data-avatar-image="true" /><div class="avatar-initials" style="display: none;">${initial}</div>`
         : `<div class="avatar-initials">${initial}</div>`;
 
     details.innerHTML = `
@@ -485,6 +494,14 @@ function renderPlayerModal(player) {
     // Crear el radar chart después de que el elemento esté en el DOM
     setTimeout(() => {
         createRadarChart(`detail-chart-${player.id}`, player);
+        
+        // Attach error handler to avatar image if present
+        const avatarImage = details.querySelector('[data-avatar-image="true"]');
+        if (avatarImage) {
+            avatarImage.addEventListener('error', function() {
+                handleAvatarImageError(this);
+            });
+        }
         
         // Agregar validación en tiempo real a los inputs de habilidades
         if (isEditMode) {
