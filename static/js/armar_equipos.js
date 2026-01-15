@@ -258,10 +258,15 @@ function renderPlayers() {
             'Intenta con otro término de búsqueda' :
             '¡Agrega jugadores para comenzar a armar equipos!';
         
+        const button = searchTerm === '' ?
+            '<a href="/jugadores" style="display: inline-block; margin-top: 20px; padding: 12px 24px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 8px; font-weight: 500; transition: background-color 0.3s;">Ir a Jugadores</a>' :
+            '';
+        
         playersList.innerHTML = `
             <div style="text-align: center; padding: 40px;">
                 <div style="font-size: 18px; color: #aaa; margin-bottom: 10px;">${message}</div>
                 <div style="font-size: 14px; color: #666;">${subMessage}</div>
+                ${button}
             </div>
         `;
         return;
@@ -320,6 +325,19 @@ function updateManualMode() {
 function renderAvailablePlayers() {
     const container = document.getElementById('available-players-list');
     container.innerHTML = '';
+
+    if (availablePlayers.length === 0 && players.length === 0) {
+        const contextName = getCurrentClubId() === 'my-players' ? 'creados' : 
+                          getUserClubs().find(club => club.id == getCurrentClubId())?.name || 'de este club';
+        container.innerHTML = `
+            <div style="text-align: center; padding: 40px;">
+                <div style="font-size: 18px; color: #aaa; margin-bottom: 10px;">👤 No hay jugadores ${contextName}</div>
+                <div style="font-size: 14px; color: #666;">¡Agrega jugadores para comenzar a armar equipos!</div>
+                <a href="/jugadores" style="display: inline-block; margin-top: 20px; padding: 12px 24px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 8px; font-weight: 500; transition: background-color 0.3s;">Ir a Jugadores</a>
+            </div>
+        `;
+        return;
+    }
 
     availablePlayers.forEach(player => {
         const playerDiv = document.createElement('div');
