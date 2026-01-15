@@ -349,14 +349,19 @@ function renderPlayerModal(player) {
     const average = calculateAverage(player);
     const lastModified = player.updated_at;
     const initial = player.name.charAt(0).toUpperCase();
+    
+    // Generate avatar content - show photo if available, otherwise show initials
+    const avatarContent = player.photo_url 
+        ? `<img src="${escapeHTML(player.photo_url)}" alt="${escapeHTML(player.name)}" class="avatar-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" /><div class="avatar-initials" style="display: none;">${initial}</div>`
+        : `<div class="avatar-initials">${initial}</div>`;
 
     details.innerHTML = `
         <div class="player-detail-header">
             <div class="player-detail-avatar">
-                <div class="avatar-initials">${initial}</div>
+                ${avatarContent}
             </div>
             <div class="player-detail-info">
-                <h3>${player.name}</h3>
+                <h3>${escapeHTML(player.name)}</h3>
                 <p class="average-score">Promedio General: ${average}/${currentScale}</p>
                 <p class="last-modified">Última Modificación: ${formatDate(lastModified)}</p>
             </div>
@@ -410,7 +415,12 @@ function renderPlayerModal(player) {
         <div id="edit-mode" class="edit-form" style="display: ${isEditMode ? 'block' : 'none'}">
             <div class="form-group">
                 <label for="edit-player-name">Nombre del Jugador</label>
-                <input type="text" id="edit-player-name" value="${player.name}" />
+                <input type="text" id="edit-player-name" value="${escapeHTML(player.name)}" />
+            </div>
+            
+            <div class="form-group">
+                <label for="edit-photo-url">URL de Foto de Perfil (opcional)</label>
+                <input type="url" id="edit-photo-url" value="${player.photo_url ? escapeHTML(player.photo_url) : ''}" placeholder="https://ejemplo.com/foto.jpg" />
             </div>
             
             <div class="form-group">
@@ -571,6 +581,9 @@ async function savePlayerEdits() {
             return;
         }
 
+        // Obtener la URL de la foto (puede ser vacía)
+        const photoUrl = document.getElementById('edit-photo-url').value.trim() || null;
+
         // Validar y obtener valores de habilidades
         const skillValues = {};
         const skillKeys = ['velocidad', 'resistencia', 'pases', 'tiro', 'defensa', 'fuerza_cuerpo', 'control', 'habilidad_arquero', 'vision'];
@@ -590,6 +603,7 @@ async function savePlayerEdits() {
         const playerData = {
             id: currentEditingPlayer.id,
             name: name,
+            photo_url: photoUrl,
             ...skillValues,
             club_id: currentEditingPlayer.club_id || null
         };
@@ -672,6 +686,11 @@ function openCreatePlayerModal() {
         <div class="form-group">
             <label for="create-player-name">Nombre del Jugador</label>
             <input type="text" id="create-player-name" placeholder="Ingresa el nombre del jugador" required />
+        </div>
+        
+        <div class="form-group">
+            <label for="create-photo-url">URL de Foto de Perfil (opcional)</label>
+            <input type="url" id="create-photo-url" placeholder="https://ejemplo.com/foto.jpg" />
         </div>
         
         <div class="form-group">
@@ -800,9 +819,13 @@ async function saveNewPlayer() {
         return;
     }
     
+    // Obtener la URL de la foto (puede ser vacía)
+    const photoUrl = document.getElementById('create-photo-url').value.trim() || null;
+    
     // Recopilar datos del formulario
     const playerData = {
         name: name,
+        photo_url: photoUrl,
         velocidad: parseInt(document.getElementById('create-velocidad').value),
         resistencia: parseInt(document.getElementById('create-resistencia').value),
         pases: parseInt(document.getElementById('create-pases').value),

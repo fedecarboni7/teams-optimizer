@@ -450,6 +450,7 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    overflow: hidden;
 }
 
 .player-detail-avatar .avatar-initials {
@@ -457,6 +458,12 @@
     font-weight: bold;
     color: white;
     text-transform: uppercase;
+}
+
+.player-detail-avatar .avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .player-detail-info h3 {
