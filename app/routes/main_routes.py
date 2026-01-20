@@ -223,10 +223,7 @@ async def match_players_api(
         # Obtener jugadores disponibles según el contexto
         current_user_id = current_user.id
         
-        if club_id:
-            all_players = execute_with_retries(query_players, db, current_user_id, club_id, scale)
-        else:
-            all_players = execute_with_retries(query_players, db, current_user_id, scale=scale)
+        all_players = execute_with_retries(query_players, db, current_user_id, club_id, scale)
         
         if not all_players:
             return JSONResponse(content={"error": "No hay jugadores disponibles"}, status_code=400)
