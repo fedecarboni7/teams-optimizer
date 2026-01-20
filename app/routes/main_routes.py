@@ -9,6 +9,7 @@ from app.db.database import get_db
 from app.db.database_utils import execute_with_retries, query_clubs, query_players
 from app.db.models import User
 from app.utils.ai_formations import create_formations
+from app.utils.ai_player_matcher import match_players
 from app.utils.auth import get_current_user
 from app.utils.team_optimizer import find_best_combination
 
@@ -195,3 +196,49 @@ async def build_teams_api(
     except Exception as e:
         logging.exception("Error building teams: %s", str(e))
         return JSONResponse(content={"error": "Error interno al armar equipos"}, status_code=500)
+
+
+@router.post("/api/match-players", response_class=JSONResponse)
+async def match_players_api(
+        request: Request,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+    ):
+    """
+    Endpoint para buscar coincidencias entre nombres de jugadores ingresados
+    y jugadores disponibles en el sistema usando IA.
+    """
+    if not current_user:
+        return JSONResponse(content={"error": "No autenticado"}, status_code=401)
+    
+    try:
+        data = await request.json()
+        input_names = data.get('input_names', [])
+        club_id = data.get('club_id')
+        scale = data.get('scale', '1-5')
+        
+        if not input_names:
+            return JSONResponse(content={"error": "No se proporcionaron nombres"}, status_code=400)
+        
+        # Obtener jugadores disponibles según el contexto
+        current_user_id = current_user.id
+        
+        if club_id:
+            all_players = execute_with_retries(query_players, db, current_user_id, club_id, scale)
+        else:
+            all_players = execute_with_retries(query_players, db, current_user_id, scale=scale)
+        
+        if not all_players:
+            return JSONResponse(content={"error": "No hay jugadores disponibles"}, status_code=400)
+        
+        # Formatear jugadores para el matcher
+        available_players = [{"id": p.id, "name": p.name} for p in all_players]
+        
+        # Usar IA para hacer el matching
+        result = await match_players(input_names, available_players)
+        
+        return JSONResponse(content=result)
+        
+    except Exception as e:
+        logging.exception("Error matching players: %s", str(e))
+        return JSONResponse(content={"error": "Error al buscar coincidencias de jugadores"}, status_code=500)
