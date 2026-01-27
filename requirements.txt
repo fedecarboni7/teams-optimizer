@@ -171,7 +171,7 @@ python-dateutil==2.9.0.post0
     # via sib-api-v3-sdk
 python-dotenv==1.2.1
     # via teams-optimizer
-python-multipart==0.0.20
+python-multipart==0.0.22
     # via teams-optimizer
 pytz==2025.2
     # via teams-optimizer
