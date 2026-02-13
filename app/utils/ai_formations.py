@@ -6,7 +6,7 @@ from app.config.llm import get_llm
 
 
 # Define el template del prompt
-prompt_template = PromptTemplate(
+formation_prompt = PromptTemplate(
     input_variables=["num_players", "team_data", "allowed_formations"],
     template="""
     Eres un entrenador experto especializado en equipos de fútbol de {num_players} jugadores.
@@ -39,7 +39,11 @@ prompt_template = PromptTemplate(
 )
 
 # Crea la cadena LLM
-chain = prompt_template | get_llm() | JsonOutputParser()
+def _get_chain():
+    """Create the LLM chain with lazy initialization."""
+    return formation_prompt | get_llm() | JsonOutputParser()
+
+chain = _get_chain()
 
 allowed_formations = {
     5: {

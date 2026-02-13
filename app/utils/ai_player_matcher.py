@@ -5,10 +5,8 @@ from langchain_core.output_parsers import JsonOutputParser
 from app.config.llm import get_llm
 
 # Limits for input validation
-# MAX_NAMES: Maximum player names to match (typical futbol 5/7/11 teams)
-# MAX_LINES: Allow extra lines for metadata like match date that user may paste
-MAX_NAMES = 22
-MAX_LINES = 30
+MAX_NAMES = 22 # Maximum player names to match (typical futbol 5/7/11 teams)
+MAX_LINES = 30 # Allow extra lines for metadata like match date that user may paste
 MAX_NAME_LENGTH = 100
 MAX_SKIPPED_NAME_DISPLAY = 50  # Max chars to show for filtered names in error display
 
@@ -78,7 +76,9 @@ def validate_and_sanitize_names(input_names: list[str]) -> tuple[list[str], list
     
     for name in input_names[:MAX_LINES]:  # Limit total lines processed
         if len(valid_names) >= MAX_NAMES:
-            break
+            if name.strip():  # Additional names beyond MAX_NAMES are treated as skipped
+                skipped_names.append(name.strip()[:MAX_SKIPPED_NAME_DISPLAY])
+            continue
         
         sanitized = sanitize_name(name)
         if sanitized and len(sanitized) >= 2:  # Minimum 2 characters for a valid name
@@ -110,7 +110,7 @@ def validate_ai_response(result: dict, available_players: list[dict]) -> dict:
     if not isinstance(matches, list):
         matches = []
     if not isinstance(not_found, list):
-        not_found = list(not_found) if not_found else []
+        not_found = [str(not_found)] if not_found else []
     
     validated_matches = []
     for match in matches:
@@ -177,32 +177,6 @@ async def match_players(input_names: list[str], available_players: list[dict]) -
         "available_players": players_formatted
     })
     
-    # Validar que los matched_player_id existan en la lista de jugadores disponibles
-    valid_player_ids = {str(p["id"]) for p in available_players}
-    matches = result.get("matches", [])
-    not_found = result.get("not_found", [])
-
-    if not isinstance(matches, list):
-        matches = []
-    if not isinstance(not_found, list):
-        not_found = []
-
-    validated_matches = []
-    for match in matches:
-        if not isinstance(match, dict):
-            continue
-        matched_player_id = match.get("matched_player_id")
-        input_name = match.get("input_name")
-
-        if matched_player_id is None or str(matched_player_id) not in valid_player_ids:
-            if input_name and input_name not in not_found:
-                not_found.append(input_name)
-            continue
-
-        validated_matches.append(match)
-
-    result["matches"] = validated_matches
-    result["not_found"] = not_found
     # Validate AI response
     validated_result = validate_ai_response(result, available_players)
     
