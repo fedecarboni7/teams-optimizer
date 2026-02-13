@@ -185,6 +185,32 @@ async def match_players(input_names: list[str], available_players: list[dict]) -
         "available_players": players_formatted
     })
     
+    # Validar que los matched_player_id existan en la lista de jugadores disponibles
+    valid_player_ids = {str(p["id"]) for p in available_players}
+    matches = result.get("matches", [])
+    not_found = result.get("not_found", [])
+
+    if not isinstance(matches, list):
+        matches = []
+    if not isinstance(not_found, list):
+        not_found = []
+
+    validated_matches = []
+    for match in matches:
+        if not isinstance(match, dict):
+            continue
+        matched_player_id = match.get("matched_player_id")
+        input_name = match.get("input_name")
+
+        if matched_player_id is None or str(matched_player_id) not in valid_player_ids:
+            if input_name and input_name not in not_found:
+                not_found.append(input_name)
+            continue
+
+        validated_matches.append(match)
+
+    result["matches"] = validated_matches
+    result["not_found"] = not_found
     # Validate AI response
     validated_result = validate_ai_response(result, available_players)
     
