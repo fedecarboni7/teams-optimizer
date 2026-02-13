@@ -234,6 +234,16 @@ async def match_players_api(
         # Obtener jugadores disponibles según el contexto
         current_user_id = current_user.id
         
+        # Autorizar acceso al club solicitado (si se especifica)
+        if club_id is not None:
+            user_clubs = execute_with_retries(query_clubs, db, current_user_id)
+            user_club_ids = {club.id for club in user_clubs} if user_clubs else set()
+            if club_id not in user_club_ids:
+                return JSONResponse(
+                    content={"error": "No tienes permisos para acceder a este club"},
+                    status_code=403
+                )
+        
         all_players = execute_with_retries(query_players, db, current_user_id, club_id, scale)
         
         if not all_players:
