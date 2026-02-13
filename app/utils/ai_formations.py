@@ -1,9 +1,9 @@
 import asyncio
-from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 
-llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-lite")
+from app.config.llm import get_llm
+
 
 # Define el template del prompt
 prompt_template = PromptTemplate(
@@ -39,7 +39,7 @@ prompt_template = PromptTemplate(
 )
 
 # Crea la cadena LLM
-chain = prompt_template | llm | JsonOutputParser()
+chain = prompt_template | get_llm() | JsonOutputParser()
 
 allowed_formations = {
     5: {

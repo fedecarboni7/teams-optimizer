@@ -1,11 +1,8 @@
-import os
 import re
-from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 
-# Configurable model name via environment variable
-PLAYER_MATCHER_MODEL_NAME = os.getenv("AI_PLAYER_MATCHER_MODEL", "gemini-2.0-flash-lite")
+from app.config.llm import get_llm
 
 # Limits for input validation
 # MAX_NAMES: Maximum player names to match (typical futbol 5/7/11 teams)
@@ -55,14 +52,9 @@ player_matching_prompt = PromptTemplate(
 )
 
 
-def _get_llm():
-    """Lazy initialization of LLM to allow for configuration changes."""
-    return ChatGoogleGenerativeAI(model=PLAYER_MATCHER_MODEL_NAME)
-
-
 def _get_chain():
     """Create the LLM chain with lazy initialization."""
-    return player_matching_prompt | _get_llm() | JsonOutputParser()
+    return player_matching_prompt | get_llm() | JsonOutputParser()
 
 
 def sanitize_name(name: str) -> str:
