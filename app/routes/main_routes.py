@@ -259,7 +259,10 @@ async def match_players_api(
     
     except ValueError as e:
         logging.warning("Validation error in match_players: %s", str(e))
-        return JSONResponse(content={"error": str(e)}, status_code=400)
+        return JSONResponse(
+            content={"error": "Error de validación en los datos enviados"},
+            status_code=400
+        )
     except Exception as e:
         logging.exception("Error matching players: %s", str(e))
         return JSONResponse(content={"error": "Error al buscar coincidencias de jugadores"}, status_code=500)
