@@ -9,7 +9,7 @@ from app.db.database import get_db
 from app.db.database_utils import execute_with_retries, query_clubs, query_players
 from app.db.models import User
 from app.utils.ai_formations import create_formations
-from app.utils.ai_player_matcher import match_players
+from app.utils.ai_player_matcher import match_players, MAX_LINES
 from app.utils.auth import get_current_user
 from app.utils.team_optimizer import find_best_combination
 
@@ -225,9 +225,9 @@ async def match_players_api(
             return JSONResponse(content={"error": "No se proporcionaron nombres"}, status_code=400)
         
         # Limit is enforced in match_players, but provide early feedback
-        if len(input_names) > 30:
+        if len(input_names) > MAX_LINES:
             return JSONResponse(
-                content={"error": "Se permiten máximo 30 líneas. Por favor, reduce la lista."},
+                content={"error": f"Se permiten máximo {MAX_LINES} líneas. Por favor, reduce la lista."},
                 status_code=400
             )
         

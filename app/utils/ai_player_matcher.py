@@ -8,9 +8,12 @@ from langchain_core.output_parsers import JsonOutputParser
 PLAYER_MATCHER_MODEL_NAME = os.getenv("AI_PLAYER_MATCHER_MODEL", "gemini-2.0-flash-lite")
 
 # Limits for input validation
+# MAX_NAMES: Maximum player names to match (typical futbol 5/7/11 teams)
+# MAX_LINES: Allow extra lines for metadata like match date that user may paste
 MAX_NAMES = 22
 MAX_LINES = 30
 MAX_NAME_LENGTH = 100
+MAX_SKIPPED_NAME_DISPLAY = 50  # Max chars to show for filtered names in error display
 
 # Define el template del prompt para matching de jugadores
 player_matching_prompt = PromptTemplate(
@@ -89,7 +92,7 @@ def validate_and_sanitize_names(input_names: list[str]) -> tuple[list[str], list
         if sanitized and len(sanitized) >= 2:  # Minimum 2 characters for a valid name
             valid_names.append(sanitized)
         elif name.strip():  # Original had content but was filtered out
-            skipped_names.append(name.strip()[:50])  # Keep reference to skipped names
+            skipped_names.append(name.strip()[:MAX_SKIPPED_NAME_DISPLAY])
     
     return valid_names, skipped_names
 

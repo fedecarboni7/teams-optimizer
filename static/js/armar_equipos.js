@@ -12,6 +12,9 @@ let currentScale = 5; // Variable para la escala actual
 let loading = false;
 let hasResults = false; // Variable para saber si hay resultados generados
 
+// Import limits - should match backend MAX_LINES in ai_player_matcher.py
+const MAX_IMPORT_LINES = 30;
+
 // ==================== HELP MODAL ====================
 const HELP_MODAL_KEY = 'armarEquipos_helpModalShown';
 
@@ -954,9 +957,9 @@ async function processImportList() {
         return;
     }
     
-    // Limit check (matches backend limits)
-    if (inputNames.length > 30) {
-        alert('Se permiten máximo 30 líneas. Por favor, reduce la lista.');
+    // Limit check (matches backend MAX_LINES)
+    if (inputNames.length > MAX_IMPORT_LINES) {
+        alert(`Se permiten máximo ${MAX_IMPORT_LINES} líneas. Por favor, reduce la lista.`);
         return;
     }
     
