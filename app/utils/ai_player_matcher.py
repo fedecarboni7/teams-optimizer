@@ -1,8 +1,16 @@
+import os
+import re
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 
-llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-lite")
+# Configurable model name via environment variable
+PLAYER_MATCHER_MODEL_NAME = os.getenv("AI_PLAYER_MATCHER_MODEL", "gemini-2.0-flash-lite")
+
+# Limits for input validation
+MAX_NAMES = 22
+MAX_LINES = 30
+MAX_NAME_LENGTH = 100
 
 # Define el template del prompt para matching de jugadores
 player_matching_prompt = PromptTemplate(
@@ -43,8 +51,103 @@ player_matching_prompt = PromptTemplate(
     """
 )
 
-# Crea la cadena LLM para matching de jugadores
-player_matching_chain = player_matching_prompt | llm | JsonOutputParser()
+
+def _get_llm():
+    """Lazy initialization of LLM to allow for configuration changes."""
+    return ChatGoogleGenerativeAI(model=PLAYER_MATCHER_MODEL_NAME)
+
+
+def _get_chain():
+    """Create the LLM chain with lazy initialization."""
+    return player_matching_prompt | _get_llm() | JsonOutputParser()
+
+
+def sanitize_name(name: str) -> str:
+    """Sanitize a player name to prevent prompt injection."""
+    # Remove control characters and limit length
+    sanitized = re.sub(r'[\x00-\x1f\x7f-\x9f]', '', name)
+    # Remove potential prompt injection patterns
+    sanitized = re.sub(r'[{}\[\]<>]', '', sanitized)
+    return sanitized[:MAX_NAME_LENGTH].strip()
+
+
+def validate_and_sanitize_names(input_names: list[str]) -> tuple[list[str], list[str]]:
+    """
+    Validate and sanitize input names.
+    
+    Returns:
+        Tuple of (valid_names, skipped_names)
+    """
+    valid_names = []
+    skipped_names = []
+    
+    for name in input_names[:MAX_LINES]:  # Limit total lines processed
+        if len(valid_names) >= MAX_NAMES:
+            break
+        
+        sanitized = sanitize_name(name)
+        if sanitized and len(sanitized) >= 2:  # Minimum 2 characters for a valid name
+            valid_names.append(sanitized)
+        elif name.strip():  # Original had content but was filtered out
+            skipped_names.append(name.strip()[:50])  # Keep reference to skipped names
+    
+    return valid_names, skipped_names
+
+
+def validate_ai_response(result: dict, available_players: list[dict]) -> dict:
+    """
+    Validate and sanitize the AI response to ensure correct structure and valid player IDs.
+    
+    Args:
+        result: Raw response from AI
+        available_players: List of valid players
+        
+    Returns:
+        Validated and sanitized response dict
+    """
+    # Build set of valid player IDs
+    valid_player_ids = {p["id"] for p in available_players}
+    
+    # Extract matches and not_found with type checking
+    matches = result.get("matches", [])
+    not_found = result.get("not_found", [])
+    
+    if not isinstance(matches, list):
+        matches = []
+    if not isinstance(not_found, list):
+        not_found = list(not_found) if not_found else []
+    
+    validated_matches = []
+    for match in matches:
+        if not isinstance(match, dict):
+            continue
+        
+        matched_player_id = match.get("matched_player_id")
+        input_name = match.get("input_name")
+        matched_player_name = match.get("matched_player_name")
+        confidence = match.get("confidence", "low")
+        
+        # Validate player ID exists
+        if matched_player_id is None or matched_player_id not in valid_player_ids:
+            if input_name and input_name not in not_found:
+                not_found.append(str(input_name))
+            continue
+        
+        # Validate confidence value
+        if confidence not in ("high", "medium", "low"):
+            confidence = "low"
+        
+        validated_matches.append({
+            "input_name": str(input_name) if input_name else "",
+            "matched_player_id": matched_player_id,
+            "matched_player_name": str(matched_player_name) if matched_player_name else "",
+            "confidence": confidence
+        })
+    
+    return {
+        "matches": validated_matches,
+        "not_found": [str(n) for n in not_found if n]
+    }
 
 
 async def match_players(input_names: list[str], available_players: list[dict]) -> dict:
@@ -57,14 +160,33 @@ async def match_players(input_names: list[str], available_players: list[dict]) -
         
     Returns:
         Dict con matches encontrados y nombres no encontrados
+        
+    Raises:
+        ValueError: If input validation fails
     """
+    # Validate and sanitize input names
+    valid_names, skipped_names = validate_and_sanitize_names(input_names)
+    
+    if not valid_names:
+        return {"matches": [], "not_found": skipped_names or input_names}
+    
     # Formatear la lista de jugadores disponibles para el prompt
     players_formatted = "\n".join([f"- ID: {p['id']}, Nombre: {p['name']}" for p in available_players])
-    names_formatted = "\n".join([f"- {name}" for name in input_names])
+    names_formatted = "\n".join([f"- {name}" for name in valid_names])
     
-    result = await player_matching_chain.ainvoke({
+    # Get chain with lazy initialization
+    chain = _get_chain()
+    
+    result = await chain.ainvoke({
         "input_names": names_formatted,
         "available_players": players_formatted
     })
     
-    return result
+    # Validate AI response
+    validated_result = validate_ai_response(result, available_players)
+    
+    # Add any skipped names to not_found
+    if skipped_names:
+        validated_result["not_found"].extend(skipped_names)
+    
+    return validated_result

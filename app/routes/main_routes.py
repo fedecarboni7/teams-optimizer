@@ -217,8 +217,19 @@ async def match_players_api(
         club_id = data.get('club_id')
         scale = data.get('scale', '1-5')
         
+        # Validate input_names is a list
+        if not isinstance(input_names, list):
+            return JSONResponse(content={"error": "input_names debe ser una lista"}, status_code=400)
+        
         if not input_names:
             return JSONResponse(content={"error": "No se proporcionaron nombres"}, status_code=400)
+        
+        # Limit is enforced in match_players, but provide early feedback
+        if len(input_names) > 30:
+            return JSONResponse(
+                content={"error": "Se permiten máximo 30 líneas. Por favor, reduce la lista."},
+                status_code=400
+            )
         
         # Obtener jugadores disponibles según el contexto
         current_user_id = current_user.id
@@ -235,7 +246,10 @@ async def match_players_api(
         result = await match_players(input_names, available_players)
         
         return JSONResponse(content=result)
-        
+    
+    except ValueError as e:
+        logging.warning("Validation error in match_players: %s", str(e))
+        return JSONResponse(content={"error": str(e)}, status_code=400)
     except Exception as e:
         logging.exception("Error matching players: %s", str(e))
         return JSONResponse(content={"error": "Error al buscar coincidencias de jugadores"}, status_code=500)

@@ -934,7 +934,6 @@ async function processImportList() {
     const resultsDiv = document.getElementById('import-results');
     const matchesDiv = document.getElementById('import-matches');
     const notFoundDiv = document.getElementById('import-not-found');
-    const notFoundList = document.getElementById('not-found-list');
     const applyBtn = document.getElementById('apply-import-btn');
     
     const text = textarea.value.trim();
@@ -952,6 +951,12 @@ async function processImportList() {
     
     if (inputNames.length === 0) {
         alert('No se encontraron nombres válidos en la lista');
+        return;
+    }
+    
+    // Limit check (matches backend limits)
+    if (inputNames.length > 30) {
+        alert('Se permiten máximo 30 líneas. Por favor, reduce la lista.');
         return;
     }
     
@@ -1073,6 +1078,19 @@ function applyImportedPlayers() {
     if (checkboxes.length === 0) {
         alert('No hay jugadores seleccionados para agregar');
         return;
+    }
+    
+    // If there is an existing selection, confirm replacement
+    if (selectedPlayers.size > 0) {
+        const shouldReplace = window.confirm(
+            'Ya tenés jugadores seleccionados manualmente.\n' +
+            'Al aplicar la importación se va a reemplazar la selección actual por los jugadores importados.\n\n' +
+            '¿Querés continuar y reemplazar la selección actual?'
+        );
+        
+        if (!shouldReplace) {
+            return;
+        }
     }
     
     // Clear current selection

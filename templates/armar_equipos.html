@@ -160,12 +160,13 @@
         <div class="import-modal-content">
             <div class="import-modal-header">
                 <h2><i class="fa-solid fa-wand-magic-sparkles"></i> Importar Lista con IA</h2>
-                <button class="close-btn" id="close-import-modal">&times;</button>
+                <button class="close-btn" id="close-import-modal" aria-label="Cerrar modal">&times;</button>
             </div>
             <div class="import-modal-body">
                 <p class="import-intro">Pegá una lista de nombres de jugadores y la IA buscará coincidencias con los jugadores del sistema.</p>
                 
                 <div class="import-textarea-container">
+                    <label for="import-players-textarea" class="visually-hidden">Lista de nombres de jugadores</label>
                     <textarea id="import-players-textarea" placeholder="Escribí o pegá los nombres de los jugadores, uno por línea o separados por comas.
 
 Ejemplo:
